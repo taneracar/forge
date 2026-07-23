@@ -1,17 +1,12 @@
 import { View, Text } from "react-native";
-import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth.store";
 
 export default function ProfilScreen() {
   const insets = useSafeAreaInsets();
-  const logout = useAuthStore((state) => state.logout);
-
-  function handleLogout() {
-    logout();
-    router.replace("/(auth)/login");
-  }
+  const email = useAuthStore((state) => state.session?.user.email);
 
   return (
     <View
@@ -24,12 +19,13 @@ export default function ProfilScreen() {
       <Text className="mt-3 font-display text-4xl uppercase text-foreground">
         Profilin
       </Text>
-      <Text className="mt-4 font-body text-muted-foreground">
+      <Text className="mt-4 font-body text-foreground">{email}</Text>
+      <Text className="mt-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
         Mevcut kilon, hedef kilon ve antrenman serin burada olacak — yakında.
       </Text>
 
       <View className="mt-8">
-        <Button variant="outline" onPress={handleLogout}>
+        <Button variant="outline" onPress={() => supabase.auth.signOut()}>
           Çıkış Yap
         </Button>
       </View>
