@@ -1,12 +1,13 @@
 {
   "expo": {
-    "name": "forge-mobile",
+    "name": "Forge",
     "slug": "forge-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "forgemobile",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#14110D",
     "ios": {
       "icon": "./assets/expo.icon"
     },
@@ -28,7 +29,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#14110D",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
