@@ -114,6 +114,7 @@ function OptionButton({
 export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
   const userId = useAuthStore((state) => state.session?.user.id);
+  const setHasProfile = useAuthStore((state) => state.setHasProfile);
   const [step, setStep] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
@@ -145,6 +146,7 @@ export default function OnboardingScreen() {
       return;
     }
 
+    setHasProfile(true);
     router.replace("/(tabs)");
   };
 

@@ -19,25 +19,33 @@ SplashScreen.preventAutoHideAsync();
 function useProtectedRoute() {
   const session = useAuthStore((state) => state.session);
   const isLoading = useAuthStore((state) => state.isLoading);
+  const hasProfile = useAuthStore((state) => state.hasProfile);
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
     if (isLoading) return;
+    if (session && hasProfile === null) return;
 
     const inAuthGroup = segments[0] === "(auth)";
+    const inOnboarding = segments[0] === "onboarding";
 
     if (!session && !inAuthGroup) {
       router.replace("/(auth)/login");
     } else if (session && inAuthGroup) {
-      router.replace("/(tabs)");
+      router.replace(hasProfile ? "/(tabs)" : "/onboarding");
+    } else if (session && hasProfile === false && !inOnboarding) {
+      router.replace("/onboarding");
     }
-  }, [session, isLoading, segments, router]);
+  }, [session, isLoading, hasProfile, segments, router]);
 }
 
 export default function RootLayout() {
   const isLoading = useAuthStore((state) => state.isLoading);
+  const session = useAuthStore((state) => state.session);
+  const hasProfile = useAuthStore((state) => state.hasProfile);
   const setSession = useAuthStore((state) => state.setSession);
+  const setHasProfile = useAuthStore((state) => state.setHasProfile);
 
   const [fontsLoaded] = useFonts({
     Anton_400Regular,
@@ -62,13 +70,34 @@ export default function RootLayout() {
     return () => subscription.subscription.unsubscribe();
   }, [setSession]);
 
+  useEffect(() => {
+    const userId = session?.user.id;
+
+    if (!userId) {
+      setHasProfile(null);
+      return;
+    }
+
+    supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setHasProfile(!!data);
+      });
+  }, [session?.user.id, setHasProfile]);
+
   useProtectedRoute();
 
-  useEffect(() => {
-    if (fontsLoaded && !isLoading) SplashScreen.hideAsync();
-  }, [fontsLoaded, isLoading]);
+  const readyToRender =
+    fontsLoaded && !isLoading && !(session && hasProfile === null);
 
-  if (!fontsLoaded || isLoading) return null;
+  useEffect(() => {
+    if (readyToRender) SplashScreen.hideAsync();
+  }, [readyToRender]);
+
+  if (!readyToRender) return null;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
