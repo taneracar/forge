@@ -26,3 +26,15 @@ export const onboardingSchema = z.object({
 });
 
 export type OnboardingValues = z.infer<typeof onboardingSchema>;
+
+export const accountSchema = z.object({
+  email: z.string().email("Geçerli bir e-posta adresi gir"),
+  password: z
+    .string()
+    .min(8, "En az 8 karakter olmalı")
+    .regex(/[a-zA-Z]/, "En az bir harf içermeli")
+    .regex(/[0-9]/, "En az bir rakam içermeli"),
+});
+
+export const signupSchema = accountSchema.merge(onboardingSchema);
+export type SignupValues = z.infer<typeof signupSchema>;

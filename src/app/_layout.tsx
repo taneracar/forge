@@ -28,14 +28,14 @@ function useProtectedRoute() {
     if (session && hasProfile === null) return;
 
     const inAuthGroup = segments[0] === "(auth)";
-    const inOnboarding = segments[0] === "onboarding";
+    const onKayit = segments[1] === "kayit";
 
     if (!session && !inAuthGroup) {
       router.replace("/(auth)/login");
-    } else if (session && inAuthGroup) {
-      router.replace(hasProfile ? "/(tabs)" : "/onboarding");
-    } else if (session && hasProfile === false && !inOnboarding) {
-      router.replace("/onboarding");
+    } else if (session && !hasProfile && !onKayit) {
+      router.replace("/(auth)/kayit");
+    } else if (session && hasProfile && inAuthGroup) {
+      router.replace("/(tabs)");
     }
   }, [session, isLoading, hasProfile, segments, router]);
 }
@@ -102,7 +102,6 @@ export default function RootLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
-      <Stack.Screen name="onboarding" />
       <Stack.Screen name="(tabs)" />
     </Stack>
   );
