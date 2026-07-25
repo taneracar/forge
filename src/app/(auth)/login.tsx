@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { View, Text, TextInput } from "react-native";
+import { Link } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -109,6 +110,13 @@ export default function LoginScreen() {
         >
           Giriş Yap
         </Button>
+
+        <Text className="text-center font-body text-sm text-muted-foreground">
+          Hesabın yok mu?{" "}
+          <Link href="/(auth)/kayit" className="text-primary">
+            Kayıt ol
+          </Link>
+        </Text>
       </View>
     </View>
   );
