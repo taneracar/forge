@@ -10,7 +10,14 @@ import { cn } from "@/lib/cn";
 import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth.store";
-import { signupSchema, type SignupValues } from "@/lib/profile-schema";
+import {
+  signupSchema,
+  type SignupValues,
+  genderOptions,
+  goalOptions,
+  activityOptions,
+  experienceOptions,
+} from "@/lib/profile-schema";
 
 const stepFields = [
   ["email", "password"],
@@ -39,32 +46,6 @@ const stepMeta = [
     description: "Deneyim seviyeni ve haftada kaç gün antrenman yapmak istediğini seç.",
   },
 ];
-
-const genderOptions = [
-  { value: "male", label: "Erkek" },
-  { value: "female", label: "Kadın" },
-  { value: "other", label: "Diğer" },
-] as const;
-
-const goalOptions = [
-  { value: "bulk", label: "Kütle Al" },
-  { value: "cut", label: "Yağ Yak" },
-  { value: "maintain", label: "Formunu Koru" },
-  { value: "recomp", label: "Yeniden Şekillen" },
-] as const;
-
-const activityOptions = [
-  { value: "hareketsiz", label: "Hareketsiz" },
-  { value: "az-aktif", label: "Az Aktif" },
-  { value: "orta-aktif", label: "Orta Aktif" },
-  { value: "cok-aktif", label: "Çok Aktif" },
-] as const;
-
-const experienceOptions = [
-  { value: "yeni-basliyorum", label: "Yeni Başlıyorum" },
-  { value: "orta-seviye", label: "Orta Seviye" },
-  { value: "ileri-seviye", label: "İleri Seviye" },
-] as const;
 
 const trainingDays = [1, 2, 3, 4, 5, 6, 7];
 
