@@ -4,7 +4,13 @@
     "back": "Geri",
     "finish": "Bitir",
     "logout": "Çıkış Yap",
-    "startWorkout": "Antrenmana Başla"
+    "startWorkout": "Antrenmana Başla",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "discard": "Vazgeç",
+    "resume": "Devam Et",
+    "add": "Ekle",
+    "cancel": "İptal"
   },
   "tabs": {
     "panel": "Panel",
@@ -32,6 +38,8 @@
     "experienceRequired": "Bir seçenek seç",
     "daysRequired": "Bir gün sayısı seç",
     "daysMin": "Haftada en az 1 gün seç",
-    "daysMax": "En fazla 7 gün olabilir"
+    "daysMax": "En fazla 7 gün olabilir",
+    "workoutNameRequired": "Antrenman adı gir",
+    "repsInvalid": "Geçerli bir tekrar sayısı gir"
   }
 }

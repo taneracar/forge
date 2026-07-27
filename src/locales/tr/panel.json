@@ -14,7 +14,77 @@
   "workout": {
     "eyebrow": "Antrenman",
     "title": "Antrenman Günlüğü",
-    "description": "Programlarını kur, setlerini ve tekrarlarını kaydet, geçmişini gör."
+    "description": "Programlarını kur, setlerini ve tekrarlarını kaydet, geçmişini gör.",
+    "muscleGroups": {
+      "omuz": "Omuz",
+      "gogus": "Göğüs",
+      "biceps": "Biceps",
+      "karin": "Karın",
+      "on-kol": "Ön Kol",
+      "on-bacak": "Ön Bacak",
+      "trapez": "Trapez",
+      "sirt": "Sırt",
+      "triceps": "Triceps",
+      "kalca": "Kalça",
+      "arka-bacak": "Arka Bacak",
+      "baldir": "Baldır"
+    },
+    "equipment": {
+      "barbell": "Barbell",
+      "dumbbell": "Dambıl",
+      "cable": "Kablo",
+      "machine": "Makine",
+      "bodyweight": "Vücut Ağırlığı",
+      "plate": "Ağırlık Diski"
+    },
+    "home": {
+      "eyebrow": "Antrenman",
+      "title": "Antrenman",
+      "currentProgramLabel": "Güncel Programın",
+      "noProgram": "Henüz bir antrenman oluşturmadın.",
+      "createWorkoutButton": "Antrenman Oluştur",
+      "recentLabel": "Son Antrenmanlar",
+      "noRecent": "Henüz tamamlanmış antrenmanın yok.",
+      "resumeBanner": "Devam eden bir antrenmanın var.",
+      "resumeButton": "Devam Et",
+      "historyButton": "Geçmiş"
+    },
+    "builder": {
+      "newTitle": "Yeni Antrenman",
+      "editTitle": "Antrenmanı Düzenle",
+      "nameLabel": "Antrenman Adı",
+      "namePlaceholder": "örn. İtiş Günü",
+      "exercisesLabel": "Hareketler",
+      "emptyState": "Henüz hareket eklenmedi.",
+      "addExerciseButton": "Hareket Ekle",
+      "pickExercise": "Hareket Seç",
+      "searchPlaceholder": "Hareket ara...",
+      "allMuscleGroups": "Tümü",
+      "noResults": "Sonuç bulunamadı."
+    },
+    "session": {
+      "durationLabel": "Süre",
+      "setLabel": "Set",
+      "weightLabel": "Ağırlık",
+      "repsLabel": "Tekrar",
+      "addSetButton": "Set Ekle",
+      "finishButton": "Antrenmanı Bitir",
+      "discardButton": "Antrenmanı Sil",
+      "discardConfirmTitle": "Antrenmanı sil?",
+      "discardConfirmMessage": "Bu antrenman ve kaydedilen tüm setler silinecek.",
+      "noOpenSession": "Açık bir antrenman bulunamadı."
+    },
+    "history": {
+      "eyebrow": "Geçmiş",
+      "title": "Antrenman Geçmişi",
+      "emptyState": "Henüz tamamlanmış bir antrenmanın yok.",
+      "durationLabel": "Süre",
+      "volumeLabel": "Toplam Hacim",
+      "detail": {
+        "title": "Antrenman Detayı",
+        "setsLabel": "Setler"
+      }
+    }
   },
   "nutrition": {
     "eyebrow": "Beslenme",
