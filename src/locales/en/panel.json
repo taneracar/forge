@@ -14,7 +14,77 @@
   "workout": {
     "eyebrow": "Workout",
     "title": "Workout Log",
-    "description": "Set up your programs, log your sets and reps, see your history."
+    "description": "Set up your programs, log your sets and reps, see your history.",
+    "muscleGroups": {
+      "omuz": "Shoulders",
+      "gogus": "Chest",
+      "biceps": "Biceps",
+      "karin": "Abs",
+      "on-kol": "Forearms",
+      "on-bacak": "Quadriceps",
+      "trapez": "Traps",
+      "sirt": "Back",
+      "triceps": "Triceps",
+      "kalca": "Glutes",
+      "arka-bacak": "Hamstrings",
+      "baldir": "Calves"
+    },
+    "equipment": {
+      "barbell": "Barbell",
+      "dumbbell": "Dumbbell",
+      "cable": "Cable",
+      "machine": "Machine",
+      "bodyweight": "Bodyweight",
+      "plate": "Plate"
+    },
+    "home": {
+      "eyebrow": "Workout",
+      "title": "Workout",
+      "currentProgramLabel": "Current Program",
+      "noProgram": "You haven't created a workout yet.",
+      "createWorkoutButton": "Create Workout",
+      "recentLabel": "Recent Workouts",
+      "noRecent": "No completed workouts yet.",
+      "resumeBanner": "You have a workout in progress.",
+      "resumeButton": "Resume",
+      "historyButton": "History"
+    },
+    "builder": {
+      "newTitle": "New Workout",
+      "editTitle": "Edit Workout",
+      "nameLabel": "Workout Name",
+      "namePlaceholder": "e.g. Push Day",
+      "exercisesLabel": "Exercises",
+      "emptyState": "No exercises added yet.",
+      "addExerciseButton": "Add Exercise",
+      "pickExercise": "Pick Exercise",
+      "searchPlaceholder": "Search exercises...",
+      "allMuscleGroups": "All",
+      "noResults": "No results found."
+    },
+    "session": {
+      "durationLabel": "Duration",
+      "setLabel": "Set",
+      "weightLabel": "Weight",
+      "repsLabel": "Reps",
+      "addSetButton": "Add Set",
+      "finishButton": "Finish Workout",
+      "discardButton": "Discard Workout",
+      "discardConfirmTitle": "Discard workout?",
+      "discardConfirmMessage": "This workout and all logged sets will be deleted.",
+      "noOpenSession": "No open workout found."
+    },
+    "history": {
+      "eyebrow": "History",
+      "title": "Workout History",
+      "emptyState": "No completed workouts yet.",
+      "durationLabel": "Duration",
+      "volumeLabel": "Total Volume",
+      "detail": {
+        "title": "Workout Detail",
+        "setsLabel": "Sets"
+      }
+    }
   },
   "nutrition": {
     "eyebrow": "Nutrition",

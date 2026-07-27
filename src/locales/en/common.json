@@ -4,7 +4,13 @@
     "back": "Back",
     "finish": "Finish",
     "logout": "Log Out",
-    "startWorkout": "Start Workout"
+    "startWorkout": "Start Workout",
+    "save": "Save",
+    "delete": "Delete",
+    "discard": "Discard",
+    "resume": "Resume",
+    "add": "Add",
+    "cancel": "Cancel"
   },
   "tabs": {
     "panel": "Panel",
@@ -32,6 +38,8 @@
     "experienceRequired": "Choose an option",
     "daysRequired": "Choose a number of days",
     "daysMin": "Choose at least 1 day a week",
-    "daysMax": "Can be at most 7 days"
+    "daysMax": "Can be at most 7 days",
+    "workoutNameRequired": "Enter a workout name",
+    "repsInvalid": "Enter a valid rep count"
   }
 }
