@@ -38,3 +38,36 @@ export const accountSchema = z.object({
 
 export const signupSchema = accountSchema.merge(onboardingSchema);
 export type SignupValues = z.infer<typeof signupSchema>;
+
+export const genderOptions = [
+  { value: "male", label: "Erkek" },
+  { value: "female", label: "Kadın" },
+  { value: "other", label: "Diğer" },
+] as const;
+
+export const goalOptions = [
+  { value: "bulk", label: "Kütle Al" },
+  { value: "cut", label: "Yağ Yak" },
+  { value: "maintain", label: "Formunu Koru" },
+  { value: "recomp", label: "Yeniden Şekillen" },
+] as const;
+
+export const activityOptions = [
+  { value: "hareketsiz", label: "Hareketsiz" },
+  { value: "az-aktif", label: "Az Aktif" },
+  { value: "orta-aktif", label: "Orta Aktif" },
+  { value: "cok-aktif", label: "Çok Aktif" },
+] as const;
+
+export const experienceOptions = [
+  { value: "yeni-basliyorum", label: "Yeni Başlıyorum" },
+  { value: "orta-seviye", label: "Orta Seviye" },
+  { value: "ileri-seviye", label: "İleri Seviye" },
+] as const;
+
+export function labelFor(
+  options: readonly { value: string; label: string }[],
+  value: string | null | undefined,
+) {
+  return options.find((o) => o.value === value)?.label ?? "—";
+}
