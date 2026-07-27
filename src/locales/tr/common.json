@@ -1,0 +1,37 @@
+{
+  "buttons": {
+    "continue": "Devam Et",
+    "back": "Geri",
+    "finish": "Bitir",
+    "logout": "Çıkış Yap",
+    "startWorkout": "Antrenmana Başla"
+  },
+  "tabs": {
+    "panel": "Panel",
+    "workout": "Antrenman",
+    "nutrition": "Beslenme",
+    "water": "Su",
+    "weight": "Kilo",
+    "profile": "Profil"
+  },
+  "soon": "Yakında",
+  "notSet": "—",
+  "validation": {
+    "emailInvalid": "Geçerli bir e-posta adresi gir",
+    "passwordMinLogin": "En az 6 karakter olmalı",
+    "passwordMinSignup": "En az 8 karakter olmalı",
+    "passwordLetter": "En az bir harf içermeli",
+    "passwordNumber": "En az bir rakam içermeli",
+    "nameRequired": "İsmini gir",
+    "ageInvalid": "Geçerli bir yaş gir",
+    "genderRequired": "Bir seçenek seç",
+    "heightInvalid": "Geçerli bir boy gir",
+    "weightInvalid": "Geçerli bir kilo gir",
+    "goalRequired": "Bir hedef seç",
+    "activityRequired": "Bir seçenek seç",
+    "experienceRequired": "Bir seçenek seç",
+    "daysRequired": "Bir gün sayısı seç",
+    "daysMin": "Haftada en az 1 gün seç",
+    "daysMax": "En fazla 7 gün olabilir"
+  }
+}

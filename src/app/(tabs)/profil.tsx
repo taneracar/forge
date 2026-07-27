@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
@@ -15,6 +16,7 @@ import {
 } from "@/lib/profile-schema";
 
 export default function ProfilScreen() {
+  const { t } = useTranslation(["panel", "common"]);
   const insets = useSafeAreaInsets();
   const email = useAuthStore((state) => state.session?.user.email);
   const userId = useAuthStore((state) => state.session?.user.id);
@@ -30,30 +32,37 @@ export default function ProfilScreen() {
       .then(({ data }) => setProfile(data));
   }, [userId]);
 
+  const notSet = t("common:notSet");
   const fields = [
-    { label: "İsim", value: profile?.name ?? "—" },
-    { label: "Yaş", value: profile?.age ?? "—" },
-    { label: "Cinsiyet", value: labelFor(genderOptions, profile?.gender) },
+    { label: t("panel:profile.fields.name"), value: profile?.name ?? notSet },
+    { label: t("panel:profile.fields.age"), value: profile?.age ?? notSet },
     {
-      label: "Boy",
-      value: profile?.height_cm ? `${profile.height_cm} cm` : "—",
+      label: t("panel:profile.fields.gender"),
+      value: labelFor(genderOptions, profile?.gender, t),
     },
     {
-      label: "Kilo",
-      value: profile?.weight_kg ? `${profile.weight_kg} kg` : "—",
-    },
-    { label: "Hedef", value: labelFor(goalOptions, profile?.goal) },
-    {
-      label: "Aktivite Seviyesi",
-      value: labelFor(activityOptions, profile?.activity_level),
+      label: t("panel:profile.fields.height"),
+      value: profile?.height_cm ? `${profile.height_cm} cm` : notSet,
     },
     {
-      label: "Antrenman Deneyimi",
-      value: labelFor(experienceOptions, profile?.workout_experience),
+      label: t("panel:profile.fields.weight"),
+      value: profile?.weight_kg ? `${profile.weight_kg} kg` : notSet,
     },
     {
-      label: "Haftalık Antrenman Günü",
-      value: profile?.preferred_training_days ?? "—",
+      label: t("panel:profile.fields.goal"),
+      value: labelFor(goalOptions, profile?.goal, t),
+    },
+    {
+      label: t("panel:profile.fields.activityLevel"),
+      value: labelFor(activityOptions, profile?.activity_level, t),
+    },
+    {
+      label: t("panel:profile.fields.experience"),
+      value: labelFor(experienceOptions, profile?.workout_experience, t),
+    },
+    {
+      label: t("panel:profile.fields.days"),
+      value: profile?.preferred_training_days ?? notSet,
     },
   ];
 
@@ -63,10 +72,10 @@ export default function ProfilScreen() {
       contentContainerStyle={{ paddingTop: insets.top + 24, paddingBottom: 40 }}
     >
       <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
-        Profil
+        {t("panel:profile.eyebrow")}
       </Text>
       <Text className="mt-3 font-display text-4xl uppercase text-foreground">
-        Profilin
+        {t("panel:profile.title")}
       </Text>
       <Text className="mt-4 font-body text-foreground">{email}</Text>
 
@@ -87,7 +96,7 @@ export default function ProfilScreen() {
 
       <View className="mt-8">
         <Button variant="outline" onPress={() => supabase.auth.signOut()}>
-          Çıkış Yap
+          {t("common:buttons.logout")}
         </Button>
       </View>
     </ScrollView>

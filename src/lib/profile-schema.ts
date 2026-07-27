@@ -1,73 +1,80 @@
 import { z } from "zod";
 
 export const onboardingSchema = z.object({
-  name: z.string().min(1, "İsmini gir"),
+  name: z.string().min(1, "common:validation.nameRequired"),
   age: z
-    .number({ error: "Geçerli bir yaş gir" })
+    .number({ error: "common:validation.ageInvalid" })
     .int()
-    .positive("Geçerli bir yaş gir"),
-  gender: z.enum(["male", "female", "other"], { error: "Bir seçenek seç" }),
-  height_cm: z
-    .number({ error: "Geçerli bir boy gir" })
-    .positive("Geçerli bir boy gir"),
-  weight_kg: z
-    .number({ error: "Geçerli bir kilo gir" })
-    .positive("Geçerli bir kilo gir"),
-  goal: z.enum(["bulk", "cut", "maintain", "recomp"], {
-    error: "Bir hedef seç",
+    .positive("common:validation.ageInvalid"),
+  gender: z.enum(["male", "female", "other"], {
+    error: "common:validation.genderRequired",
   }),
-  activity_level: z.string().min(1, "Bir seçenek seç"),
-  workout_experience: z.string().min(1, "Bir seçenek seç"),
+  height_cm: z
+    .number({ error: "common:validation.heightInvalid" })
+    .positive("common:validation.heightInvalid"),
+  weight_kg: z
+    .number({ error: "common:validation.weightInvalid" })
+    .positive("common:validation.weightInvalid"),
+  goal: z.enum(["bulk", "cut", "maintain", "recomp"], {
+    error: "common:validation.goalRequired",
+  }),
+  activity_level: z.string().min(1, "common:validation.activityRequired"),
+  workout_experience: z.string().min(1, "common:validation.experienceRequired"),
   preferred_training_days: z
-    .number({ error: "Bir gün sayısı seç" })
+    .number({ error: "common:validation.daysRequired" })
     .int()
-    .min(1, "Haftada en az 1 gün seç")
-    .max(7, "En fazla 7 gün olabilir"),
+    .min(1, "common:validation.daysMin")
+    .max(7, "common:validation.daysMax"),
 });
 
 export type OnboardingValues = z.infer<typeof onboardingSchema>;
 
 export const accountSchema = z.object({
-  email: z.string().email("Geçerli bir e-posta adresi gir"),
+  email: z.string().email("common:validation.emailInvalid"),
   password: z
     .string()
-    .min(8, "En az 8 karakter olmalı")
-    .regex(/[a-zA-Z]/, "En az bir harf içermeli")
-    .regex(/[0-9]/, "En az bir rakam içermeli"),
+    .min(8, "common:validation.passwordMinSignup")
+    .regex(/[a-zA-Z]/, "common:validation.passwordLetter")
+    .regex(/[0-9]/, "common:validation.passwordNumber"),
 });
 
 export const signupSchema = accountSchema.merge(onboardingSchema);
 export type SignupValues = z.infer<typeof signupSchema>;
 
 export const genderOptions = [
-  { value: "male", label: "Erkek" },
-  { value: "female", label: "Kadın" },
-  { value: "other", label: "Diğer" },
+  { value: "male", labelKey: "onboarding:options.gender.male" },
+  { value: "female", labelKey: "onboarding:options.gender.female" },
+  { value: "other", labelKey: "onboarding:options.gender.other" },
 ] as const;
 
 export const goalOptions = [
-  { value: "bulk", label: "Kütle Al" },
-  { value: "cut", label: "Yağ Yak" },
-  { value: "maintain", label: "Formunu Koru" },
-  { value: "recomp", label: "Yeniden Şekillen" },
+  { value: "bulk", labelKey: "onboarding:options.goal.bulk" },
+  { value: "cut", labelKey: "onboarding:options.goal.cut" },
+  { value: "maintain", labelKey: "onboarding:options.goal.maintain" },
+  { value: "recomp", labelKey: "onboarding:options.goal.recomp" },
 ] as const;
 
 export const activityOptions = [
-  { value: "hareketsiz", label: "Hareketsiz" },
-  { value: "az-aktif", label: "Az Aktif" },
-  { value: "orta-aktif", label: "Orta Aktif" },
-  { value: "cok-aktif", label: "Çok Aktif" },
+  { value: "hareketsiz", labelKey: "onboarding:options.activity.hareketsiz" },
+  { value: "az-aktif", labelKey: "onboarding:options.activity.az-aktif" },
+  { value: "orta-aktif", labelKey: "onboarding:options.activity.orta-aktif" },
+  { value: "cok-aktif", labelKey: "onboarding:options.activity.cok-aktif" },
 ] as const;
 
 export const experienceOptions = [
-  { value: "yeni-basliyorum", label: "Yeni Başlıyorum" },
-  { value: "orta-seviye", label: "Orta Seviye" },
-  { value: "ileri-seviye", label: "İleri Seviye" },
+  {
+    value: "yeni-basliyorum",
+    labelKey: "onboarding:options.experience.yeni-basliyorum",
+  },
+  { value: "orta-seviye", labelKey: "onboarding:options.experience.orta-seviye" },
+  { value: "ileri-seviye", labelKey: "onboarding:options.experience.ileri-seviye" },
 ] as const;
 
 export function labelFor(
-  options: readonly { value: string; label: string }[],
+  options: readonly { value: string; labelKey: string }[],
   value: string | null | undefined,
+  t: (key: string) => string,
 ) {
-  return options.find((o) => o.value === value)?.label ?? "—";
+  const key = options.find((o) => o.value === value)?.labelKey;
+  return key ? t(key) : "—";
 }

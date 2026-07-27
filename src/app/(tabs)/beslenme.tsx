@@ -1,7 +1,9 @@
 import { View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 
 export default function BeslenmeScreen() {
+  const { t } = useTranslation(["panel", "common"]);
   const insets = useSafeAreaInsets();
   return (
     <View
@@ -9,17 +11,16 @@ export default function BeslenmeScreen() {
       style={{ paddingTop: insets.top + 24 }}
     >
       <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
-        Beslenme
+        {t("panel:nutrition.eyebrow")}
       </Text>
       <Text className="mt-3 font-display text-4xl uppercase text-foreground">
-        Öğünlerin
+        {t("panel:nutrition.title")}
       </Text>
       <Text className="mt-4 font-body text-muted-foreground">
-        Kahvaltı, öğle, akşam ve ara öğünlerini kaydet, kalori ve makrolarını
-        takip et.
+        {t("panel:nutrition.description")}
       </Text>
       <Text className="mt-4 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-        Yakında
+        {t("common:soon")}
       </Text>
     </View>
   );

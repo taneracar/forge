@@ -1,0 +1,98 @@
+{
+  "steps": {
+    "account": {
+      "eyebrow": "Adım 1 / 9",
+      "title": "Hesabını Oluştur",
+      "description": "Antrenman yolculuğuna başla."
+    },
+    "name": {
+      "eyebrow": "Adım 2 / 9",
+      "title": "İsmin Ne?",
+      "description": "Sana nasıl hitap edelim?"
+    },
+    "gender": {
+      "eyebrow": "Adım 3 / 9",
+      "title": "Cinsiyetin Ne?",
+      "description": "Programını sana göre ayarlamamız için."
+    },
+    "age": {
+      "eyebrow": "Adım 4 / 9",
+      "title": "Kaç Yaşındasın?",
+      "description": "Programını sana göre ayarlamamız için."
+    },
+    "height": {
+      "eyebrow": "Adım 5 / 9",
+      "title": "Boyun Kaç?",
+      "description": "İlerlemeni takip edebilmemiz için."
+    },
+    "weight": {
+      "eyebrow": "Adım 6 / 9",
+      "title": "Kilon Kaç?",
+      "description": "İlerlemeni takip edebilmemiz için."
+    },
+    "goal": {
+      "eyebrow": "Adım 7 / 9",
+      "title": "Hedefin Ne?",
+      "description": "Antrenman ve beslenme planın buna göre şekillenecek."
+    },
+    "activity": {
+      "eyebrow": "Adım 8 / 9",
+      "title": "Aktivite Seviyen?",
+      "description": "Günlük hareketliliğini en iyi tanımlayan seçeneği seç."
+    },
+    "experience": {
+      "eyebrow": "Adım 9 / 9",
+      "title": "Antrenman Deneyimin?",
+      "description": "Deneyim seviyeni ve haftada kaç gün antrenman yapmak istediğini seç."
+    }
+  },
+  "labels": {
+    "email": "E-posta",
+    "password": "Şifre",
+    "name": "İsim",
+    "age": "Yaş",
+    "height": "Boy (cm)",
+    "weight": "Kilo (kg)",
+    "experience": "Antrenman Deneyimi",
+    "days": "Haftalık Antrenman Günü"
+  },
+  "passwordChecklist": {
+    "length": "En az 8 karakter",
+    "letter": "En az bir harf",
+    "number": "En az bir rakam"
+  },
+  "options": {
+    "gender": {
+      "male": "Erkek",
+      "female": "Kadın",
+      "other": "Diğer"
+    },
+    "goal": {
+      "bulk": "Kütle Al",
+      "cut": "Yağ Yak",
+      "maintain": "Formunu Koru",
+      "recomp": "Yeniden Şekillen"
+    },
+    "activity": {
+      "hareketsiz": "Hareketsiz",
+      "az-aktif": "Az Aktif",
+      "orta-aktif": "Orta Aktif",
+      "cok-aktif": "Çok Aktif"
+    },
+    "experience": {
+      "yeni-basliyorum": "Yeni Başlıyorum",
+      "orta-seviye": "Orta Seviye",
+      "ileri-seviye": "İleri Seviye"
+    }
+  },
+  "checkEmail": {
+    "title": "E-postanı Kontrol Et",
+    "description": "Hesabını onaylaman için sana bir bağlantı gönderdik."
+  },
+  "errors": {
+    "alreadyRegistered": "Bu e-posta zaten kayıtlı.",
+    "signupFailed": "Kayıt sırasında bir sorun oluştu.",
+    "saveFailed": "Kaydedilirken bir sorun oluştu.",
+    "noSession": "Oturum bulunamadı, tekrar giriş yap."
+  }
+}

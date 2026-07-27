@@ -1,0 +1,98 @@
+{
+  "steps": {
+    "account": {
+      "eyebrow": "Step 1 / 9",
+      "title": "Create Your Account",
+      "description": "Start your training journey."
+    },
+    "name": {
+      "eyebrow": "Step 2 / 9",
+      "title": "What's Your Name?",
+      "description": "How should we address you?"
+    },
+    "gender": {
+      "eyebrow": "Step 3 / 9",
+      "title": "What's Your Gender?",
+      "description": "So we can tailor your program to you."
+    },
+    "age": {
+      "eyebrow": "Step 4 / 9",
+      "title": "How Old Are You?",
+      "description": "So we can tailor your program to you."
+    },
+    "height": {
+      "eyebrow": "Step 5 / 9",
+      "title": "How Tall Are You?",
+      "description": "So we can track your progress."
+    },
+    "weight": {
+      "eyebrow": "Step 6 / 9",
+      "title": "How Much Do You Weigh?",
+      "description": "So we can track your progress."
+    },
+    "goal": {
+      "eyebrow": "Step 7 / 9",
+      "title": "What's Your Goal?",
+      "description": "Your workout and nutrition plan will be shaped around it."
+    },
+    "activity": {
+      "eyebrow": "Step 8 / 9",
+      "title": "Your Activity Level?",
+      "description": "Choose the option that best describes your daily activity."
+    },
+    "experience": {
+      "eyebrow": "Step 9 / 9",
+      "title": "Your Training Experience?",
+      "description": "Choose your experience level and how many days a week you want to train."
+    }
+  },
+  "labels": {
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "age": "Age",
+    "height": "Height (cm)",
+    "weight": "Weight (kg)",
+    "experience": "Training Experience",
+    "days": "Weekly Training Days"
+  },
+  "passwordChecklist": {
+    "length": "At least 8 characters",
+    "letter": "At least one letter",
+    "number": "At least one number"
+  },
+  "options": {
+    "gender": {
+      "male": "Male",
+      "female": "Female",
+      "other": "Other"
+    },
+    "goal": {
+      "bulk": "Bulk Up",
+      "cut": "Cut Fat",
+      "maintain": "Maintain",
+      "recomp": "Recomp"
+    },
+    "activity": {
+      "hareketsiz": "Sedentary",
+      "az-aktif": "Lightly Active",
+      "orta-aktif": "Moderately Active",
+      "cok-aktif": "Very Active"
+    },
+    "experience": {
+      "yeni-basliyorum": "Just Starting Out",
+      "orta-seviye": "Intermediate",
+      "ileri-seviye": "Advanced"
+    }
+  },
+  "checkEmail": {
+    "title": "Check Your Email",
+    "description": "We sent you a link to confirm your account."
+  },
+  "errors": {
+    "alreadyRegistered": "This email is already registered.",
+    "signupFailed": "Something went wrong during sign up.",
+    "saveFailed": "Something went wrong while saving.",
+    "noSession": "No session found, please log in again."
+  }
+}

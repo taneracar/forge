@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { Dumbbell } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Colors } from "@/constants/colors";
@@ -31,6 +32,7 @@ function StatTile({
 }
 
 export default function DashboardScreen() {
+  const { t } = useTranslation(["panel", "common"]);
   const insets = useSafeAreaInsets();
   const [dashboard, setDashboard] = useState<typeof mockDashboard | null>(
     null,
@@ -46,10 +48,10 @@ export default function DashboardScreen() {
       contentContainerStyle={{ paddingTop: insets.top + 24, padding: 24 }}
     >
       <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
-        Bugün
+        {t("dashboard.eyebrow")}
       </Text>
       <Text className="mt-3 font-display text-4xl uppercase text-foreground">
-        Hoş Geldin
+        {t("dashboard.title")}
       </Text>
 
       {dashboard && (
@@ -58,22 +60,22 @@ export default function DashboardScreen() {
             <StatTile
               value={dashboard.calories.current}
               unit={` ${dashboard.calories.unit}`}
-              label={dashboard.calories.label}
+              label={t("dashboard.stats.calories")}
             />
             <StatTile
               value={dashboard.protein.current}
               unit={dashboard.protein.unit}
-              label={dashboard.protein.label}
+              label={t("dashboard.stats.protein")}
             />
             <StatTile
               value={dashboard.water.current}
               unit={dashboard.water.unit}
-              label={dashboard.water.label}
+              label={t("dashboard.stats.water")}
             />
             <StatTile
               value={dashboard.weight.current}
               unit={dashboard.weight.unit}
-              label={dashboard.weight.label}
+              label={t("dashboard.stats.weight")}
             />
           </View>
 
@@ -84,18 +86,19 @@ export default function DashboardScreen() {
               </View>
               <View>
                 <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                  Bugünkü Antrenman
+                  {t("dashboard.todayWorkoutLabel")}
                 </Text>
                 <Text className="font-body-semibold text-foreground">
                   {dashboard.todayWorkout.name} —{" "}
-                  {dashboard.todayWorkout.exerciseCount} hareket
+                  {dashboard.todayWorkout.exerciseCount}{" "}
+                  {t("dashboard.exerciseCountSuffix")}
                 </Text>
               </View>
             </View>
           </Card>
 
           <View className="mt-4">
-            <Button variant="primary">Antrenmana Başla</Button>
+            <Button variant="primary">{t("common:buttons.startWorkout")}</Button>
           </View>
         </>
       )}

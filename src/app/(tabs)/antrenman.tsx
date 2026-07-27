@@ -1,7 +1,9 @@
 import { View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 
 export default function AntrenmanScreen() {
+  const { t } = useTranslation(["panel", "common"]);
   const insets = useSafeAreaInsets();
   return (
     <View
@@ -9,16 +11,16 @@ export default function AntrenmanScreen() {
       style={{ paddingTop: insets.top + 24 }}
     >
       <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
-        Antrenman
+        {t("panel:workout.eyebrow")}
       </Text>
       <Text className="mt-3 font-display text-4xl uppercase text-foreground">
-        Antrenman Günlüğü
+        {t("panel:workout.title")}
       </Text>
       <Text className="mt-4 font-body text-muted-foreground">
-        Programlarını kur, setlerini ve tekrarlarını kaydet, geçmişini gör.
+        {t("panel:workout.description")}
       </Text>
       <Text className="mt-4 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-        Yakında
+        {t("common:soon")}
       </Text>
     </View>
   );
