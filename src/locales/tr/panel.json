@@ -1,0 +1,49 @@
+{
+  "dashboard": {
+    "eyebrow": "Bugün",
+    "title": "Hoş Geldin",
+    "todayWorkoutLabel": "Bugünkü Antrenman",
+    "exerciseCountSuffix": "hareket",
+    "stats": {
+      "calories": "Kalori",
+      "protein": "Protein",
+      "water": "Su",
+      "weight": "Kilo"
+    }
+  },
+  "workout": {
+    "eyebrow": "Antrenman",
+    "title": "Antrenman Günlüğü",
+    "description": "Programlarını kur, setlerini ve tekrarlarını kaydet, geçmişini gör."
+  },
+  "nutrition": {
+    "eyebrow": "Beslenme",
+    "title": "Öğünlerin",
+    "description": "Kahvaltı, öğle, akşam ve ara öğünlerini kaydet, kalori ve makrolarını takip et."
+  },
+  "water": {
+    "eyebrow": "Su",
+    "title": "Su Takibi",
+    "description": "Günlük su tüketimini tek dokunuşla kaydet."
+  },
+  "weight": {
+    "eyebrow": "Kilo",
+    "title": "Kilo Takibi",
+    "description": "Günlük kilonu gir, haftalık ve aylık trendini grafikte gör."
+  },
+  "profile": {
+    "eyebrow": "Profil",
+    "title": "Profilin",
+    "fields": {
+      "name": "İsim",
+      "age": "Yaş",
+      "gender": "Cinsiyet",
+      "height": "Boy",
+      "weight": "Kilo",
+      "goal": "Hedef",
+      "activityLevel": "Aktivite Seviyesi",
+      "experience": "Antrenman Deneyimi",
+      "days": "Haftalık Antrenman Günü"
+    }
+  }
+}

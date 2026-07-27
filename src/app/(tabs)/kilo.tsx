@@ -1,7 +1,9 @@
 import { View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 
 export default function KiloScreen() {
+  const { t } = useTranslation(["panel", "common"]);
   const insets = useSafeAreaInsets();
   return (
     <View
@@ -9,16 +11,16 @@ export default function KiloScreen() {
       style={{ paddingTop: insets.top + 24 }}
     >
       <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
-        Kilo
+        {t("panel:weight.eyebrow")}
       </Text>
       <Text className="mt-3 font-display text-4xl uppercase text-foreground">
-        Kilo Takibi
+        {t("panel:weight.title")}
       </Text>
       <Text className="mt-4 font-body text-muted-foreground">
-        Günlük kilonu gir, haftalık ve aylık trendini grafikte gör.
+        {t("panel:weight.description")}
       </Text>
       <Text className="mt-4 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-        Yakında
+        {t("common:soon")}
       </Text>
     </View>
   );

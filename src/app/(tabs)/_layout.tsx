@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router";
+import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
   Dumbbell,
@@ -10,6 +11,8 @@ import {
 import { Colors } from "@/constants/colors";
 
 export default function TabsLayout() {
+  const { t } = useTranslation("common");
+
   return (
     <Tabs
       screenOptions={{
@@ -25,7 +28,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Panel",
+          title: t("tabs.panel"),
           tabBarIcon: ({ color, size }) => (
             <LayoutDashboard color={color} size={size} />
           ),
@@ -34,7 +37,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="antrenman"
         options={{
-          title: "Antrenman",
+          title: t("tabs.workout"),
           tabBarIcon: ({ color, size }) => (
             <Dumbbell color={color} size={size} />
           ),
@@ -43,7 +46,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="beslenme"
         options={{
-          title: "Beslenme",
+          title: t("tabs.nutrition"),
           tabBarIcon: ({ color, size }) => (
             <Utensils color={color} size={size} />
           ),
@@ -52,7 +55,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="su"
         options={{
-          title: "Su",
+          title: t("tabs.water"),
           tabBarIcon: ({ color, size }) => (
             <Droplet color={color} size={size} />
           ),
@@ -61,14 +64,14 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="kilo"
         options={{
-          title: "Kilo",
+          title: t("tabs.weight"),
           tabBarIcon: ({ color, size }) => <Scale color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="profil"
         options={{
-          title: "Profil",
+          title: t("tabs.profile"),
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />

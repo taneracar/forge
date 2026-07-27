@@ -3,19 +3,21 @@ import { View, Text, TextInput } from "react-native";
 import { Link } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { Colors } from "@/constants/colors";
 
 const loginSchema = z.object({
-  email: z.string().email("Geçerli bir e-posta adresi gir"),
-  password: z.string().min(6, "En az 6 karakter olmalı"),
+  email: z.string().email("common:validation.emailInvalid"),
+  password: z.string().min(6, "common:validation.passwordMinLogin"),
 });
 
 type LoginValues = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
+  const { t } = useTranslation(["auth", "common"]);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     control,
@@ -32,7 +34,7 @@ export default function LoginScreen() {
       email,
       password,
     });
-    if (error) setSubmitError("E-posta veya şifre hatalı.");
+    if (error) setSubmitError(t("auth:login.invalidCredentials"));
   });
 
   return (
@@ -41,13 +43,13 @@ export default function LoginScreen() {
         FOR<Text className="text-primary">GE</Text>
       </Text>
       <Text className="text-center font-body text-muted-foreground">
-        Antrenmanına kaldığın yerden devam et.
+        {t("auth:login.subtitle")}
       </Text>
 
       <View className="w-full gap-4">
         <View className="gap-1.5">
           <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-            E-posta
+            {t("auth:login.emailLabel")}
           </Text>
           <Controller
             control={control}
@@ -68,14 +70,14 @@ export default function LoginScreen() {
           />
           {errors.email && (
             <Text className="text-xs text-primary">
-              {errors.email.message}
+              {t(errors.email.message ?? "")}
             </Text>
           )}
         </View>
 
         <View className="gap-1.5">
           <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-            Şifre
+            {t("auth:login.passwordLabel")}
           </Text>
           <Controller
             control={control}
@@ -93,7 +95,7 @@ export default function LoginScreen() {
           />
           {errors.password && (
             <Text className="text-xs text-primary">
-              {errors.password.message}
+              {t(errors.password.message ?? "")}
             </Text>
           )}
         </View>
@@ -108,13 +110,13 @@ export default function LoginScreen() {
           disabled={isSubmitting}
           className="w-full"
         >
-          Giriş Yap
+          {t("auth:login.submit")}
         </Button>
 
         <Text className="text-center font-body text-sm text-muted-foreground">
-          Hesabın yok mu?{" "}
+          {t("auth:login.noAccount")}{" "}
           <Link href="/(auth)/kayit" className="text-primary">
-            Kayıt ol
+            {t("auth:login.signUp")}
           </Link>
         </Text>
       </View>

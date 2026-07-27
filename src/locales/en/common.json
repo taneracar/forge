@@ -1,0 +1,37 @@
+{
+  "buttons": {
+    "continue": "Continue",
+    "back": "Back",
+    "finish": "Finish",
+    "logout": "Log Out",
+    "startWorkout": "Start Workout"
+  },
+  "tabs": {
+    "panel": "Panel",
+    "workout": "Workout",
+    "nutrition": "Nutrition",
+    "water": "Water",
+    "weight": "Weight",
+    "profile": "Profile"
+  },
+  "soon": "Coming Soon",
+  "notSet": "—",
+  "validation": {
+    "emailInvalid": "Enter a valid email address",
+    "passwordMinLogin": "Must be at least 6 characters",
+    "passwordMinSignup": "Must be at least 8 characters",
+    "passwordLetter": "Must include at least one letter",
+    "passwordNumber": "Must include at least one number",
+    "nameRequired": "Enter your name",
+    "ageInvalid": "Enter a valid age",
+    "genderRequired": "Choose an option",
+    "heightInvalid": "Enter a valid height",
+    "weightInvalid": "Enter a valid weight",
+    "goalRequired": "Choose a goal",
+    "activityRequired": "Choose an option",
+    "experienceRequired": "Choose an option",
+    "daysRequired": "Choose a number of days",
+    "daysMin": "Choose at least 1 day a week",
+    "daysMax": "Can be at most 7 days"
+  }
+}

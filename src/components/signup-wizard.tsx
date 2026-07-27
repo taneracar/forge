@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 import { Eye, EyeOff, Check, Minus, Plus } from "lucide-react-native";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
@@ -31,21 +32,17 @@ const stepFields = [
   ["workout_experience", "preferred_training_days"],
 ] as const satisfies (keyof SignupValues)[][];
 
-const stepMeta = [
-  { eyebrow: "Adım 1 / 9", title: "Hesabını Oluştur", description: "Antrenman yolculuğuna başla." },
-  { eyebrow: "Adım 2 / 9", title: "İsmin Ne?", description: "Sana nasıl hitap edelim?" },
-  { eyebrow: "Adım 3 / 9", title: "Cinsiyetin Ne?", description: "Programını sana göre ayarlamamız için." },
-  { eyebrow: "Adım 4 / 9", title: "Kaç Yaşındasın?", description: "Programını sana göre ayarlamamız için." },
-  { eyebrow: "Adım 5 / 9", title: "Boyun Kaç?", description: "İlerlemeni takip edebilmemiz için." },
-  { eyebrow: "Adım 6 / 9", title: "Kilon Kaç?", description: "İlerlemeni takip edebilmemiz için." },
-  { eyebrow: "Adım 7 / 9", title: "Hedefin Ne?", description: "Antrenman ve beslenme planın buna göre şekillenecek." },
-  { eyebrow: "Adım 8 / 9", title: "Aktivite Seviyen?", description: "Günlük hareketliliğini en iyi tanımlayan seçeneği seç." },
-  {
-    eyebrow: "Adım 9 / 9",
-    title: "Antrenman Deneyimin?",
-    description: "Deneyim seviyeni ve haftada kaç gün antrenman yapmak istediğini seç.",
-  },
-];
+const stepKeys = [
+  "account",
+  "name",
+  "gender",
+  "age",
+  "height",
+  "weight",
+  "goal",
+  "activity",
+  "experience",
+] as const;
 
 const trainingDays = [1, 2, 3, 4, 5, 6, 7];
 
@@ -113,6 +110,7 @@ function Stepper({
 }
 
 export function SignupWizard() {
+  const { t } = useTranslation(["onboarding", "common"]);
   const insets = useSafeAreaInsets();
   const session = useAuthStore((state) => state.session);
   const hasProfile = useAuthStore((state) => state.hasProfile);
@@ -129,8 +127,8 @@ export function SignupWizard() {
     formState: { errors, isSubmitting },
   } = useForm<SignupValues>({ resolver: zodResolver(signupSchema) });
 
-  const totalSteps = stepMeta.length;
-  const meta = stepMeta[step];
+  const totalSteps = stepKeys.length;
+  const stepKey = stepKeys[step];
   const password = watch("password") ?? "";
   const passwordChecks = {
     length: password.length >= 8,
@@ -145,7 +143,7 @@ export function SignupWizard() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setSubmitError("Oturum bulunamadı, tekrar giriş yap.");
+      setSubmitError(t("onboarding:errors.noSession"));
       return;
     }
 
@@ -158,7 +156,7 @@ export function SignupWizard() {
       .upsert({ id: user.id, ...profileValues });
 
     if (error) {
-      setSubmitError("Kaydedilirken bir sorun oluştu.");
+      setSubmitError(t("onboarding:errors.saveFailed"));
       return;
     }
 
@@ -178,8 +176,8 @@ export function SignupWizard() {
       if (error) {
         setSubmitError(
           error.message.includes("already registered")
-            ? "Bu e-posta zaten kayıtlı."
-            : "Kayıt sırasında bir sorun oluştu.",
+            ? t("onboarding:errors.alreadyRegistered")
+            : t("onboarding:errors.signupFailed"),
         );
         return;
       }
@@ -208,10 +206,10 @@ export function SignupWizard() {
         style={{ paddingTop: insets.top + 24 }}
       >
         <Text className="font-display text-3xl uppercase text-foreground mb-1">
-          E-postanı Kontrol Et
+          {t("onboarding:checkEmail.title")}
         </Text>
         <Text className="font-body text-muted-foreground">
-          Hesabını onaylaman için sana bir bağlantı gönderdik.
+          {t("onboarding:checkEmail.description")}
         </Text>
       </View>
     );
@@ -223,27 +221,29 @@ export function SignupWizard() {
       contentContainerStyle={{ padding: 24, paddingTop: insets.top + 24 }}
     >
       <View className="flex-row gap-1.5 mb-8">
-        {stepMeta.map((_, i) => (
+        {stepKeys.map((key, i) => (
           <View
-            key={i}
+            key={key}
             className={cn("h-1 flex-1 rounded-full", i <= step ? "bg-primary" : "bg-border")}
           />
         ))}
       </View>
 
       <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
-        {meta.eyebrow}
+        {t(`onboarding:steps.${stepKey}.eyebrow`)}
       </Text>
       <Text className="mt-3 font-display text-3xl uppercase text-foreground">
-        {meta.title}
+        {t(`onboarding:steps.${stepKey}.title`)}
       </Text>
-      <Text className="mt-3 font-body text-muted-foreground">{meta.description}</Text>
+      <Text className="mt-3 font-body text-muted-foreground">
+        {t(`onboarding:steps.${stepKey}.description`)}
+      </Text>
 
       <View className="mt-8 gap-6">
         {step === 0 && (
           <>
             <View className="gap-1.5">
-              <Text className={labelClass}>E-posta</Text>
+              <Text className={labelClass}>{t("onboarding:labels.email")}</Text>
               <Controller
                 control={control}
                 name="email"
@@ -260,12 +260,14 @@ export function SignupWizard() {
                 )}
               />
               {errors.email && (
-                <Text className="text-xs text-primary">{errors.email.message}</Text>
+                <Text className="text-xs text-primary">
+                  {t(errors.email.message ?? "")}
+                </Text>
               )}
             </View>
 
             <View className="gap-1.5">
-              <Text className={labelClass}>Şifre</Text>
+              <Text className={labelClass}>{t("onboarding:labels.password")}</Text>
               <View className="relative justify-center">
                 <Controller
                   control={control}
@@ -294,15 +296,10 @@ export function SignupWizard() {
                 </Pressable>
               </View>
               <View className="mt-1 gap-1">
-                {[
-                  { key: "length", label: "En az 8 karakter" },
-                  { key: "letter", label: "En az bir harf" },
-                  { key: "number", label: "En az bir rakam" },
-                ].map((rule) => {
-                  const met =
-                    passwordChecks[rule.key as keyof typeof passwordChecks];
+                {(["length", "letter", "number"] as const).map((key) => {
+                  const met = passwordChecks[key];
                   return (
-                    <View key={rule.key} className="flex-row items-center gap-1.5">
+                    <View key={key} className="flex-row items-center gap-1.5">
                       <Check
                         color={met ? Colors.primary : Colors.mutedForeground}
                         size={12}
@@ -313,7 +310,7 @@ export function SignupWizard() {
                           met ? "text-primary" : "text-muted-foreground",
                         )}
                       >
-                        {rule.label}
+                        {t(`onboarding:passwordChecklist.${key}`)}
                       </Text>
                     </View>
                   );
@@ -325,7 +322,7 @@ export function SignupWizard() {
 
         {step === 1 && (
           <View className="gap-1.5">
-            <Text className={labelClass}>İsim</Text>
+            <Text className={labelClass}>{t("onboarding:labels.name")}</Text>
             <Controller
               control={control}
               name="name"
@@ -340,7 +337,9 @@ export function SignupWizard() {
               )}
             />
             {errors.name && (
-              <Text className="text-xs text-primary">{errors.name.message}</Text>
+              <Text className="text-xs text-primary">
+                {t(errors.name.message ?? "")}
+              </Text>
             )}
           </View>
         )}
@@ -351,7 +350,7 @@ export function SignupWizard() {
               {genderOptions.map((opt) => (
                 <View key={opt.value} className="flex-1">
                   <OptionButton
-                    label={opt.label}
+                    label={t(opt.labelKey)}
                     selected={watch("gender") === opt.value}
                     onPress={() =>
                       setValue("gender", opt.value, { shouldValidate: true })
@@ -361,14 +360,16 @@ export function SignupWizard() {
               ))}
             </View>
             {errors.gender && (
-              <Text className="text-xs text-primary">{errors.gender.message}</Text>
+              <Text className="text-xs text-primary">
+                {t(errors.gender.message ?? "")}
+              </Text>
             )}
           </View>
         )}
 
         {step === 3 && (
           <View className="gap-1.5">
-            <Text className={labelClass}>Yaş</Text>
+            <Text className={labelClass}>{t("onboarding:labels.age")}</Text>
             <Controller
               control={control}
               name="age"
@@ -386,14 +387,16 @@ export function SignupWizard() {
               )}
             />
             {errors.age && (
-              <Text className="text-xs text-primary">{errors.age.message}</Text>
+              <Text className="text-xs text-primary">
+                {t(errors.age.message ?? "")}
+              </Text>
             )}
           </View>
         )}
 
         {step === 4 && (
           <View className="gap-1.5">
-            <Text className={labelClass}>Boy (cm)</Text>
+            <Text className={labelClass}>{t("onboarding:labels.height")}</Text>
             <View className="flex-row items-center gap-3">
               <Controller
                 control={control}
@@ -419,14 +422,16 @@ export function SignupWizard() {
               />
             </View>
             {errors.height_cm && (
-              <Text className="text-xs text-primary">{errors.height_cm.message}</Text>
+              <Text className="text-xs text-primary">
+                {t(errors.height_cm.message ?? "")}
+              </Text>
             )}
           </View>
         )}
 
         {step === 5 && (
           <View className="gap-1.5">
-            <Text className={labelClass}>Kilo (kg)</Text>
+            <Text className={labelClass}>{t("onboarding:labels.weight")}</Text>
             <View className="flex-row items-center gap-3">
               <Controller
                 control={control}
@@ -452,7 +457,9 @@ export function SignupWizard() {
               />
             </View>
             {errors.weight_kg && (
-              <Text className="text-xs text-primary">{errors.weight_kg.message}</Text>
+              <Text className="text-xs text-primary">
+                {t(errors.weight_kg.message ?? "")}
+              </Text>
             )}
           </View>
         )}
@@ -463,7 +470,7 @@ export function SignupWizard() {
               {goalOptions.map((opt) => (
                 <View key={opt.value} style={{ width: "48%" }}>
                   <OptionButton
-                    label={opt.label}
+                    label={t(opt.labelKey)}
                     selected={watch("goal") === opt.value}
                     onPress={() =>
                       setValue("goal", opt.value, { shouldValidate: true })
@@ -473,7 +480,9 @@ export function SignupWizard() {
               ))}
             </View>
             {errors.goal && (
-              <Text className="text-xs text-primary">{errors.goal.message}</Text>
+              <Text className="text-xs text-primary">
+                {t(errors.goal.message ?? "")}
+              </Text>
             )}
           </View>
         )}
@@ -484,7 +493,7 @@ export function SignupWizard() {
               {activityOptions.map((opt) => (
                 <View key={opt.value} style={{ width: "48%" }}>
                   <OptionButton
-                    label={opt.label}
+                    label={t(opt.labelKey)}
                     selected={watch("activity_level") === opt.value}
                     onPress={() =>
                       setValue("activity_level", opt.value, {
@@ -497,7 +506,7 @@ export function SignupWizard() {
             </View>
             {errors.activity_level && (
               <Text className="text-xs text-primary">
-                {errors.activity_level.message}
+                {t(errors.activity_level.message ?? "")}
               </Text>
             )}
           </View>
@@ -506,12 +515,12 @@ export function SignupWizard() {
         {step === 8 && (
           <>
             <View className="gap-1.5">
-              <Text className={labelClass}>Antrenman Deneyimi</Text>
+              <Text className={labelClass}>{t("onboarding:labels.experience")}</Text>
               <View className="gap-2">
                 {experienceOptions.map((opt) => (
                   <OptionButton
                     key={opt.value}
-                    label={opt.label}
+                    label={t(opt.labelKey)}
                     selected={watch("workout_experience") === opt.value}
                     onPress={() =>
                       setValue("workout_experience", opt.value, {
@@ -523,13 +532,13 @@ export function SignupWizard() {
               </View>
               {errors.workout_experience && (
                 <Text className="text-xs text-primary">
-                  {errors.workout_experience.message}
+                  {t(errors.workout_experience.message ?? "")}
                 </Text>
               )}
             </View>
 
             <View className="gap-1.5">
-              <Text className={labelClass}>Haftalık Antrenman Günü</Text>
+              <Text className={labelClass}>{t("onboarding:labels.days")}</Text>
               <View className="flex-row flex-wrap gap-2">
                 {trainingDays.map((day) => (
                   <Pressable
@@ -561,7 +570,7 @@ export function SignupWizard() {
               </View>
               {errors.preferred_training_days && (
                 <Text className="text-xs text-primary">
-                  {errors.preferred_training_days.message}
+                  {t(errors.preferred_training_days.message ?? "")}
                 </Text>
               )}
             </View>
@@ -574,7 +583,7 @@ export function SignupWizard() {
           {step > (session && !hasProfile ? 1 : 0) && (
             <View className="flex-1">
               <Button variant="outline" onPress={() => setStep((s) => s - 1)}>
-                Geri
+                {t("common:buttons.back")}
               </Button>
             </View>
           )}
@@ -584,7 +593,9 @@ export function SignupWizard() {
               onPress={handleNext}
               disabled={isSubmitting}
             >
-              {step === totalSteps - 1 ? "Bitir" : "Devam Et"}
+              {step === totalSteps - 1
+                ? t("common:buttons.finish")
+                : t("common:buttons.continue")}
             </Button>
           </View>
         </View>
