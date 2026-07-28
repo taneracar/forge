@@ -108,7 +108,10 @@ export function ExercisePicker({ visible, onClose, onSelect }: ExercisePickerPro
           }
           renderItem={({ item }) => (
             <Pressable
-              onPress={() => onSelect(item)}
+              onPress={() => {
+                onSelect(item);
+                onClose();
+              }}
               className="border-b border-border py-4"
             >
               <Text className="font-body-semibold text-base text-foreground">{item.name}</Text>

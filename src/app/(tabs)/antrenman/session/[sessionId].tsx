@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react-native";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
@@ -221,7 +222,12 @@ export default function ActiveSessionScreen() {
 
   return (
     <View className="flex-1 bg-background px-6" style={{ paddingTop: insets.top + 16 }}>
-      <Text className="font-display text-3xl uppercase text-foreground">{workoutName}</Text>
+      <View className="flex-row items-center gap-2">
+        <BackButton fallbackHref="/(tabs)/antrenman" />
+        <Text className="flex-1 font-display text-3xl uppercase text-foreground">
+          {workoutName}
+        </Text>
+      </View>
       <View className="mt-2 flex-row items-center gap-2">
         <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
           {t("panel:workout.session.durationLabel")}

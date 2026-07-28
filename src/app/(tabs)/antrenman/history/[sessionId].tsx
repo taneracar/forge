@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { View, Text, ScrollView } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { Trophy, X } from "lucide-react-native";
+import { Trophy } from "lucide-react-native";
+import { BackButton } from "@/components/ui/back-button";
 import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
 import { calculateVolume, formatDuration } from "@/lib/workout-calculations";
@@ -95,13 +96,11 @@ export default function WorkoutHistoryDetailScreen() {
       className="flex-1 bg-background px-6"
       contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 40 }}
     >
-      <View className="flex-row items-center justify-between">
-        <Text className="font-display text-2xl uppercase text-foreground">
+      <View className="flex-row items-center gap-2">
+        <BackButton fallbackHref="/(tabs)/antrenman/history" />
+        <Text className="flex-1 font-display text-2xl uppercase text-foreground">
           {session?.workouts?.name ?? t("panel:workout.history.detail.title")}
         </Text>
-        <Pressable onPress={() => router.back()} hitSlop={8}>
-          <X color={Colors.foreground} size={22} />
-        </Pressable>
       </View>
 
       {session?.completed_at && (
