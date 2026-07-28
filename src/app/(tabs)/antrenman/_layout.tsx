@@ -2,10 +2,12 @@ import { Stack } from "expo-router";
 
 export default function AntrenmanLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    // Card presentation (not fullScreenModal) so iOS keeps its native
+    // swipe-from-left-edge back gesture on every screen.
+    <Stack screenOptions={{ headerShown: false, gestureEnabled: true }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="builder/[workoutId]" options={{ presentation: "fullScreenModal" }} />
-      <Stack.Screen name="session/[sessionId]" options={{ presentation: "fullScreenModal" }} />
+      <Stack.Screen name="builder/[workoutId]" />
+      <Stack.Screen name="session/[sessionId]" />
       <Stack.Screen name="history/index" />
       <Stack.Screen name="history/[sessionId]" />
     </Stack>
