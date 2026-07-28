@@ -10,7 +10,11 @@ import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
 import { DurationTimer } from "@/components/workout/duration-timer";
 import { SetRow } from "@/components/workout/set-row";
-import { detectPR } from "@/lib/workout-calculations";
+import {
+  bestPerformance,
+  compareSetPerformance,
+  isPersonalRecord,
+} from "@/lib/workout-calculations";
 
 interface LocalSet {
   id: string;
@@ -38,6 +42,12 @@ interface SessionDetail {
   workouts: { name: string } | null;
 }
 
+interface PriorSetRow {
+  exercise_id: string;
+  weight: number | null;
+  reps: number | null;
+}
+
 export default function ActiveSessionScreen() {
   const { t } = useTranslation(["panel", "common"]);
   const insets = useSafeAreaInsets();
@@ -46,7 +56,9 @@ export default function ActiveSessionScreen() {
   const [workoutName, setWorkoutName] = useState("");
   const [startedAt, setStartedAt] = useState<string | null>(null);
   const [groups, setGroups] = useState<ExerciseGroup[]>([]);
-  const [priorMaxByExercise, setPriorMaxByExercise] = useState<Record<string, number>>({});
+  const [priorBestByExercise, setPriorBestByExercise] = useState<Record<string, PriorSetRow>>(
+    {},
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -81,22 +93,24 @@ export default function ActiveSessionScreen() {
         .order("set_number");
 
       const exerciseIds = exerciseRows.map((r) => r.exercise_id);
-      const priorMax: Record<string, number> = {};
+      const priorBest: Record<string, PriorSetRow> = {};
       if (exerciseIds.length > 0) {
+        // Same rule as the history screen: only earlier sessions set the record.
         const { data: priorSets } = await supabase
           .from("workout_sets")
-          .select("exercise_id, weight")
+          .select("exercise_id, weight, reps, workout_sessions!inner(started_at)")
           .in("exercise_id", exerciseIds)
           .eq("completed", true)
-          .neq("session_id", sessionId);
-        for (const s of priorSets ?? []) {
-          const w = s.weight ?? 0;
-          if (!priorMax[s.exercise_id] || w > priorMax[s.exercise_id]) {
-            priorMax[s.exercise_id] = w;
+          .lt("workout_sessions.started_at", session.started_at)
+          .returns<PriorSetRow[]>();
+        for (const set of priorSets ?? []) {
+          const current = priorBest[set.exercise_id];
+          if (!current || compareSetPerformance(set, current) > 0) {
+            priorBest[set.exercise_id] = set;
           }
         }
       }
-      setPriorMaxByExercise(priorMax);
+      setPriorBestByExercise(priorBest);
 
       setGroups(
         exerciseRows.map((row) => ({
@@ -220,6 +234,15 @@ export default function ActiveSessionScreen() {
     return <View className="flex-1 bg-background" style={{ paddingTop: insets.top }} />;
   }
 
+  // Derived every render so the badge follows the sets as they are edited.
+  const prSetIds = new Set<string>();
+  for (const group of groups) {
+    const best = bestPerformance(group.sets.filter((s) => s.completed));
+    if (best && isPersonalRecord(best, priorBestByExercise[group.exerciseId] ?? null)) {
+      prSetIds.add(best.id);
+    }
+  }
+
   return (
     <View className="flex-1 bg-background px-6" style={{ paddingTop: insets.top + 16 }}>
       <View className="flex-row items-center gap-2">
@@ -254,17 +277,7 @@ export default function ActiveSessionScreen() {
                   weight={set.weight}
                   reps={set.reps}
                   completed={set.completed}
-                  isPR={
-                    set.completed &&
-                    (set.weight ?? 0) > 0 &&
-                    detectPR(group.exerciseId, set.weight ?? 0, [
-                      {
-                        exercise_id: group.exerciseId,
-                        weight: priorMaxByExercise[group.exerciseId] ?? 0,
-                        completed: true,
-                      },
-                    ])
-                  }
+                  isPR={prSetIds.has(set.id)}
                   weightLabel={t("panel:workout.session.weightLabel")}
                   repsLabel={t("panel:workout.session.repsLabel")}
                   setLabel={t("panel:workout.session.setLabel")}

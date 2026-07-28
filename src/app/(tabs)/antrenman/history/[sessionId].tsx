@@ -7,7 +7,13 @@ import { Trophy } from "lucide-react-native";
 import { BackButton } from "@/components/ui/back-button";
 import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
-import { calculateVolume, formatDuration } from "@/lib/workout-calculations";
+import {
+  bestPerformance,
+  calculateVolume,
+  compareSetPerformance,
+  formatDuration,
+  isPersonalRecord,
+} from "@/lib/workout-calculations";
 
 interface SetRowData {
   id: string;
@@ -20,9 +26,16 @@ interface SetRowData {
 }
 
 interface SessionDetail {
+  started_at: string;
   completed_at: string | null;
   duration_seconds: number | null;
   workouts: { name: string } | null;
+}
+
+interface PriorSetRow {
+  exercise_id: string;
+  weight: number | null;
+  reps: number | null;
 }
 
 interface ExerciseGroup {
@@ -38,17 +51,18 @@ export default function WorkoutHistoryDetailScreen() {
 
   const [session, setSession] = useState<SessionDetail | null>(null);
   const [groups, setGroups] = useState<ExerciseGroup[]>([]);
-  const [prMaxByExercise, setPrMaxByExercise] = useState<Record<string, number>>({});
+  const [prSetIds, setPrSetIds] = useState<Set<string>>(new Set());
   const [volume, setVolume] = useState(0);
 
   useEffect(() => {
     async function load() {
       const { data: sessionData } = await supabase
         .from("workout_sessions")
-        .select("completed_at, duration_seconds, workouts(name)")
+        .select("started_at, completed_at, duration_seconds, workouts(name)")
         .eq("id", sessionId)
         .single<SessionDetail>();
       setSession(sessionData ?? null);
+      if (!sessionData) return;
 
       const { data: sets } = await supabase
         .from("workout_sets")
@@ -74,19 +88,37 @@ export default function WorkoutHistoryDetailScreen() {
       setVolume(calculateVolume(sets ?? []));
 
       const exerciseIds = groupList.map((g) => g.exerciseId);
-      if (exerciseIds.length > 0) {
-        const { data: allSets } = await supabase
-          .from("workout_sets")
-          .select("exercise_id, weight")
-          .in("exercise_id", exerciseIds)
-          .eq("completed", true);
-        const max: Record<string, number> = {};
-        for (const s of allSets ?? []) {
-          const w = s.weight ?? 0;
-          if (!max[s.exercise_id] || w > max[s.exercise_id]) max[s.exercise_id] = w;
+      if (exerciseIds.length === 0) return;
+
+      // Only sets logged in *earlier* sessions count as the record to beat, so
+      // a badge means "this beat everything before it" and stays accurate even
+      // after the lift is surpassed later.
+      const { data: priorSets } = await supabase
+        .from("workout_sets")
+        .select("exercise_id, weight, reps, workout_sessions!inner(started_at)")
+        .in("exercise_id", exerciseIds)
+        .eq("completed", true)
+        .lt("workout_sessions.started_at", sessionData.started_at)
+        .returns<PriorSetRow[]>();
+
+      const priorBest = new Map<string, PriorSetRow>();
+      for (const set of priorSets ?? []) {
+        const current = priorBest.get(set.exercise_id);
+        if (!current || compareSetPerformance(set, current) > 0) {
+          priorBest.set(set.exercise_id, set);
         }
-        setPrMaxByExercise(max);
       }
+
+      // At most one badge per exercise: the best set of this session, and only
+      // when it actually beats the prior record.
+      const records = new Set<string>();
+      for (const group of groupList) {
+        const best = bestPerformance(group.sets.filter((s) => s.completed));
+        if (best && isPersonalRecord(best, priorBest.get(group.exerciseId) ?? null)) {
+          records.add(best.id);
+        }
+      }
+      setPrSetIds(records);
     }
     load();
   }, [sessionId]);
@@ -140,10 +172,7 @@ export default function WorkoutHistoryDetailScreen() {
             </Text>
             <View className="gap-1.5">
               {group.sets.map((set) => {
-                const isPR =
-                  set.completed &&
-                  (set.weight ?? 0) > 0 &&
-                  set.weight === prMaxByExercise[group.exerciseId];
+                const isPR = prSetIds.has(set.id);
                 return (
                   <View
                     key={set.id}
