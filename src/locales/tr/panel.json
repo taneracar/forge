@@ -48,7 +48,11 @@
       "resumeBanner": "Devam eden bir antrenmanın var.",
       "resumeButton": "Devam Et",
       "historyButton": "Geçmiş",
-      "newWorkoutButton": "Yeni Antrenman"
+      "newWorkoutButton": "Yeni",
+      "noProgramDescription": "Bir antrenman oluştur, hareketlerini ekle ve kaydetmeye başla.",
+      "noRecentDescription": "İlk antrenmanını tamamladığında ilerlemen burada görünecek.",
+      "statsSessions": "Antrenman",
+      "statsVolume": "Toplam Hacim"
     },
     "builder": {
       "newTitle": "Yeni Antrenman",

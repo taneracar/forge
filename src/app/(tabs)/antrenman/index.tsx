@@ -1,10 +1,25 @@
-import { useCallback, useState } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { View, Text, Pressable } from "react-native";
 import { router, useFocusEffect } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
+import { ChevronRight, Dumbbell, Flame, History, Play } from "lucide-react-native";
+import { Screen } from "@/components/ui/screen";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { SectionHeader } from "@/components/ui/section-header";
+import { StatTile } from "@/components/ui/stat-tile";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BarChart, type BarDatum } from "@/components/ui/bar-chart";
+import { Colors } from "@/constants/colors";
+import { haptics } from "@/lib/haptics";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth.store";
 import { calculateVolume, formatDuration } from "@/lib/workout-calculations";
@@ -40,9 +55,25 @@ interface SessionRow {
   workout_sets: { weight: number | null; reps: number | null; completed: boolean }[];
 }
 
+/** Slow pulse so an unfinished workout reads as live without being noisy. */
+function LiveDot() {
+  const opacity = useSharedValue(1);
+
+  useEffect(() => {
+    opacity.value = withRepeat(withTiming(0.25, { duration: 900 }), -1, true);
+  }, [opacity]);
+
+  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  return (
+    <Animated.View style={style}>
+      <View className="h-2 w-2 rounded-full bg-success" />
+    </Animated.View>
+  );
+}
+
 export default function AntrenmanHomeScreen() {
   const { t } = useTranslation(["panel", "common"]);
-  const insets = useSafeAreaInsets();
   const userId = useAuthStore((state) => state.session?.user.id);
   const [currentWorkout, setCurrentWorkout] = useState<CurrentWorkout | null>(null);
   const [recentSessions, setRecentSessions] = useState<RecentSession[]>([]);
@@ -64,11 +95,13 @@ export default function AntrenmanHomeScreen() {
         .maybeSingle(),
       supabase
         .from("workout_sessions")
-        .select("id, completed_at, duration_seconds, workouts(name), workout_sets(weight, reps, completed)")
+        .select(
+          "id, completed_at, duration_seconds, workouts(name), workout_sets(weight, reps, completed)",
+        )
         .eq("user_id", userId)
         .not("completed_at", "is", null)
         .order("completed_at", { ascending: false })
-        .limit(3)
+        .limit(5)
         .returns<SessionRow[]>(),
       supabase
         .from("workout_sessions")
@@ -128,126 +161,213 @@ export default function AntrenmanHomeScreen() {
       .single();
     setStarting(false);
     if (error || !data) return;
+    haptics.success();
     router.push(`/(tabs)/antrenman/session/${data.id}`);
   }
 
+  // Oldest-to-newest so the chart reads left to right.
+  const chartData: BarDatum[] = [...recentSessions].reverse().map((s) => ({
+    label: new Date(s.completedAt).toLocaleDateString(undefined, {
+      day: "2-digit",
+      month: "2-digit",
+    }),
+    value: Math.round(s.volume),
+  }));
+
+  const totalVolume = recentSessions.reduce((sum, s) => sum + s.volume, 0);
+
   return (
-    <ScrollView
-      className="flex-1 bg-background px-6"
-      contentContainerStyle={{ paddingTop: insets.top + 24, paddingBottom: 40 }}
-    >
-      <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
-        {t("panel:workout.home.eyebrow")}
-      </Text>
-      <Text className="mt-3 font-display text-4xl uppercase text-foreground">
+    <Screen>
+      <Text className="font-display text-4xl uppercase text-foreground">
         {t("panel:workout.home.title")}
       </Text>
 
-      {openSession && (
-        <Pressable
-          onPress={() => router.push(`/(tabs)/antrenman/session/${openSession.id}`)}
-          className="mt-6 rounded-md border border-primary bg-primary/10 p-4"
-        >
-          <Text className="font-body-semibold text-sm text-primary">
-            {t("panel:workout.home.resumeBanner")}
-          </Text>
-          <Text className="mt-1 font-mono text-xs uppercase tracking-wider text-primary">
-            {t("panel:workout.home.resumeButton")} →
-          </Text>
-        </Pressable>
-      )}
-
-      <View className="mt-6">
-        <View className="flex-row items-center justify-between">
-          <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-            {t("panel:workout.home.currentProgramLabel")}
-          </Text>
-          <Pressable onPress={() => router.push("/(tabs)/antrenman/builder/new")}>
-            <Text className="font-mono text-xs uppercase tracking-wider text-primary">
-              {t("panel:workout.home.newWorkoutButton")}
-            </Text>
-          </Pressable>
+      {loading ? (
+        <View className="mt-6 gap-3">
+          <Skeleton height={132} />
+          <Skeleton height={56} />
+          <Skeleton height={96} />
         </View>
-        {!loading && currentWorkout ? (
-          <Pressable
-            onPress={() => router.push(`/(tabs)/antrenman/builder/${currentWorkout.id}`)}
-          >
-            <Card className="mt-3">
-              <Text className="font-display text-2xl uppercase text-foreground">
-                {currentWorkout.name}
-              </Text>
-              <View className="mt-3 gap-1.5">
-                {currentWorkout.exerciseNames.map((name, i) => (
-                  <Text key={i} className="font-body text-sm text-muted-foreground">
-                    • {name}
-                  </Text>
+      ) : (
+        <>
+          {openSession && (
+            <Animated.View entering={FadeInDown.duration(320)} className="mt-5">
+              <Pressable
+                onPress={() => {
+                  haptics.select();
+                  router.push(`/(tabs)/antrenman/session/${openSession.id}`);
+                }}
+              >
+                <Card variant="raised" className="border-success/40 flex-row items-center gap-3">
+                  <LiveDot />
+                  <View className="flex-1">
+                    <Text className="font-body-semibold text-sm text-foreground">
+                      {t("panel:workout.home.resumeBanner")}
+                    </Text>
+                    <Text className="mt-0.5 font-body text-xs text-success">
+                      {t("panel:workout.home.resumeButton")}
+                    </Text>
+                  </View>
+                  <ChevronRight color={Colors.success} size={18} />
+                </Card>
+              </Pressable>
+            </Animated.View>
+          )}
+
+          <SectionHeader
+            className="mt-7"
+            title={t("panel:workout.home.currentProgramLabel")}
+            actionLabel={t("panel:workout.home.newWorkoutButton")}
+            onAction={() => {
+              haptics.select();
+              router.push("/(tabs)/antrenman/builder/new");
+            }}
+          />
+
+          {currentWorkout ? (
+            <Animated.View entering={FadeInDown.duration(320).delay(60)} className="mt-3">
+              <Pressable
+                onPress={() => {
+                  haptics.select();
+                  router.push(`/(tabs)/antrenman/builder/${currentWorkout.id}`);
+                }}
+              >
+                <Card variant="gradient">
+                  <View className="flex-row items-start justify-between">
+                    <View className="flex-1">
+                      <Text className="font-display text-3xl uppercase text-foreground">
+                        {currentWorkout.name}
+                      </Text>
+                      <Text className="mt-1 font-body text-xs text-muted-foreground">
+                        {currentWorkout.exerciseNames.length}{" "}
+                        {t("panel:dashboard.exerciseCountSuffix")}
+                      </Text>
+                    </View>
+                    <View className="h-11 w-11 items-center justify-center rounded-tile bg-primary/15">
+                      <Dumbbell color={Colors.primary} size={20} />
+                    </View>
+                  </View>
+
+                  {currentWorkout.exerciseNames.length > 0 && (
+                    <View className="mt-4 gap-2.5">
+                      {currentWorkout.exerciseNames.map((name, i) => (
+                        <View key={i} className="flex-row items-center gap-2.5">
+                          <Text className="w-4 font-mono text-xs text-primary">{i + 1}</Text>
+                          <Text className="flex-1 font-body text-sm text-foreground">{name}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </Card>
+              </Pressable>
+            </Animated.View>
+          ) : (
+            <EmptyState
+              className="mt-3"
+              icon={<Dumbbell color={Colors.mutedForeground} size={24} />}
+              title={t("panel:workout.home.noProgram")}
+              description={t("panel:workout.home.noProgramDescription")}
+              actionLabel={t("panel:workout.home.createWorkoutButton")}
+              onAction={() => router.push("/(tabs)/antrenman/builder/new")}
+            />
+          )}
+
+          {!openSession && currentWorkout && (
+            <View className="mt-4">
+              <Button
+                variant="primary"
+                size="lg"
+                loading={starting}
+                onPress={handleStart}
+                icon={<Play color={Colors.primaryForeground} size={18} fill={Colors.primaryForeground} />}
+              >
+                {t("common:buttons.startWorkout")}
+              </Button>
+            </View>
+          )}
+
+          <SectionHeader
+            className="mt-8"
+            title={t("panel:workout.home.recentLabel")}
+            actionLabel={t("panel:workout.home.historyButton")}
+            onAction={() => {
+              haptics.select();
+              router.push("/(tabs)/antrenman/history");
+            }}
+          />
+
+          {recentSessions.length === 0 ? (
+            <EmptyState
+              className="mt-3"
+              icon={<History color={Colors.mutedForeground} size={24} />}
+              title={t("panel:workout.home.noRecent")}
+              description={t("panel:workout.home.noRecentDescription")}
+            />
+          ) : (
+            <>
+              <View className="mt-3 flex-row gap-3">
+                <StatTile
+                  className="flex-1"
+                  label={t("panel:workout.home.statsSessions")}
+                  value={String(recentSessions.length)}
+                  icon={<Dumbbell color={Colors.mutedForeground} size={13} />}
+                />
+                <StatTile
+                  className="flex-1"
+                  label={t("panel:workout.home.statsVolume")}
+                  value={Math.round(totalVolume).toLocaleString()}
+                  unit="kg"
+                  icon={<Flame color={Colors.mutedForeground} size={13} />}
+                />
+              </View>
+
+              <Card className="mt-3">
+                <BarChart data={chartData} />
+              </Card>
+
+              <View className="mt-3 gap-2">
+                {recentSessions.map((session, i) => (
+                  <Animated.View
+                    key={session.id}
+                    entering={FadeInDown.duration(300).delay(i * 50)}
+                  >
+                    <Pressable
+                      onPress={() => {
+                        haptics.select();
+                        router.push(`/(tabs)/antrenman/history/${session.id}`);
+                      }}
+                    >
+                      <Card className="flex-row items-center gap-3">
+                        <View className="h-9 w-9 items-center justify-center rounded-tile bg-surface-overlay">
+                          <Dumbbell color={Colors.mutedForeground} size={16} />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="font-body-semibold text-sm text-foreground">
+                            {session.workoutName}
+                          </Text>
+                          <Text className="mt-0.5 font-body text-xs text-muted-foreground">
+                            {new Date(session.completedAt).toLocaleDateString()}
+                          </Text>
+                        </View>
+                        <View className="items-end">
+                          <Text className="font-mono text-sm text-foreground">
+                            {Math.round(session.volume).toLocaleString()} kg
+                          </Text>
+                          <Text className="mt-0.5 font-mono text-[11px] text-muted-foreground">
+                            {session.durationSeconds
+                              ? formatDuration(session.durationSeconds)
+                              : "—"}
+                          </Text>
+                        </View>
+                      </Card>
+                    </Pressable>
+                  </Animated.View>
                 ))}
               </View>
-            </Card>
-          </Pressable>
-        ) : (
-          !loading && (
-            <View className="mt-3">
-              <Text className="font-body text-sm text-muted-foreground">
-                {t("panel:workout.home.noProgram")}
-              </Text>
-              <View className="mt-4">
-                <Button
-                  variant="outline"
-                  onPress={() => router.push("/(tabs)/antrenman/builder/new")}
-                >
-                  {t("panel:workout.home.createWorkoutButton")}
-                </Button>
-              </View>
-            </View>
-          )
-        )}
-      </View>
-
-      {!openSession && currentWorkout && (
-        <View className="mt-6">
-          <Button variant="primary" onPress={handleStart} disabled={starting}>
-            {t("common:buttons.startWorkout")}
-          </Button>
-        </View>
+            </>
+          )}
+        </>
       )}
-
-      <View className="mt-8 flex-row items-center justify-between">
-        <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-          {t("panel:workout.home.recentLabel")}
-        </Text>
-        <Pressable onPress={() => router.push("/(tabs)/antrenman/history")}>
-          <Text className="font-mono text-xs uppercase tracking-wider text-primary">
-            {t("panel:workout.home.historyButton")}
-          </Text>
-        </Pressable>
-      </View>
-
-      {!loading && recentSessions.length === 0 && (
-        <Text className="mt-3 font-body text-sm text-muted-foreground">
-          {t("panel:workout.home.noRecent")}
-        </Text>
-      )}
-
-      <View className="mt-3 gap-3">
-        {recentSessions.map((session) => (
-          <Pressable
-            key={session.id}
-            onPress={() => router.push(`/(tabs)/antrenman/history/${session.id}`)}
-          >
-            <Card>
-              <Text className="font-body-semibold text-base text-foreground">
-                {session.workoutName}
-              </Text>
-              <Text className="mt-1 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                {new Date(session.completedAt).toLocaleDateString()} ·{" "}
-                {session.durationSeconds ? formatDuration(session.durationSeconds) : "—"} ·{" "}
-                {Math.round(session.volume)} kg
-              </Text>
-            </Card>
-          </Pressable>
-        ))}
-      </View>
-    </ScrollView>
+    </Screen>
   );
 }

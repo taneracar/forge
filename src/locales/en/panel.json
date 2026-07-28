@@ -48,7 +48,11 @@
       "resumeBanner": "You have a workout in progress.",
       "resumeButton": "Resume",
       "historyButton": "History",
-      "newWorkoutButton": "New Workout"
+      "newWorkoutButton": "New",
+      "noProgramDescription": "Create a workout, add your exercises and start logging.",
+      "noRecentDescription": "Your progress will show up here once you finish your first workout.",
+      "statsSessions": "Workouts",
+      "statsVolume": "Total Volume"
     },
     "builder": {
       "newTitle": "New Workout",

@@ -1,3 +1,5 @@
+// Raw values for props that cannot take a className (icon `color`,
+// `placeholderTextColor`, SVG fills). Keep in sync with tailwind.config.js.
 export const Colors = {
   background: "#14110D",
   foreground: "#F7F3EC",
@@ -8,7 +10,18 @@ export const Colors = {
   accentForeground: "#F7F3EC",
   muted: "#6B655C",
   mutedForeground: "#B7B0A4",
-  surface: "#1D1913",
-  surfaceRaised: "#241F17",
+  surfaceSunken: "#100D0A",
+  surface: "#1C1815",
+  surfaceRaised: "#2A241E",
+  surfaceOverlay: "#332B23",
+  success: "#3DD68C",
+  successForeground: "#0B1F14",
+  danger: "#F2555A",
+  dangerForeground: "#F7F3EC",
+  warning: "#FFB627",
+  warningForeground: "#14110D",
+  chart: "#FF5A1F",
+  chartAlt: "#4EA8DE",
   border: "rgba(247, 243, 236, 0.08)",
+  borderStrong: "rgba(247, 243, 236, 0.16)",
 } as const;
