@@ -47,7 +47,8 @@
       "noRecent": "Henüz tamamlanmış antrenmanın yok.",
       "resumeBanner": "Devam eden bir antrenmanın var.",
       "resumeButton": "Devam Et",
-      "historyButton": "Geçmiş"
+      "historyButton": "Geçmiş",
+      "newWorkoutButton": "Yeni Antrenman"
     },
     "builder": {
       "newTitle": "Yeni Antrenman",

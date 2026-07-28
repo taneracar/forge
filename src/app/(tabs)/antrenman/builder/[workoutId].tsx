@@ -35,33 +35,30 @@ export default function WorkoutBuilderScreen() {
   const [items, setItems] = useState<BuilderExerciseItem[]>([]);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(!isNew);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isNew) return;
-    supabase
-      .from("workouts")
-      .select("name")
-      .eq("id", workoutId)
-      .single()
-      .then(({ data }) => {
-        if (data) setName(data.name);
-      });
-    supabase
-      .from("workout_exercises")
-      .select("order_index, exercise_id, exercises(name)")
-      .eq("workout_id", workoutId)
-      .order("order_index")
-      .returns<WorkoutExerciseRow[]>()
-      .then(({ data }) => {
-        setItems(
-          (data ?? []).map((row, i) => ({
-            key: `${row.exercise_id}-${i}`,
-            exerciseId: row.exercise_id,
-            name: row.exercises?.name ?? "",
-          })),
-        );
-      });
+    Promise.all([
+      supabase.from("workouts").select("name").eq("id", workoutId).single(),
+      supabase
+        .from("workout_exercises")
+        .select("order_index, exercise_id, exercises(name)")
+        .eq("workout_id", workoutId)
+        .order("order_index")
+        .returns<WorkoutExerciseRow[]>(),
+    ]).then(([{ data: workout }, { data: exercises }]) => {
+      if (workout) setName(workout.name);
+      setItems(
+        (exercises ?? []).map((row, i) => ({
+          key: `${row.exercise_id}-${i}`,
+          exerciseId: row.exercise_id,
+          name: row.exercises?.name ?? "",
+        })),
+      );
+      setLoading(false);
+    });
   }, [isNew, workoutId]);
 
   function handleSelectExercise(exercise: Exercise) {
@@ -164,16 +161,20 @@ export default function WorkoutBuilderScreen() {
           </Text>
           <Pressable
             onPress={() => setPickerVisible(true)}
+            disabled={loading}
             className="flex-row items-center gap-1.5"
           >
-            <Plus color={Colors.primary} size={14} />
-            <Text className="font-mono text-xs uppercase tracking-wider text-primary">
+            <Plus color={loading ? Colors.border : Colors.primary} size={14} />
+            <Text
+              className="font-mono text-xs uppercase tracking-wider"
+              style={{ color: loading ? Colors.border : Colors.primary }}
+            >
               {t("panel:workout.builder.addExerciseButton")}
             </Text>
           </Pressable>
         </View>
 
-        {items.length === 0 ? (
+        {loading ? null : items.length === 0 ? (
           <Text className="mt-4 font-body text-sm text-muted-foreground">
             {t("panel:workout.builder.emptyState")}
           </Text>

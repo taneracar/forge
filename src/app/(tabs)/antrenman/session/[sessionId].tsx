@@ -160,18 +160,22 @@ export default function ActiveSessionScreen() {
 
   function handleChangeWeight(exerciseId: string, setId: string, value: number) {
     updateLocalSet(exerciseId, setId, { weight: value });
-    void supabase.from("workout_sets").update({ weight: value }).eq("id", setId);
+    supabase.from("workout_sets").update({ weight: value }).eq("id", setId).then(() => {});
   }
 
   function handleChangeReps(exerciseId: string, setId: string, value: number) {
     updateLocalSet(exerciseId, setId, { reps: value });
-    void supabase.from("workout_sets").update({ reps: value }).eq("id", setId);
+    supabase.from("workout_sets").update({ reps: value }).eq("id", setId).then(() => {});
   }
 
   function handleToggleComplete(exerciseId: string, set: LocalSet) {
     const nextCompleted = !set.completed;
     updateLocalSet(exerciseId, set.id, { completed: nextCompleted });
-    void supabase.from("workout_sets").update({ completed: nextCompleted }).eq("id", set.id);
+    supabase
+      .from("workout_sets")
+      .update({ completed: nextCompleted })
+      .eq("id", set.id)
+      .then(() => {});
   }
 
   function handleDeleteSet(exerciseId: string, setId: string) {
@@ -180,7 +184,7 @@ export default function ActiveSessionScreen() {
         g.exerciseId === exerciseId ? { ...g, sets: g.sets.filter((s) => s.id !== setId) } : g,
       ),
     );
-    void supabase.from("workout_sets").delete().eq("id", setId);
+    supabase.from("workout_sets").delete().eq("id", setId).then(() => {});
   }
 
   async function handleFinish() {

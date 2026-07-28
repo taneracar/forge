@@ -69,7 +69,7 @@ export function SetRow({
         <Pressable
           onPress={onToggleComplete}
           className={cn(
-            "h-10 w-10 items-center justify-center rounded-md border",
+            "h-10 w-10 shrink-0 items-center justify-center rounded-md border",
             completed ? "border-primary bg-primary" : "border-border",
           )}
         >

@@ -158,9 +158,16 @@ export default function AntrenmanHomeScreen() {
       )}
 
       <View className="mt-6">
-        <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-          {t("panel:workout.home.currentProgramLabel")}
-        </Text>
+        <View className="flex-row items-center justify-between">
+          <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+            {t("panel:workout.home.currentProgramLabel")}
+          </Text>
+          <Pressable onPress={() => router.push("/(tabs)/antrenman/builder/new")}>
+            <Text className="font-mono text-xs uppercase tracking-wider text-primary">
+              {t("panel:workout.home.newWorkoutButton")}
+            </Text>
+          </Pressable>
+        </View>
         {!loading && currentWorkout ? (
           <Pressable
             onPress={() => router.push(`/(tabs)/antrenman/builder/${currentWorkout.id}`)}
