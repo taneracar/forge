@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Pressable } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
+import { BackButton } from "@/components/ui/back-button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth.store";
@@ -59,7 +60,8 @@ export default function WorkoutHistoryScreen() {
       className="flex-1 bg-background px-6"
       contentContainerStyle={{ paddingTop: insets.top + 24, paddingBottom: 40 }}
     >
-      <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
+      <BackButton fallbackHref="/(tabs)/antrenman" />
+      <Text className="mt-3 font-mono text-xs uppercase tracking-[3px] text-primary">
         {t("panel:workout.history.eyebrow")}
       </Text>
       <Text className="mt-3 font-display text-4xl uppercase text-foreground">

@@ -3,7 +3,8 @@ import { View, Text, ScrollView, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react-native";
+import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react-native";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Colors } from "@/constants/colors";
@@ -138,13 +139,11 @@ export default function WorkoutBuilderScreen() {
 
   return (
     <View className="flex-1 bg-background px-6" style={{ paddingTop: insets.top + 16 }}>
-      <View className="flex-row items-center justify-between">
-        <Text className="font-display text-2xl uppercase text-foreground">
+      <View className="flex-row items-center gap-2">
+        <BackButton fallbackHref="/(tabs)/antrenman" />
+        <Text className="flex-1 font-display text-2xl uppercase text-foreground">
           {isNew ? t("panel:workout.builder.newTitle") : t("panel:workout.builder.editTitle")}
         </Text>
-        <Pressable onPress={() => router.back()} hitSlop={8}>
-          <X color={Colors.foreground} size={22} />
-        </Pressable>
       </View>
 
       <ScrollView className="mt-6 flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
