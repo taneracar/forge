@@ -47,7 +47,8 @@
       "noRecent": "No completed workouts yet.",
       "resumeBanner": "You have a workout in progress.",
       "resumeButton": "Resume",
-      "historyButton": "History"
+      "historyButton": "History",
+      "newWorkoutButton": "New Workout"
     },
     "builder": {
       "newTitle": "New Workout",
