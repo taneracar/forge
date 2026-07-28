@@ -61,6 +61,7 @@
       "namePlaceholder": "e.g. Push Day",
       "exercisesLabel": "Exercises",
       "emptyState": "No exercises added yet.",
+      "emptyStateDescription": "Use the button below to add exercises to this workout.",
       "addExerciseButton": "Add Exercise",
       "pickExercise": "Pick Exercise",
       "searchPlaceholder": "Search exercises...",
@@ -85,6 +86,7 @@
       "emptyState": "No completed workouts yet.",
       "durationLabel": "Duration",
       "volumeLabel": "Total Volume",
+      "totalTime": "Total training time:",
       "detail": {
         "title": "Workout Detail",
         "setsLabel": "Sets"

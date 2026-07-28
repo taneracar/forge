@@ -3,10 +3,17 @@ import { View, Text, ScrollView, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react-native";
+import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
+import { ArrowDown, ArrowUp, Dumbbell, Plus, Trash2 } from "lucide-react-native";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
+import { SectionHeader } from "@/components/ui/section-header";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/cn";
+import { haptics } from "@/lib/haptics";
 import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth.store";
@@ -138,7 +145,7 @@ export default function WorkoutBuilderScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background px-6" style={{ paddingTop: insets.top + 16 }}>
+    <View className="flex-1 bg-background px-5" style={{ paddingTop: insets.top + 12 }}>
       <View className="flex-row items-center gap-2">
         <BackButton fallbackHref="/(tabs)/antrenman" />
         <Text className="flex-1 font-display text-2xl uppercase text-foreground">
@@ -146,7 +153,12 @@ export default function WorkoutBuilderScreen() {
         </Text>
       </View>
 
-      <ScrollView className="mt-6 flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
+      <ScrollView
+        className="mt-5 flex-1"
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <Input
           label={t("panel:workout.builder.nameLabel")}
           placeholder={t("panel:workout.builder.namePlaceholder")}
@@ -154,74 +166,97 @@ export default function WorkoutBuilderScreen() {
           onChangeText={setName}
         />
 
-        <View className="mt-6 flex-row items-center justify-between">
-          <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-            {t("panel:workout.builder.exercisesLabel")}
-          </Text>
-          <Pressable
-            onPress={() => setPickerVisible(true)}
-            disabled={loading}
-            className="flex-row items-center gap-1.5"
-          >
-            <Plus color={loading ? Colors.border : Colors.primary} size={14} />
-            <Text
-              className="font-mono text-xs uppercase tracking-wider"
-              style={{ color: loading ? Colors.border : Colors.primary }}
-            >
-              {t("panel:workout.builder.addExerciseButton")}
-            </Text>
-          </Pressable>
-        </View>
+        <SectionHeader
+          className="mt-7"
+          title={t("panel:workout.builder.exercisesLabel")}
+        />
 
-        {loading ? null : items.length === 0 ? (
-          <Text className="mt-4 font-body text-sm text-muted-foreground">
-            {t("panel:workout.builder.emptyState")}
-          </Text>
+        {loading ? (
+          <View className="mt-3 gap-2">
+            <Skeleton height={58} />
+            <Skeleton height={58} />
+          </View>
+        ) : items.length === 0 ? (
+          <EmptyState
+            className="mt-3"
+            icon={<Dumbbell color={Colors.mutedForeground} size={24} />}
+            title={t("panel:workout.builder.emptyState")}
+            description={t("panel:workout.builder.emptyStateDescription")}
+          />
         ) : (
           <View className="mt-3 gap-2">
             {items.map((item, index) => (
-              <View
+              <Animated.View
                 key={item.key}
-                className="flex-row items-center justify-between rounded-md border border-border bg-surface p-3"
+                entering={FadeInDown.duration(240)}
+                layout={LinearTransition.duration(220)}
               >
-                <Text className="flex-1 font-body-semibold text-sm text-foreground">
-                  {index + 1}. {item.name}
-                </Text>
-                <View className="flex-row items-center gap-3">
-                  <Pressable
-                    onPress={() => handleMove(index, -1)}
-                    disabled={index === 0}
-                    hitSlop={8}
-                  >
-                    <ArrowUp
-                      color={index === 0 ? Colors.border : Colors.mutedForeground}
-                      size={16}
-                    />
-                  </Pressable>
-                  <Pressable
-                    onPress={() => handleMove(index, 1)}
-                    disabled={index === items.length - 1}
-                    hitSlop={8}
-                  >
-                    <ArrowDown
-                      color={index === items.length - 1 ? Colors.border : Colors.mutedForeground}
-                      size={16}
-                    />
-                  </Pressable>
-                  <Pressable onPress={() => handleRemove(item.key)} hitSlop={8}>
-                    <Trash2 color={Colors.mutedForeground} size={16} />
-                  </Pressable>
-                </View>
-              </View>
+                <Card className="flex-row items-center gap-3 py-3">
+                  <View className="h-8 w-8 items-center justify-center rounded-full bg-primary/15">
+                    <Text className="font-mono text-xs text-primary">{index + 1}</Text>
+                  </View>
+                  <Text className="flex-1 font-body-semibold text-sm text-foreground">
+                    {item.name}
+                  </Text>
+                  <View className="flex-row items-center gap-1">
+                    <Pressable
+                      onPress={() => handleMove(index, -1)}
+                      disabled={index === 0}
+                      hitSlop={6}
+                      className="h-8 w-8 items-center justify-center rounded-tile active:bg-surface-overlay"
+                    >
+                      <ArrowUp
+                        color={index === 0 ? Colors.muted : Colors.mutedForeground}
+                        size={16}
+                      />
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleMove(index, 1)}
+                      disabled={index === items.length - 1}
+                      hitSlop={6}
+                      className="h-8 w-8 items-center justify-center rounded-tile active:bg-surface-overlay"
+                    >
+                      <ArrowDown
+                        color={index === items.length - 1 ? Colors.muted : Colors.mutedForeground}
+                        size={16}
+                      />
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleRemove(item.key)}
+                      hitSlop={6}
+                      className="h-8 w-8 items-center justify-center rounded-tile active:bg-surface-overlay"
+                    >
+                      <Trash2 color={Colors.danger} size={16} />
+                    </Pressable>
+                  </View>
+                </Card>
+              </Animated.View>
             ))}
           </View>
         )}
 
-        {error && <Text className="mt-4 text-xs text-primary">{error}</Text>}
+        <Pressable
+          onPress={() => {
+            haptics.select();
+            setPickerVisible(true);
+          }}
+          disabled={loading}
+          className={cn(
+            "mt-3 flex-row items-center justify-center gap-2 rounded-tile border border-dashed border-border-strong py-3.5 active:bg-surface-raised",
+            loading && "opacity-40",
+          )}
+        >
+          <Plus color={Colors.primary} size={16} />
+          <Text className="font-body-medium text-sm text-primary">
+            {t("panel:workout.builder.addExerciseButton")}
+          </Text>
+        </Pressable>
+
+        {error && <Text className="mt-4 font-body text-xs text-danger">{error}</Text>}
       </ScrollView>
 
-      <View className="pb-4">
-        <Button variant="primary" onPress={handleSave} disabled={saving}>
+      <View className="pb-3 pt-1">
+        <Button variant="primary" size="lg" loading={saving} onPress={handleSave}>
           {t("common:buttons.save")}
         </Button>
       </View>

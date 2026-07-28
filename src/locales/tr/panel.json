@@ -61,6 +61,7 @@
       "namePlaceholder": "örn. İtiş Günü",
       "exercisesLabel": "Hareketler",
       "emptyState": "Henüz hareket eklenmedi.",
+      "emptyStateDescription": "Aşağıdaki butondan bu antrenmana hareket ekle.",
       "addExerciseButton": "Hareket Ekle",
       "pickExercise": "Hareket Seç",
       "searchPlaceholder": "Hareket ara...",
@@ -85,6 +86,7 @@
       "emptyState": "Henüz tamamlanmış bir antrenmanın yok.",
       "durationLabel": "Süre",
       "volumeLabel": "Toplam Hacim",
+      "totalTime": "Toplam antrenman süresi:",
       "detail": {
         "title": "Antrenman Detayı",
         "setsLabel": "Setler"

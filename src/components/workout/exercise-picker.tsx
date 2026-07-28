@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { Modal, View, Text, Pressable, ScrollView, FlatList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { X } from "lucide-react-native";
+import { Dumbbell, Plus, Search, X } from "lucide-react-native";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
+import { haptics } from "@/lib/haptics";
 import { Colors } from "@/constants/colors";
 import { searchExercises, type Exercise } from "@/lib/exercises";
 import { muscleGroupOptions, equipmentOptions } from "@/lib/workout-schema";
@@ -31,15 +34,19 @@ export function ExercisePicker({ visible, onClose, onSelect }: ExercisePickerPro
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View
-        className="flex-1 bg-background px-6"
-        style={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }}
+        className="flex-1 bg-background px-5"
+        style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }}
       >
         <View className="flex-row items-center justify-between">
           <Text className="font-display text-2xl uppercase text-foreground">
             {t("panel:workout.builder.pickExercise")}
           </Text>
-          <Pressable onPress={onClose} hitSlop={8}>
-            <X color={Colors.foreground} size={22} />
+          <Pressable
+            onPress={onClose}
+            hitSlop={10}
+            className="h-9 w-9 items-center justify-center rounded-full bg-surface-raised"
+          >
+            <X color={Colors.foreground} size={18} />
           </Pressable>
         </View>
 
@@ -56,18 +63,21 @@ export function ExercisePicker({ visible, onClose, onSelect }: ExercisePickerPro
           horizontal
           showsHorizontalScrollIndicator={false}
           className="mt-3"
-          contentContainerStyle={{ gap: 8 }}
+          style={{ flexGrow: 0, flexShrink: 0 }}
+          contentContainerStyle={{ gap: 8, paddingRight: 8 }}
         >
           <Pressable
             onPress={() => setMuscleGroup(null)}
             className={cn(
-              "rounded-full border px-3 py-1.5",
-              muscleGroup === null ? "border-primary bg-surface-raised" : "border-border",
+              "h-9 justify-center rounded-full border px-3.5",
+              muscleGroup === null
+                ? "border-primary bg-primary/15"
+                : "border-border-strong bg-surface",
             )}
           >
             <Text
               className={cn(
-                "font-mono text-xs uppercase",
+                "font-body-medium text-xs",
                 muscleGroup === null ? "text-primary" : "text-muted-foreground",
               )}
             >
@@ -77,17 +87,20 @@ export function ExercisePicker({ visible, onClose, onSelect }: ExercisePickerPro
           {muscleGroupOptions.map((opt) => (
             <Pressable
               key={opt.value}
-              onPress={() => setMuscleGroup(opt.value)}
+              onPress={() => {
+                haptics.select();
+                setMuscleGroup(opt.value);
+              }}
               className={cn(
-                "rounded-full border px-3 py-1.5",
+                "h-9 justify-center rounded-full border px-3.5",
                 muscleGroup === opt.value
-                  ? "border-primary bg-surface-raised"
-                  : "border-border",
+                  ? "border-primary bg-primary/15"
+                  : "border-border-strong bg-surface",
               )}
             >
               <Text
                 className={cn(
-                  "font-mono text-xs uppercase",
+                  "font-body-medium text-xs",
                   muscleGroup === opt.value ? "text-primary" : "text-muted-foreground",
                 )}
               >
@@ -101,24 +114,41 @@ export function ExercisePicker({ visible, onClose, onSelect }: ExercisePickerPro
           className="mt-4"
           data={results}
           keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ gap: 8, paddingBottom: 16 }}
           ListEmptyComponent={
-            <Text className="mt-8 text-center font-body text-sm text-muted-foreground">
-              {t("panel:workout.builder.noResults")}
-            </Text>
+            <EmptyState
+              className="mt-6"
+              icon={<Search color={Colors.mutedForeground} size={22} />}
+              title={t("panel:workout.builder.noResults")}
+            />
           }
           renderItem={({ item }) => (
             <Pressable
               onPress={() => {
+                haptics.select();
                 onSelect(item);
                 onClose();
               }}
-              className="border-b border-border py-4"
             >
-              <Text className="font-body-semibold text-base text-foreground">{item.name}</Text>
-              <Text className="mt-1 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                {labelFor(muscleGroupOptions, item.muscle_group, t)}
-                {item.equipment ? ` · ${labelFor(equipmentOptions, item.equipment, t)}` : ""}
-              </Text>
+              <Card className="flex-row items-center gap-3 py-3">
+                <View className="h-9 w-9 items-center justify-center rounded-tile bg-surface-overlay">
+                  <Dumbbell color={Colors.mutedForeground} size={16} />
+                </View>
+                <View className="flex-1">
+                  <Text className="font-body-semibold text-sm text-foreground">
+                    {item.name}
+                  </Text>
+                  <Text className="mt-0.5 font-body text-xs text-muted-foreground">
+                    {labelFor(muscleGroupOptions, item.muscle_group, t)}
+                    {item.equipment
+                      ? ` · ${labelFor(equipmentOptions, item.equipment, t)}`
+                      : ""}
+                  </Text>
+                </View>
+                <Plus color={Colors.primary} size={18} />
+              </Card>
             </Pressable>
           )}
         />
