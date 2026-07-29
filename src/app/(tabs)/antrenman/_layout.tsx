@@ -10,6 +10,9 @@ export default function AntrenmanLayout() {
       <Stack.Screen name="session/[sessionId]" />
       <Stack.Screen name="history/index" />
       <Stack.Screen name="history/[sessionId]" />
+      <Stack.Screen name="workouts/index" />
+      <Stack.Screen name="templates/index" />
+      <Stack.Screen name="templates/[templateId]" />
     </Stack>
   );
 }

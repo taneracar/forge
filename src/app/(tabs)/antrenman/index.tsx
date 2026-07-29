@@ -217,10 +217,10 @@ export default function AntrenmanHomeScreen() {
           <SectionHeader
             className="mt-7"
             title={t("panel:workout.home.currentProgramLabel")}
-            actionLabel={t("panel:workout.home.newWorkoutButton")}
+            actionLabel={t("panel:workout.home.myWorkoutsButton")}
             onAction={() => {
               haptics.select();
-              router.push("/(tabs)/antrenman/builder/new");
+              router.push("/(tabs)/antrenman/workouts");
             }}
           />
 

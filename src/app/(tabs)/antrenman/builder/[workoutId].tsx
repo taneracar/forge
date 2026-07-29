@@ -19,6 +19,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth.store";
 import { ExercisePicker } from "@/components/workout/exercise-picker";
 import type { Exercise } from "@/lib/exercises";
+import { MAX_SAVED_WORKOUTS, countUserWorkouts } from "@/lib/workouts";
 
 interface BuilderExerciseItem {
   key: string;
@@ -96,6 +97,15 @@ export default function WorkoutBuilderScreen() {
       setError(t("common:validation.workoutNameRequired"));
       return;
     }
+
+    if (isNew) {
+      const existingCount = await countUserWorkouts(userId);
+      if (existingCount >= MAX_SAVED_WORKOUTS) {
+        setError(t("panel:workout.workouts.limitMessage", { max: MAX_SAVED_WORKOUTS }));
+        return;
+      }
+    }
+
     setSaving(true);
     setError(null);
 

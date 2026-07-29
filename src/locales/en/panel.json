@@ -49,10 +49,35 @@
       "resumeButton": "Resume",
       "historyButton": "History",
       "newWorkoutButton": "New",
+      "myWorkoutsButton": "My Workouts",
       "noProgramDescription": "Create a workout, add your exercises and start logging.",
       "noRecentDescription": "Your progress will show up here once you finish your first workout.",
       "statsSessions": "Workouts",
       "statsVolume": "Total Volume"
+    },
+    "workouts": {
+      "title": "My Workouts",
+      "emptyState": "You don't have any saved workouts yet.",
+      "emptyStateDescription": "Create a new workout or pick one from the templates.",
+      "newButton": "New Workout",
+      "browseTemplatesButton": "Browse Templates",
+      "limitTitle": "Workout limit reached",
+      "limitMessage": "You can save up to {{max}} workouts. Delete one before adding a new one.",
+      "deleteConfirmTitle": "Delete workout?",
+      "deleteConfirmMessage": "\"{{name}}\" will be deleted. This can't be undone."
+    },
+    "templates": {
+      "title": "Templates",
+      "description": "Pick a workout that fits your goal, add it to your workouts, and customize it however you like.",
+      "allGoals": "All",
+      "noResults": "No templates found for this goal.",
+      "useTemplateButton": "Use This Template",
+      "goals": {
+        "bulk": "Bulk",
+        "cut": "Cut",
+        "strength": "Strength",
+        "general": "General"
+      }
     },
     "builder": {
       "newTitle": "New Workout",

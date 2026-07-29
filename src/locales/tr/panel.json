@@ -49,10 +49,35 @@
       "resumeButton": "Devam Et",
       "historyButton": "Geçmiş",
       "newWorkoutButton": "Yeni",
+      "myWorkoutsButton": "Antrenmanlarım",
       "noProgramDescription": "Bir antrenman oluştur, hareketlerini ekle ve kaydetmeye başla.",
       "noRecentDescription": "İlk antrenmanını tamamladığında ilerlemen burada görünecek.",
       "statsSessions": "Antrenman",
       "statsVolume": "Toplam Hacim"
+    },
+    "workouts": {
+      "title": "Antrenmanlarım",
+      "emptyState": "Henüz kayıtlı antrenmanın yok.",
+      "emptyStateDescription": "Yeni bir antrenman oluştur ya da şablonlardan birini seç.",
+      "newButton": "Yeni Antrenman",
+      "browseTemplatesButton": "Şablonlardan Seç",
+      "limitTitle": "Antrenman limiti doldu",
+      "limitMessage": "En fazla {{max}} antrenman kaydedebilirsin. Yeni eklemek için önce birini sil.",
+      "deleteConfirmTitle": "Antrenmanı sil?",
+      "deleteConfirmMessage": "\"{{name}}\" antrenmanı silinecek. Bu işlem geri alınamaz."
+    },
+    "templates": {
+      "title": "Şablonlar",
+      "description": "Hedefine uygun bir antrenman seç, kendi antrenmanların arasına ekle ve istediğin gibi düzenle.",
+      "allGoals": "Tümü",
+      "noResults": "Bu hedefte şablon bulunamadı.",
+      "useTemplateButton": "Bu Şablonu Kullan",
+      "goals": {
+        "bulk": "Kütle",
+        "cut": "Yağ Yakımı",
+        "strength": "Güç",
+        "general": "Genel"
+      }
     },
     "builder": {
       "newTitle": "Yeni Antrenman",
