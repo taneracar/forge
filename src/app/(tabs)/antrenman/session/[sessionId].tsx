@@ -3,15 +3,20 @@ import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { Plus } from "lucide-react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { Plus, Timer } from "lucide-react-native";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Colors } from "@/constants/colors";
+import { haptics } from "@/lib/haptics";
 import { supabase } from "@/lib/supabase";
 import { DurationTimer } from "@/components/workout/duration-timer";
-import { SetRow } from "@/components/workout/set-row";
+import { SetRow, SET_COLUMNS } from "@/components/workout/set-row";
 import {
   bestPerformance,
+  calculateVolume,
   compareSetPerformance,
   isPersonalRecord,
 } from "@/lib/workout-calculations";
@@ -231,7 +236,16 @@ export default function ActiveSessionScreen() {
   }
 
   if (loading) {
-    return <View className="flex-1 bg-background" style={{ paddingTop: insets.top }} />;
+    return (
+      <View
+        className="flex-1 gap-3 bg-background px-5"
+        style={{ paddingTop: insets.top + 20 }}
+      >
+        <Skeleton height={40} />
+        <Skeleton height={72} />
+        <Skeleton height={180} />
+      </View>
+    );
   }
 
   // Derived every render so the badge follows the sets as they are edited.
@@ -243,71 +257,130 @@ export default function ActiveSessionScreen() {
     }
   }
 
+  const allSets = groups.flatMap((g) => g.sets);
+  const completedCount = allSets.filter((s) => s.completed).length;
+  const progress = allSets.length > 0 ? completedCount / allSets.length : 0;
+  const volume = calculateVolume(allSets);
+
   return (
-    <View className="flex-1 bg-background px-6" style={{ paddingTop: insets.top + 16 }}>
+    <View className="flex-1 bg-background px-5" style={{ paddingTop: insets.top + 12 }}>
       <View className="flex-row items-center gap-2">
         <BackButton fallbackHref="/(tabs)/antrenman" />
-        <Text className="flex-1 font-display text-3xl uppercase text-foreground">
+        <Text className="flex-1 font-display text-2xl uppercase text-foreground">
           {workoutName}
         </Text>
       </View>
-      <View className="mt-2 flex-row items-center gap-2">
-        <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-          {t("panel:workout.session.durationLabel")}
-        </Text>
-        {startedAt && (
-          <DurationTimer
-            startedAt={startedAt}
-            className="font-mono text-xs uppercase tracking-wider text-primary"
-          />
-        )}
-      </View>
 
-      <ScrollView className="mt-6 flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
-        {groups.map((group) => (
-          <View key={group.exerciseId} className="mb-6">
-            <Text className="mb-3 font-body-semibold text-lg text-foreground">
-              {group.name}
-            </Text>
-            <View className="gap-2">
-              {group.sets.map((set) => (
-                <SetRow
-                  key={set.id}
-                  setNumber={set.set_number}
-                  weight={set.weight}
-                  reps={set.reps}
-                  completed={set.completed}
-                  isPR={prSetIds.has(set.id)}
-                  weightLabel={t("panel:workout.session.weightLabel")}
-                  repsLabel={t("panel:workout.session.repsLabel")}
-                  setLabel={t("panel:workout.session.setLabel")}
-                  onChangeWeight={(value) =>
-                    handleChangeWeight(group.exerciseId, set.id, value)
-                  }
-                  onChangeReps={(value) => handleChangeReps(group.exerciseId, set.id, value)}
-                  onToggleComplete={() => handleToggleComplete(group.exerciseId, set)}
-                  onDelete={() => handleDeleteSet(group.exerciseId, set.id)}
-                />
-              ))}
-            </View>
-            <Pressable
-              onPress={() => handleAddSet(group.exerciseId)}
-              className="mt-2 flex-row items-center gap-1.5 self-start"
-            >
-              <Plus color={Colors.primary} size={14} />
-              <Text className="font-mono text-xs uppercase tracking-wider text-primary">
-                {t("panel:workout.session.addSetButton")}
-              </Text>
-            </Pressable>
+      {/* Live stats: the numbers you glance at mid-workout get the most weight. */}
+      <Card variant="gradient" className="mt-3">
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center gap-2">
+            <Timer color={Colors.primary} size={18} />
+            {startedAt && (
+              <DurationTimer
+                startedAt={startedAt}
+                className="font-mono text-3xl text-foreground"
+              />
+            )}
           </View>
+          <View className="items-end">
+            <Text className="font-mono text-lg text-foreground">
+              {Math.round(volume).toLocaleString()} kg
+            </Text>
+            <Text className="font-body text-[11px] text-muted-foreground">
+              {completedCount}/{allSets.length} {t("panel:workout.session.setLabel")}
+            </Text>
+          </View>
+        </View>
+        <View className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-sunken">
+          <View
+            className="h-full rounded-full bg-success"
+            style={{ width: `${Math.round(progress * 100)}%` }}
+          />
+        </View>
+      </Card>
+
+      <ScrollView
+        className="mt-4 flex-1"
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {groups.map((group, groupIndex) => (
+          <Animated.View
+            key={group.exerciseId}
+            entering={FadeInDown.duration(280).delay(groupIndex * 50)}
+            className="mb-3"
+          >
+            <Card>
+              <View className="flex-row items-center justify-between">
+                <Text className="flex-1 font-body-semibold text-base text-foreground">
+                  {group.name}
+                </Text>
+                <Text className="font-mono text-xs text-muted-foreground">
+                  {group.sets.filter((s) => s.completed).length}/{group.sets.length}
+                </Text>
+              </View>
+
+              {group.sets.length > 0 && (
+                <View
+                  className="mt-3 flex-row items-center px-1.5"
+                  style={{ gap: SET_COLUMNS.gap }}
+                >
+                  <View style={{ width: SET_COLUMNS.badge }} />
+                  <Text className="flex-1 text-center font-body-medium text-[10px] text-muted-foreground">
+                    {t("panel:workout.session.weightLabel")}
+                  </Text>
+                  <Text className="flex-1 text-center font-body-medium text-[10px] text-muted-foreground">
+                    {t("panel:workout.session.repsLabel")}
+                  </Text>
+                  <View
+                    style={{ width: SET_COLUMNS.check + SET_COLUMNS.remove + SET_COLUMNS.gap }}
+                  />
+                </View>
+              )}
+
+              <View className="mt-1.5 gap-1.5">
+                {group.sets.map((set) => (
+                  <SetRow
+                    key={set.id}
+                    setNumber={set.set_number}
+                    weight={set.weight}
+                    reps={set.reps}
+                    completed={set.completed}
+                    isPR={prSetIds.has(set.id)}
+                    onChangeWeight={(value) =>
+                      handleChangeWeight(group.exerciseId, set.id, value)
+                    }
+                    onChangeReps={(value) => handleChangeReps(group.exerciseId, set.id, value)}
+                    onToggleComplete={() => handleToggleComplete(group.exerciseId, set)}
+                    onDelete={() => handleDeleteSet(group.exerciseId, set.id)}
+                  />
+                ))}
+              </View>
+
+              <Pressable
+                onPress={() => {
+                  haptics.select();
+                  handleAddSet(group.exerciseId);
+                }}
+                className="mt-2.5 flex-row items-center justify-center gap-1.5 rounded-tile border border-dashed border-border-strong py-2.5 active:bg-surface-raised"
+              >
+                <Plus color={Colors.primary} size={15} />
+                <Text className="font-body-medium text-xs text-primary">
+                  {t("panel:workout.session.addSetButton")}
+                </Text>
+              </Pressable>
+            </Card>
+          </Animated.View>
         ))}
       </ScrollView>
 
-      <View className="gap-3 pb-4">
-        <Button variant="primary" onPress={handleFinish}>
+      <View className="gap-1 pb-3 pt-1">
+        <Button variant="primary" size="lg" onPress={handleFinish}>
           {t("panel:workout.session.finishButton")}
         </Button>
-        <Pressable onPress={handleDiscard} className="items-center py-2">
+        <Pressable onPress={handleDiscard} className="items-center py-2.5">
           <Text className="font-body text-sm text-muted-foreground">
             {t("panel:workout.session.discardButton")}
           </Text>

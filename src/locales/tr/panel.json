@@ -48,7 +48,11 @@
       "resumeBanner": "Devam eden bir antrenmanın var.",
       "resumeButton": "Devam Et",
       "historyButton": "Geçmiş",
-      "newWorkoutButton": "Yeni Antrenman"
+      "newWorkoutButton": "Yeni",
+      "noProgramDescription": "Bir antrenman oluştur, hareketlerini ekle ve kaydetmeye başla.",
+      "noRecentDescription": "İlk antrenmanını tamamladığında ilerlemen burada görünecek.",
+      "statsSessions": "Antrenman",
+      "statsVolume": "Toplam Hacim"
     },
     "builder": {
       "newTitle": "Yeni Antrenman",
@@ -57,6 +61,7 @@
       "namePlaceholder": "örn. İtiş Günü",
       "exercisesLabel": "Hareketler",
       "emptyState": "Henüz hareket eklenmedi.",
+      "emptyStateDescription": "Aşağıdaki butondan bu antrenmana hareket ekle.",
       "addExerciseButton": "Hareket Ekle",
       "pickExercise": "Hareket Seç",
       "searchPlaceholder": "Hareket ara...",
@@ -81,6 +86,7 @@
       "emptyState": "Henüz tamamlanmış bir antrenmanın yok.",
       "durationLabel": "Süre",
       "volumeLabel": "Toplam Hacim",
+      "totalTime": "Toplam antrenman süresi:",
       "detail": {
         "title": "Antrenman Detayı",
         "setsLabel": "Setler"

@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+// Keep in sync with src/constants/colors.ts (raw values for icon/SVG props).
 module.exports = {
   content: ["./src/**/*.{ts,tsx}"],
   presets: [require("nativewind/preset")],
@@ -20,11 +21,37 @@ module.exports = {
           DEFAULT: "#6B655C",
           foreground: "#B7B0A4",
         },
+        // Layered surfaces: each step is visibly lighter than the last so
+        // cards actually separate from the background.
         surface: {
-          DEFAULT: "#1D1913",
-          raised: "#241F17",
+          sunken: "#100D0A",
+          DEFAULT: "#1C1815",
+          raised: "#2A241E",
+          overlay: "#332B23",
         },
-        border: "rgba(247, 243, 236, 0.08)",
+        // Semantic colors — previously everything important was primary
+        // orange, leaving no hierarchy between "done", "record" and "error".
+        success: {
+          DEFAULT: "#3DD68C",
+          foreground: "#0B1F14",
+        },
+        danger: {
+          DEFAULT: "#F2555A",
+          foreground: "#F7F3EC",
+        },
+        warning: {
+          DEFAULT: "#FFB627",
+          foreground: "#14110D",
+        },
+        // Second data-viz series, cool enough to read against the orange.
+        chart: {
+          DEFAULT: "#FF5A1F",
+          alt: "#4EA8DE",
+        },
+        border: {
+          DEFAULT: "rgba(247, 243, 236, 0.08)",
+          strong: "rgba(247, 243, 236, 0.16)",
+        },
       },
       fontFamily: {
         display: ["Anton_400Regular"],
@@ -32,7 +59,12 @@ module.exports = {
         "body-medium": ["PlusJakartaSans_500Medium"],
         "body-semibold": ["PlusJakartaSans_600SemiBold"],
         "body-bold": ["PlusJakartaSans_700Bold"],
+        // Reserved for numeric metrics (weight, reps, duration, volume).
         mono: ["JetBrainsMono_400Regular"],
+      },
+      borderRadius: {
+        card: "18px",
+        tile: "14px",
       },
     },
   },

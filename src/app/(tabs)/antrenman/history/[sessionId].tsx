@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { Trophy } from "lucide-react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { Timer, Trophy } from "lucide-react-native";
 import { BackButton } from "@/components/ui/back-button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Screen } from "@/components/ui/screen";
+import { SectionHeader } from "@/components/ui/section-header";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/cn";
 import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
 import {
@@ -123,84 +130,106 @@ export default function WorkoutHistoryDetailScreen() {
     load();
   }, [sessionId]);
 
+  if (!session) {
+    return (
+      <View className="flex-1 gap-3 bg-background px-5" style={{ paddingTop: insets.top + 20 }}>
+        <Skeleton height={36} />
+        <Skeleton height={92} />
+        <Skeleton height={160} />
+      </View>
+    );
+  }
+
   return (
-    <ScrollView
-      className="flex-1 bg-background px-6"
-      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 40 }}
-    >
+    <Screen>
       <View className="flex-row items-center gap-2">
         <BackButton fallbackHref="/(tabs)/antrenman/history" />
         <Text className="flex-1 font-display text-2xl uppercase text-foreground">
-          {session?.workouts?.name ?? t("panel:workout.history.detail.title")}
+          {session.workouts?.name ?? t("panel:workout.history.detail.title")}
         </Text>
       </View>
 
-      {session?.completed_at && (
-        <Text className="mt-2 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-          {new Date(session.completed_at).toLocaleDateString()}
-        </Text>
-      )}
-
-      <View className="mt-4 flex-row gap-6">
-        <View>
-          <Text className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-            {t("panel:workout.history.durationLabel")}
+      {/* Summary mirrors the live session header so a finished workout reads
+          the same way as one in progress. */}
+      <Card variant="gradient" className="mt-3">
+        {session.completed_at && (
+          <Text className="font-body text-xs text-muted-foreground">
+            {new Date(session.completed_at).toLocaleDateString()}
           </Text>
-          <Text className="mt-0.5 font-body-semibold text-lg text-foreground">
-            {session?.duration_seconds ? formatDuration(session.duration_seconds) : "—"}
-          </Text>
-        </View>
-        <View>
-          <Text className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-            {t("panel:workout.history.volumeLabel")}
-          </Text>
-          <Text className="mt-0.5 font-body-semibold text-lg text-foreground">
-            {Math.round(volume)} kg
-          </Text>
-        </View>
-      </View>
-
-      <Text className="mt-8 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-        {t("panel:workout.history.detail.setsLabel")}
-      </Text>
-
-      <View className="mt-3 gap-6">
-        {groups.map((group) => (
-          <View key={group.exerciseId}>
-            <Text className="mb-2 font-body-semibold text-base text-foreground">
-              {group.name}
+        )}
+        <View className="mt-2 flex-row items-center justify-between">
+          <View className="flex-row items-center gap-2">
+            <Timer color={Colors.primary} size={18} />
+            <Text className="font-mono text-3xl text-foreground">
+              {session.duration_seconds ? formatDuration(session.duration_seconds) : "—"}
             </Text>
-            <View className="gap-1.5">
-              {group.sets.map((set) => {
-                const isPR = prSetIds.has(set.id);
-                return (
-                  <View
-                    key={set.id}
-                    className="flex-row items-center justify-between rounded-md border border-border bg-surface px-3 py-2.5"
-                  >
-                    <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                      {t("panel:workout.session.setLabel")} {set.set_number}
-                    </Text>
-                    <View className="flex-row items-center gap-3">
-                      <Text className="font-body-semibold text-sm text-foreground">
+          </View>
+          <View className="items-end">
+            <Text className="font-mono text-lg text-foreground">
+              {Math.round(volume).toLocaleString()} kg
+            </Text>
+            <Text className="font-body text-[11px] text-muted-foreground">
+              {t("panel:workout.history.volumeLabel")}
+            </Text>
+          </View>
+        </View>
+      </Card>
+
+      <SectionHeader className="mt-7" title={t("panel:workout.history.detail.setsLabel")} />
+
+      <View className="mt-3 gap-2">
+        {groups.map((group, groupIndex) => (
+          <Animated.View
+            key={group.exerciseId}
+            entering={FadeInDown.duration(280).delay(Math.min(groupIndex, 8) * 40)}
+          >
+            <Card>
+              <View className="flex-row items-center justify-between">
+                <Text className="flex-1 font-body-semibold text-base text-foreground">
+                  {group.name}
+                </Text>
+                <Text className="font-mono text-xs text-muted-foreground">
+                  {group.sets.length}
+                </Text>
+              </View>
+
+              <View className="mt-2.5 gap-1.5">
+                {group.sets.map((set) => {
+                  const isPR = prSetIds.has(set.id);
+                  return (
+                    <View
+                      key={set.id}
+                      className={cn(
+                        "flex-row items-center gap-3 rounded-tile px-2.5 py-2",
+                        isPR ? "bg-warning/10" : "bg-surface-overlay",
+                      )}
+                    >
+                      <View
+                        className={cn(
+                          "h-7 w-7 items-center justify-center rounded-full",
+                          isPR ? "bg-warning/20" : "bg-surface-raised",
+                        )}
+                      >
+                        {isPR ? (
+                          <Trophy color={Colors.warning} size={13} />
+                        ) : (
+                          <Text className="font-mono text-xs text-muted-foreground">
+                            {set.set_number}
+                          </Text>
+                        )}
+                      </View>
+                      <Text className="flex-1 font-mono text-sm text-foreground">
                         {set.weight ?? 0} kg × {set.reps ?? 0}
                       </Text>
-                      {isPR && (
-                        <View className="flex-row items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5">
-                          <Trophy color={Colors.primary} size={10} />
-                          <Text className="font-mono text-[10px] uppercase text-primary">
-                            PR
-                          </Text>
-                        </View>
-                      )}
+                      {isPR && <Badge label="PR" tone="warning" />}
                     </View>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
+                  );
+                })}
+              </View>
+            </Card>
+          </Animated.View>
         ))}
       </View>
-    </ScrollView>
+    </Screen>
   );
 }

@@ -48,7 +48,11 @@
       "resumeBanner": "You have a workout in progress.",
       "resumeButton": "Resume",
       "historyButton": "History",
-      "newWorkoutButton": "New Workout"
+      "newWorkoutButton": "New",
+      "noProgramDescription": "Create a workout, add your exercises and start logging.",
+      "noRecentDescription": "Your progress will show up here once you finish your first workout.",
+      "statsSessions": "Workouts",
+      "statsVolume": "Total Volume"
     },
     "builder": {
       "newTitle": "New Workout",
@@ -57,6 +61,7 @@
       "namePlaceholder": "e.g. Push Day",
       "exercisesLabel": "Exercises",
       "emptyState": "No exercises added yet.",
+      "emptyStateDescription": "Use the button below to add exercises to this workout.",
       "addExerciseButton": "Add Exercise",
       "pickExercise": "Pick Exercise",
       "searchPlaceholder": "Search exercises...",
@@ -81,6 +86,7 @@
       "emptyState": "No completed workouts yet.",
       "durationLabel": "Duration",
       "volumeLabel": "Total Volume",
+      "totalTime": "Total training time:",
       "detail": {
         "title": "Workout Detail",
         "setsLabel": "Sets"
