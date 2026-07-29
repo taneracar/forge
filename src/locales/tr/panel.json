@@ -64,7 +64,9 @@
       "limitTitle": "Antrenman limiti doldu",
       "limitMessage": "En fazla {{max}} antrenman kaydedebilirsin. Yeni eklemek için önce birini sil.",
       "deleteConfirmTitle": "Antrenmanı sil?",
-      "deleteConfirmMessage": "\"{{name}}\" antrenmanı silinecek. Bu işlem geri alınamaz."
+      "deleteConfirmMessage": "\"{{name}}\" antrenmanı silinecek. Bu işlem geri alınamaz.",
+      "activeLabel": "Aktif",
+      "useButton": "Bu Antrenmanı Kullan"
     },
     "templates": {
       "title": "Şablonlar",
@@ -77,6 +79,16 @@
         "cut": "Yağ Yakımı",
         "strength": "Güç",
         "general": "Genel"
+      },
+      "items": {
+        "itis-gunu": { "name": "İtiş Günü", "description": "Göğüs, omuz ve triceps için hacimli bir itiş antrenmanı." },
+        "cekis-gunu": { "name": "Çekiş Günü", "description": "Sırt ve biceps kaslarını hedefleyen çekiş odaklı antrenman." },
+        "tum-vucut-devre": { "name": "Tüm Vücut Devre", "description": "Kalori yakımını artıran, tüm vücudu çalıştıran devre antrenmanı." },
+        "ust-vucut-yakimi": { "name": "Üst Vücut Yakımı", "description": "Kablo hareketleriyle üst vücudu yüksek tekrarla çalıştır." },
+        "squat-deadlift-gunu": { "name": "Squat & Deadlift Günü", "description": "Temel bileşik hareketlerle maksimum güç gelişimi." },
+        "bench-odakli": { "name": "Bench Odaklı", "description": "Bench press performansını artırmaya odaklı antrenman." },
+        "baslangic-tum-vucut": { "name": "Başlangıç Tüm Vücut", "description": "Antrenmana yeni başlayanlar için temel tüm vücut programı." },
+        "alt-vucut": { "name": "Alt Vücut", "description": "Bacak ve kalça kaslarını dengeli çalıştıran program." }
       }
     },
     "builder": {

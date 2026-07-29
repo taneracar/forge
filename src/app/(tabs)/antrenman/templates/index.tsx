@@ -12,7 +12,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/cn";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
-import { listTemplates, templateGoalOptions, type WorkoutTemplate } from "@/lib/workout-templates";
+import {
+  listTemplates,
+  templateDescription,
+  templateGoalOptions,
+  templateName,
+  type WorkoutTemplate,
+} from "@/lib/workout-templates";
 
 export default function WorkoutTemplatesScreen() {
   const { t } = useTranslation(["panel", "common"]);
@@ -119,13 +125,11 @@ export default function WorkoutTemplatesScreen() {
                   <View className="flex-row items-start justify-between">
                     <View className="flex-1">
                       <Text className="font-body-semibold text-base text-foreground">
-                        {template.name}
+                        {templateName(template.slug, t)}
                       </Text>
-                      {template.description && (
-                        <Text className="mt-1 font-body text-xs text-muted-foreground">
-                          {template.description}
-                        </Text>
-                      )}
+                      <Text className="mt-1 font-body text-xs text-muted-foreground">
+                        {templateDescription(template.slug, t)}
+                      </Text>
                       <Text className="mt-2 font-mono text-xs text-muted-foreground">
                         {template.exerciseCount} {t("panel:dashboard.exerciseCountSuffix")}
                       </Text>

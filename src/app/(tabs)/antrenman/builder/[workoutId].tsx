@@ -114,7 +114,13 @@ export default function WorkoutBuilderScreen() {
     if (isNew) {
       const { data, error: insertError } = await supabase
         .from("workouts")
-        .insert({ user_id: userId, name: name.trim() })
+        // A freshly created workout becomes the current program immediately —
+        // matches "New Workout" always having been the implicit selection.
+        .insert({
+          user_id: userId,
+          name: name.trim(),
+          last_selected_at: new Date().toISOString(),
+        })
         .select("id")
         .single();
       if (insertError || !data) {

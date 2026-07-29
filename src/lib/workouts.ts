@@ -16,11 +16,17 @@ interface WorkoutRow {
   workout_exercises: { count: number }[];
 }
 
+/**
+ * Ordered so the "current program" (the one shown on the workout home
+ * screen) is always index 0: most recently selected first, falling back to
+ * most recently created for workouts that have never been explicitly used.
+ */
 export async function listUserWorkouts(userId: string): Promise<SavedWorkout[]> {
   const { data, error } = await supabase
     .from("workouts")
     .select("id, name, created_at, workout_exercises(count)")
     .eq("user_id", userId)
+    .order("last_selected_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
     .returns<WorkoutRow[]>();
   if (error) throw error;
@@ -30,6 +36,15 @@ export async function listUserWorkouts(userId: string): Promise<SavedWorkout[]> 
     createdAt: w.created_at,
     exerciseCount: w.workout_exercises[0]?.count ?? 0,
   }));
+}
+
+/** Marks a workout as the user's current program (see `listUserWorkouts`). */
+export async function selectWorkout(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("workouts")
+    .update({ last_selected_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
 }
 
 export async function countUserWorkouts(userId: string): Promise<number> {

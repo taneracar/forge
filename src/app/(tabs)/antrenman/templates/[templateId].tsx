@@ -9,6 +9,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Screen } from "@/components/ui/screen";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Colors } from "@/constants/colors";
@@ -19,14 +20,15 @@ import { labelFor } from "@/lib/profile-schema";
 import {
   applyTemplate,
   getTemplate,
+  templateDescription,
   templateGoalOptions,
+  templateName,
   type WorkoutTemplateExercise,
 } from "@/lib/workout-templates";
 
 interface TemplateDetail {
-  name: string;
+  slug: string;
   goal: string;
-  description: string | null;
 }
 
 export default function WorkoutTemplateDetailScreen() {
@@ -38,12 +40,17 @@ export default function WorkoutTemplateDetailScreen() {
   const [template, setTemplate] = useState<TemplateDetail | null>(null);
   const [exercises, setExercises] = useState<WorkoutTemplateExercise[]>([]);
   const [applying, setApplying] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    getTemplate(templateId).then(({ template, exercises }) => {
-      setTemplate(template);
-      setExercises(exercises);
-    });
+    getTemplate(templateId)
+      .then(({ template, exercises }) => {
+        setTemplate(template);
+        setExercises(exercises);
+      })
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
   }, [templateId]);
 
   async function handleUseTemplate() {
@@ -58,18 +65,31 @@ export default function WorkoutTemplateDetailScreen() {
       return;
     }
     setApplying(true);
-    const newWorkoutId = await applyTemplate(templateId, userId);
+    const newWorkoutId = await applyTemplate(templateId, userId, t);
     setApplying(false);
     haptics.success();
     router.replace(`/(tabs)/antrenman/builder/${newWorkoutId}`);
   }
 
-  if (!template) {
+  if (loading) {
     return (
       <View className="flex-1 gap-3 bg-background px-5" style={{ paddingTop: insets.top + 20 }}>
         <Skeleton height={36} />
         <Skeleton height={120} />
       </View>
+    );
+  }
+
+  if (notFound || !template) {
+    return (
+      <Screen>
+        <BackButton fallbackHref="/(tabs)/antrenman/templates" />
+        <EmptyState
+          className="mt-6"
+          icon={<Dumbbell color={Colors.mutedForeground} size={24} />}
+          title={t("panel:workout.templates.noResults")}
+        />
+      </Screen>
     );
   }
 
@@ -79,16 +99,14 @@ export default function WorkoutTemplateDetailScreen() {
 
       <View className="mt-3 flex-row items-center justify-between">
         <Text className="flex-1 font-display text-3xl uppercase text-foreground">
-          {template.name}
+          {templateName(template.slug, t)}
         </Text>
         <Badge label={labelFor(templateGoalOptions, template.goal, t)} tone="primary" />
       </View>
 
-      {template.description && (
-        <Text className="mt-2 font-body text-sm text-muted-foreground">
-          {template.description}
-        </Text>
-      )}
+      <Text className="mt-2 font-body text-sm text-muted-foreground">
+        {templateDescription(template.slug, t)}
+      </Text>
 
       <Text className="mt-7 font-body-semibold text-base text-foreground">
         {t("panel:workout.builder.exercisesLabel")}

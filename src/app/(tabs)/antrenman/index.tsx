@@ -90,6 +90,7 @@ export default function AntrenmanHomeScreen() {
         .from("workouts")
         .select("id, name")
         .eq("user_id", userId)
+        .order("last_selected_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(),

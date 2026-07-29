@@ -3,8 +3,9 @@ import { View, Text, Pressable, Alert } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
-import { ChevronRight, Dumbbell, Plus, Sparkles, Trash2 } from "lucide-react-native";
+import { Check, ChevronRight, Dumbbell, Plus, Sparkles, Trash2 } from "lucide-react-native";
 import { BackButton } from "@/components/ui/back-button";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -13,20 +14,29 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
 import { useAuthStore } from "@/store/auth.store";
-import { MAX_SAVED_WORKOUTS, deleteWorkout, listUserWorkouts, type SavedWorkout } from "@/lib/workouts";
+import {
+  MAX_SAVED_WORKOUTS,
+  deleteWorkout,
+  listUserWorkouts,
+  selectWorkout,
+  type SavedWorkout,
+} from "@/lib/workouts";
 
 export default function MyWorkoutsScreen() {
   const { t } = useTranslation(["panel", "common"]);
   const userId = useAuthStore((state) => state.session?.user.id);
   const [workouts, setWorkouts] = useState<SavedWorkout[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selecting, setSelecting] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
-    const data = await listUserWorkouts(userId);
-    setWorkouts(data);
-    setLoading(false);
+    try {
+      setWorkouts(await listUserWorkouts(userId));
+    } finally {
+      setLoading(false);
+    }
   }, [userId]);
 
   useFocusEffect(
@@ -47,6 +57,15 @@ export default function MyWorkoutsScreen() {
     }
     haptics.select();
     router.push("/(tabs)/antrenman/builder/new");
+  }
+
+  async function handleSelect(workout: SavedWorkout) {
+    if (selecting) return;
+    setSelecting(workout.id);
+    await selectWorkout(workout.id);
+    haptics.success();
+    await load();
+    setSelecting(null);
   }
 
   function handleDelete(workout: SavedWorkout) {
@@ -94,42 +113,67 @@ export default function MyWorkoutsScreen() {
         />
       ) : (
         <View className="mt-5 gap-2">
-          {workouts.map((workout, index) => (
-            <Animated.View
-              key={workout.id}
-              entering={FadeInDown.duration(260).delay(Math.min(index, 8) * 40)}
-              layout={LinearTransition.duration(220)}
-            >
-              <Pressable
-                onPress={() => {
-                  haptics.select();
-                  router.push(`/(tabs)/antrenman/builder/${workout.id}`);
-                }}
+          {workouts.map((workout, index) => {
+            const isActive = index === 0;
+            return (
+              <Animated.View
+                key={workout.id}
+                entering={FadeInDown.duration(260).delay(Math.min(index, 8) * 40)}
+                layout={LinearTransition.duration(220)}
               >
-                <Card className="flex-row items-center gap-3">
-                  <View className="h-10 w-10 items-center justify-center rounded-tile bg-primary/15">
-                    <Dumbbell color={Colors.primary} size={17} />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="font-body-semibold text-sm text-foreground">
-                      {workout.name}
-                    </Text>
-                    <Text className="mt-0.5 font-body text-xs text-muted-foreground">
-                      {workout.exerciseCount} {t("panel:dashboard.exerciseCountSuffix")}
-                    </Text>
-                  </View>
+                <Card className="gap-0 p-0">
                   <Pressable
-                    onPress={() => handleDelete(workout)}
-                    hitSlop={8}
-                    className="h-8 w-8 items-center justify-center rounded-tile active:bg-surface-overlay"
+                    onPress={() => {
+                      haptics.select();
+                      router.push(`/(tabs)/antrenman/builder/${workout.id}`);
+                    }}
+                    className="flex-row items-center gap-3 p-4"
                   >
-                    <Trash2 color={Colors.danger} size={16} />
+                    <View className="h-10 w-10 items-center justify-center rounded-tile bg-primary/15">
+                      <Dumbbell color={Colors.primary} size={17} />
+                    </View>
+                    <View className="flex-1">
+                      <View className="flex-row items-center gap-2">
+                        <Text className="font-body-semibold text-sm text-foreground">
+                          {workout.name}
+                        </Text>
+                        {isActive && (
+                          <Badge
+                            label={t("panel:workout.workouts.activeLabel")}
+                            tone="success"
+                          />
+                        )}
+                      </View>
+                      <Text className="mt-0.5 font-body text-xs text-muted-foreground">
+                        {workout.exerciseCount} {t("panel:dashboard.exerciseCountSuffix")}
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => handleDelete(workout)}
+                      hitSlop={8}
+                      className="h-8 w-8 items-center justify-center rounded-tile active:bg-surface-overlay"
+                    >
+                      <Trash2 color={Colors.danger} size={16} />
+                    </Pressable>
+                    <ChevronRight color={Colors.muted} size={18} />
                   </Pressable>
-                  <ChevronRight color={Colors.muted} size={18} />
+
+                  {!isActive && (
+                    <Pressable
+                      onPress={() => handleSelect(workout)}
+                      disabled={selecting === workout.id}
+                      className="flex-row items-center justify-center gap-1.5 border-t border-border py-2.5 active:bg-surface-raised"
+                    >
+                      <Check color={Colors.primary} size={14} />
+                      <Text className="font-body-medium text-xs text-primary">
+                        {t("panel:workout.workouts.useButton")}
+                      </Text>
+                    </Pressable>
+                  )}
                 </Card>
-              </Pressable>
-            </Animated.View>
-          ))}
+              </Animated.View>
+            );
+          })}
         </View>
       )}
 

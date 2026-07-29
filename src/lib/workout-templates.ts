@@ -1,18 +1,21 @@
 import { supabase } from "@/lib/supabase";
 
+/**
+ * Display copy for a template lives in locale JSON
+ * (`panel:workout.templates.items.<slug>`), not the database — `slug` is
+ * just a stable identifier, resolved via `templateName`/`templateDescription`.
+ */
 export interface WorkoutTemplate {
   id: string;
-  name: string;
+  slug: string;
   goal: string;
-  description: string | null;
   exerciseCount: number;
 }
 
 interface TemplateRow {
   id: string;
-  name: string;
+  slug: string;
   goal: string;
-  description: string | null;
   workout_template_exercises: { count: number }[];
 }
 
@@ -35,19 +38,25 @@ export const templateGoalOptions = [
   { value: "general", labelKey: "panel:workout.templates.goals.general" },
 ] as const;
 
+export function templateName(slug: string, t: (key: string) => string) {
+  return t(`panel:workout.templates.items.${slug}.name`);
+}
+
+export function templateDescription(slug: string, t: (key: string) => string) {
+  return t(`panel:workout.templates.items.${slug}.description`);
+}
+
 export async function listTemplates(): Promise<WorkoutTemplate[]> {
   const { data, error } = await supabase
     .from("workout_templates")
-    .select("id, name, goal, description, workout_template_exercises(count)")
+    .select("id, slug, goal, workout_template_exercises(count)")
     .order("goal")
-    .order("name")
     .returns<TemplateRow[]>();
   if (error) throw error;
   return (data ?? []).map((row) => ({
     id: row.id,
-    name: row.name,
+    slug: row.slug,
     goal: row.goal,
-    description: row.description,
     exerciseCount: row.workout_template_exercises[0]?.count ?? 0,
   }));
 }
@@ -57,11 +66,7 @@ export async function getTemplate(
 ): Promise<{ template: Omit<WorkoutTemplate, "exerciseCount">; exercises: WorkoutTemplateExercise[] }> {
   const [{ data: template, error: templateError }, { data: exercises, error: exercisesError }] =
     await Promise.all([
-      supabase
-        .from("workout_templates")
-        .select("id, name, goal, description")
-        .eq("id", id)
-        .single(),
+      supabase.from("workout_templates").select("id, slug, goal").eq("id", id).single(),
       supabase
         .from("workout_template_exercises")
         .select("exercise_id, order_index, exercises(name)")
@@ -84,12 +89,22 @@ export async function getTemplate(
 }
 
 /** Copies a template into the user's own `workouts`/`workout_exercises`, returning the new workout id. */
-export async function applyTemplate(templateId: string, userId: string): Promise<string> {
+export async function applyTemplate(
+  templateId: string,
+  userId: string,
+  t: (key: string) => string,
+): Promise<string> {
   const { template, exercises } = await getTemplate(templateId);
 
   const { data: workout, error: insertError } = await supabase
     .from("workouts")
-    .insert({ user_id: userId, name: template.name })
+    // Applying a template is an explicit "use this" action, so it becomes
+    // the current program immediately, same as creating a new workout.
+    .insert({
+      user_id: userId,
+      name: templateName(template.slug, t),
+      last_selected_at: new Date().toISOString(),
+    })
     .select("id")
     .single();
   if (insertError || !workout) throw insertError ?? new Error("Failed to create workout");
