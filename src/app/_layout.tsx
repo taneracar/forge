@@ -32,7 +32,7 @@ function useProtectedRoute() {
     const onKayit = segments[1] === "kayit";
 
     if (!session && !inAuthGroup) {
-      router.replace("/(auth)/login");
+      router.replace("/(auth)");
     } else if (session && !hasProfile && !onKayit) {
       router.replace("/(auth)/kayit");
     } else if (session && hasProfile && inAuthGroup) {
