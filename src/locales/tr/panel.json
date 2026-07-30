@@ -138,7 +138,18 @@
   "water": {
     "eyebrow": "Su",
     "title": "Su Takibi",
-    "description": "Günlük su tüketimini tek dokunuşla kaydet."
+    "description": "Günlük su tüketimini tek dokunuşla kaydet.",
+    "remaining": "Hedefe {{amount}} L kaldı",
+    "goalReached": "Günlük hedefine ulaştın!",
+    "quickAdd": {
+      "glass": "Bardak",
+      "can": "Kutu",
+      "bottle": "Şişe",
+      "largeBottle": "Büyük Şişe"
+    },
+    "entriesLabel": "Bugünkü Kayıtlar",
+    "emptyState": "Bugün henüz su kaydın yok.",
+    "weeklyLabel": "Haftalık"
   },
   "weight": {
     "eyebrow": "Kilo",

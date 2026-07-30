@@ -138,7 +138,18 @@
   "water": {
     "eyebrow": "Water",
     "title": "Water Tracker",
-    "description": "Log your daily water intake with a single tap."
+    "description": "Log your daily water intake with a single tap.",
+    "remaining": "{{amount}} L left to reach your goal",
+    "goalReached": "You've hit your daily goal!",
+    "quickAdd": {
+      "glass": "Glass",
+      "can": "Can",
+      "bottle": "Bottle",
+      "largeBottle": "Large Bottle"
+    },
+    "entriesLabel": "Today's Entries",
+    "emptyState": "No water logged yet today.",
+    "weeklyLabel": "This Week"
   },
   "weight": {
     "eyebrow": "Weight",
