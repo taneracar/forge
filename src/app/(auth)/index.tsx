@@ -32,7 +32,10 @@ export default function WelcomeScreen() {
           style={{ top: insets.top + 16 }}
         >
           <Animated.View entering={FadeIn.duration(500)}>
-            <Text className="font-display text-4xl uppercase tracking-wide text-foreground">
+            {/* Anton's cap-height nearly fills its own line box, leaving
+                almost no built-in headroom — a hair of pt keeps the glyph
+                top from reading as clipped. */}
+            <Text className="pt-1 font-display text-4xl uppercase tracking-wide text-foreground">
               FOR<Text className="text-primary">GE</Text>
             </Text>
           </Animated.View>
@@ -48,7 +51,7 @@ export default function WelcomeScreen() {
             <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
               {t("auth:welcome.eyebrow")}
             </Text>
-            <Text className="font-display text-4xl uppercase leading-[1.05] text-foreground">
+            <Text className="pt-1 font-display text-4xl uppercase leading-[1.05] text-foreground">
               {t("auth:welcome.headline")}
             </Text>
             <Text className="font-body text-sm text-muted-foreground">

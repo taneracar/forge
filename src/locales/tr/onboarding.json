@@ -94,5 +94,7 @@
     "signupFailed": "Kayıt sırasında bir sorun oluştu.",
     "saveFailed": "Kaydedilirken bir sorun oluştu.",
     "noSession": "Oturum bulunamadı, tekrar giriş yap."
-  }
+  },
+  "haveAccountPrompt": "Zaten hesabın var mı?",
+  "loginLink": "Giriş yap"
 }
