@@ -94,5 +94,7 @@
     "signupFailed": "Something went wrong during sign up.",
     "saveFailed": "Something went wrong while saving.",
     "noSession": "No session found, please log in again."
-  }
+  },
+  "haveAccountPrompt": "Already have an account?",
+  "loginLink": "Log in"
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View, Text, TextInput, ScrollView, Pressable } from "react-native";
-import { router } from "expo-router";
+import { router, Link } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -599,6 +599,15 @@ export function SignupWizard() {
             </Button>
           </View>
         </View>
+
+        {step === 0 && (
+          <Text className="text-center font-body text-sm text-muted-foreground">
+            {t("onboarding:haveAccountPrompt")}{" "}
+            <Link href="/(auth)/login" className="font-body-semibold text-primary">
+              {t("onboarding:loginLink")}
+            </Link>
+          </Text>
+        )}
       </View>
     </ScrollView>
   );

@@ -55,7 +55,7 @@ export default function LoginScreen() {
       </Pressable>
 
       <View className="mt-10">
-        <Text className="font-display text-3xl uppercase text-foreground">
+        <Text className="pt-1 font-display text-3xl uppercase text-foreground">
           {t("auth:login.title")}
         </Text>
         <Text className="mt-2 font-body text-sm text-muted-foreground">
