@@ -32,7 +32,7 @@ export default function WelcomeScreen() {
           style={{ top: insets.top + 16 }}
         >
           <Animated.View entering={FadeIn.duration(500)}>
-            <Text className="font-display text-2xl uppercase tracking-wide text-foreground">
+            <Text className="font-display text-4xl uppercase tracking-wide text-foreground">
               FOR<Text className="text-primary">GE</Text>
             </Text>
           </Animated.View>
