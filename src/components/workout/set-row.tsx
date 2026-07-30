@@ -2,7 +2,7 @@ import { View, Text, Pressable } from "react-native";
 import { Check, Trophy, X } from "lucide-react-native";
 import { cn } from "@/lib/cn";
 import { Colors } from "@/constants/colors";
-import { NumberPill } from "@/components/workout/number-pill";
+import { NumberPill } from "@/components/ui/number-pill";
 import { haptics } from "@/lib/haptics";
 
 /** Shared column widths so the header row lines up with the set rows. */

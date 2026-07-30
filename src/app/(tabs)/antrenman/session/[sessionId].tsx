@@ -310,9 +310,8 @@ export default function ActiveSessionScreen() {
           <Animated.View
             key={group.exerciseId}
             entering={FadeInDown.duration(280).delay(groupIndex * 50)}
-            className="mb-3"
           >
-            <Card>
+            <Card className="mb-3">
               <View className="flex-row items-center justify-between">
                 <Text className="flex-1 font-body-semibold text-base text-foreground">
                   {group.name}

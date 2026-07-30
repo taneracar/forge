@@ -49,10 +49,47 @@
       "resumeButton": "Resume",
       "historyButton": "History",
       "newWorkoutButton": "New",
+      "myWorkoutsButton": "My Workouts",
       "noProgramDescription": "Create a workout, add your exercises and start logging.",
       "noRecentDescription": "Your progress will show up here once you finish your first workout.",
       "statsSessions": "Workouts",
       "statsVolume": "Total Volume"
+    },
+    "workouts": {
+      "title": "My Workouts",
+      "emptyState": "You don't have any saved workouts yet.",
+      "emptyStateDescription": "Create a new workout or pick one from the templates.",
+      "newButton": "New Workout",
+      "browseTemplatesButton": "Browse Templates",
+      "limitTitle": "Workout limit reached",
+      "limitMessage": "You can save up to {{max}} workouts. Delete one before adding a new one.",
+      "deleteConfirmTitle": "Delete workout?",
+      "deleteConfirmMessage": "\"{{name}}\" will be deleted. This can't be undone.",
+      "activeLabel": "Active",
+      "useButton": "Use This Workout"
+    },
+    "templates": {
+      "title": "Templates",
+      "description": "Pick a workout that fits your goal, add it to your workouts, and customize it however you like.",
+      "allGoals": "All",
+      "noResults": "No templates found for this goal.",
+      "useTemplateButton": "Use This Template",
+      "goals": {
+        "bulk": "Bulk",
+        "cut": "Cut",
+        "strength": "Strength",
+        "general": "General"
+      },
+      "items": {
+        "itis-gunu": { "name": "Push Day", "description": "A high-volume push workout for chest, shoulders and triceps." },
+        "cekis-gunu": { "name": "Pull Day", "description": "A pull-focused workout targeting your back and biceps." },
+        "tum-vucut-devre": { "name": "Full Body Circuit", "description": "A circuit workout that trains your whole body to burn more calories." },
+        "ust-vucut-yakimi": { "name": "Upper Body Burn", "description": "High-rep cable work to burn through your upper body." },
+        "squat-deadlift-gunu": { "name": "Squat & Deadlift Day", "description": "Build maximum strength with the core compound lifts." },
+        "bench-odakli": { "name": "Bench Focus", "description": "A workout built around improving your bench press." },
+        "baslangic-tum-vucut": { "name": "Beginner Full Body", "description": "A foundational full-body program for those just starting out." },
+        "alt-vucut": { "name": "Lower Body", "description": "A balanced program for your legs and glutes." }
+      }
     },
     "builder": {
       "newTitle": "New Workout",
@@ -101,7 +138,22 @@
   "water": {
     "eyebrow": "Water",
     "title": "Water Tracker",
-    "description": "Log your daily water intake with a single tap."
+    "description": "Log your daily water intake with a single tap.",
+    "remaining": "{{amount}} L left to reach your goal",
+    "goalReached": "You've hit your daily goal!",
+    "quickAdd": {
+      "glass": "Glass",
+      "can": "Can",
+      "bottle": "Bottle",
+      "largeBottle": "Large Bottle"
+    },
+    "entriesLabel": "Today's Entries",
+    "emptyState": "No water logged yet today.",
+    "weeklyLabel": "This Week",
+    "editGoal": "Edit goal",
+    "goalModalTitle": "Daily Goal",
+    "customLabel": "Custom",
+    "customModalTitle": "Add Custom Amount"
   },
   "weight": {
     "eyebrow": "Weight",

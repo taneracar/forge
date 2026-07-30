@@ -11,12 +11,14 @@ import authEn from "@/locales/en/auth.json";
 import onboardingEn from "@/locales/en/onboarding.json";
 import panelEn from "@/locales/en/panel.json";
 
+// English is the app's base language: only an actual Turkish device gets
+// Turkish, everything else (and any missing key) falls back to English.
 const deviceLanguage = getLocales()[0]?.languageCode;
-const initialLanguage = deviceLanguage === "en" ? "en" : "tr";
+const initialLanguage = deviceLanguage === "tr" ? "tr" : "en";
 
 i18next.use(initReactI18next).init({
   lng: initialLanguage,
-  fallbackLng: "tr",
+  fallbackLng: "en",
   compatibilityJSON: "v4",
   interpolation: { escapeValue: false },
   resources: {

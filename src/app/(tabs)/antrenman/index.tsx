@@ -90,6 +90,7 @@ export default function AntrenmanHomeScreen() {
         .from("workouts")
         .select("id, name")
         .eq("user_id", userId)
+        .order("last_selected_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
@@ -191,12 +192,13 @@ export default function AntrenmanHomeScreen() {
       ) : (
         <>
           {openSession && (
-            <Animated.View entering={FadeInDown.duration(320)} className="mt-5">
+            <Animated.View entering={FadeInDown.duration(320)}>
               <Pressable
                 onPress={() => {
                   haptics.select();
                   router.push(`/(tabs)/antrenman/session/${openSession.id}`);
                 }}
+                className="mt-5"
               >
                 <Card variant="raised" className="border-success/40 flex-row items-center gap-3">
                   <LiveDot />
@@ -217,20 +219,21 @@ export default function AntrenmanHomeScreen() {
           <SectionHeader
             className="mt-7"
             title={t("panel:workout.home.currentProgramLabel")}
-            actionLabel={t("panel:workout.home.newWorkoutButton")}
+            actionLabel={t("panel:workout.home.myWorkoutsButton")}
             onAction={() => {
               haptics.select();
-              router.push("/(tabs)/antrenman/builder/new");
+              router.push("/(tabs)/antrenman/workouts");
             }}
           />
 
           {currentWorkout ? (
-            <Animated.View entering={FadeInDown.duration(320).delay(60)} className="mt-3">
+            <Animated.View entering={FadeInDown.duration(320).delay(60)}>
               <Pressable
                 onPress={() => {
                   haptics.select();
                   router.push(`/(tabs)/antrenman/builder/${currentWorkout.id}`);
                 }}
+                className="mt-3"
               >
                 <Card variant="gradient">
                   <View className="flex-row items-start justify-between">
