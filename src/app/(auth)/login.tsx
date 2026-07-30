@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { View, Text, TextInput } from "react-native";
-import { Link } from "expo-router";
+import { View, Text, Pressable } from "react-native";
+import { router, Link } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ChevronLeft } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 import { Colors } from "@/constants/colors";
 
@@ -18,6 +21,7 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const { t } = useTranslation(["auth", "common"]);
+  const insets = useSafeAreaInsets();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     control,
@@ -38,88 +42,87 @@ export default function LoginScreen() {
   });
 
   return (
-    <View className="flex-1 items-center justify-center gap-6 bg-background px-6">
-      <Text className="font-display text-4xl uppercase text-foreground">
-        FOR<Text className="text-primary">GE</Text>
-      </Text>
-      <Text className="text-center font-body text-muted-foreground">
-        {t("auth:login.subtitle")}
-      </Text>
+    <View
+      className="flex-1 bg-background px-6"
+      style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 20 }}
+    >
+      <Pressable
+        onPress={() => (router.canGoBack() ? router.back() : router.replace("/(auth)"))}
+        hitSlop={10}
+        className="h-9 w-9 items-center justify-center rounded-full bg-surface-raised"
+      >
+        <ChevronLeft color={Colors.foreground} size={20} />
+      </Pressable>
 
-      <View className="w-full gap-4">
-        <View className="gap-1.5">
-          <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-            {t("auth:login.emailLabel")}
-          </Text>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                className="rounded-sm border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground"
-                placeholder="ornek@eposta.com"
-                placeholderTextColor={Colors.mutedForeground}
-                autoCapitalize="none"
-                autoComplete="email"
-                keyboardType="email-address"
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-              />
-            )}
-          />
-          {errors.email && (
-            <Text className="text-xs text-primary">
-              {t(errors.email.message ?? "")}
-            </Text>
-          )}
-        </View>
+      <View className="mt-10">
+        <Text className="font-display text-3xl uppercase text-foreground">
+          {t("auth:login.title")}
+        </Text>
+        <Text className="mt-2 font-body text-sm text-muted-foreground">
+          {t("auth:login.subtitle")}
+        </Text>
+      </View>
 
-        <View className="gap-1.5">
-          <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-            {t("auth:login.passwordLabel")}
-          </Text>
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                className="rounded-sm border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground"
-                secureTextEntry
-                autoComplete="current-password"
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-              />
-            )}
-          />
-          {errors.password && (
-            <Text className="text-xs text-primary">
-              {t(errors.password.message ?? "")}
-            </Text>
+      <View className="mt-8 gap-4">
+        <Controller
+          control={control}
+          name="email"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              label={t("auth:login.emailLabel")}
+              placeholder="ornek@eposta.com"
+              placeholderTextColor={Colors.muted}
+              autoCapitalize="none"
+              autoComplete="email"
+              keyboardType="email-address"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              error={errors.email ? t(errors.email.message ?? "") : undefined}
+            />
           )}
-        </View>
+        />
+
+        <Controller
+          control={control}
+          name="password"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              label={t("auth:login.passwordLabel")}
+              secureTextEntry
+              autoComplete="current-password"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              error={errors.password ? t(errors.password.message ?? "") : undefined}
+            />
+          )}
+        />
 
         {submitError && (
-          <Text className="text-xs text-primary">{submitError}</Text>
+          <Text className="font-body text-xs text-danger">{submitError}</Text>
         )}
 
         <Button
           variant="primary"
+          size="lg"
           onPress={() => onSubmit()}
           disabled={isSubmitting}
-          className="w-full"
+          loading={isSubmitting}
+          className="mt-2"
         >
           {t("auth:login.submit")}
         </Button>
-
-        <Text className="text-center font-body text-sm text-muted-foreground">
-          {t("auth:login.noAccount")}{" "}
-          <Link href="/(auth)/kayit" className="text-primary">
-            {t("auth:login.signUp")}
-          </Link>
-        </Text>
       </View>
+
+      <View className="flex-1" />
+
+      <Text className="text-center font-body text-sm text-muted-foreground">
+        {t("auth:login.noAccount")}{" "}
+        <Link href="/(auth)/kayit" className="font-body-semibold text-primary">
+          {t("auth:login.signUp")}
+        </Link>
+      </Text>
     </View>
   );
 }

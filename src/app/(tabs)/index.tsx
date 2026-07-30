@@ -11,16 +11,30 @@ import { StatTile } from "@/components/ui/stat-tile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
+import { useAuthStore } from "@/store/auth.store";
 import { getDashboard } from "@/services/profile.service";
 import type { mockDashboard } from "@/mock/user";
+import { listTodayLogs } from "@/lib/water";
+import { listUserWorkouts, type SavedWorkout } from "@/lib/workouts";
 
 export default function DashboardScreen() {
   const { t } = useTranslation(["panel", "common"]);
+  const userId = useAuthStore((state) => state.session?.user.id);
+
   const [dashboard, setDashboard] = useState<typeof mockDashboard | null>(null);
+  const [waterLiters, setWaterLiters] = useState(0);
+  const [currentWorkout, setCurrentWorkout] = useState<SavedWorkout | null>(null);
 
   useEffect(() => {
-    getDashboard().then(setDashboard);
-  }, []);
+    if (!userId) return;
+    Promise.all([getDashboard(), listTodayLogs(userId), listUserWorkouts(userId)]).then(
+      ([mock, waterLogs, workouts]) => {
+        setDashboard(mock);
+        setWaterLiters(waterLogs.reduce((sum, log) => sum + log.amountMl, 0) / 1000);
+        setCurrentWorkout(workouts[0] ?? null);
+      },
+    );
+  }, [userId]);
 
   function goToWorkout() {
     haptics.select();
@@ -73,8 +87,8 @@ export default function DashboardScreen() {
               <Animated.View entering={FadeInDown.duration(280).delay(80)}>
                 <StatTile
                   label={t("dashboard.stats.water")}
-                  value={dashboard.water.current.toLocaleString()}
-                  unit={dashboard.water.unit}
+                  value={waterLiters.toFixed(1)}
+                  unit="L"
                   icon={<Droplet color={Colors.mutedForeground} size={13} />}
                 />
               </Animated.View>
@@ -101,13 +115,21 @@ export default function DashboardScreen() {
                   <Text className="font-body-medium text-xs text-muted-foreground">
                     {t("dashboard.todayWorkoutLabel")}
                   </Text>
-                  <Text className="mt-0.5 font-body-semibold text-base text-foreground">
-                    {dashboard.todayWorkout.name}
-                  </Text>
-                  <Text className="mt-0.5 font-body text-xs text-muted-foreground">
-                    {dashboard.todayWorkout.exerciseCount}{" "}
-                    {t("dashboard.exerciseCountSuffix")}
-                  </Text>
+                  {currentWorkout ? (
+                    <>
+                      <Text className="mt-0.5 font-body-semibold text-base text-foreground">
+                        {currentWorkout.name}
+                      </Text>
+                      <Text className="mt-0.5 font-body text-xs text-muted-foreground">
+                        {currentWorkout.exerciseCount}{" "}
+                        {t("dashboard.exerciseCountSuffix")}
+                      </Text>
+                    </>
+                  ) : (
+                    <Text className="mt-0.5 font-body-semibold text-base text-foreground">
+                      {t("panel:workout.home.noProgram")}
+                    </Text>
+                  )}
                 </View>
               </Card>
             </Pressable>
