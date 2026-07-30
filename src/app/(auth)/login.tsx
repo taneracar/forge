@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { View, Text, Pressable } from "react-native";
-import { router, Link } from "expo-router";
+import { View, Text } from "react-native";
+import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ChevronLeft } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
@@ -46,13 +46,7 @@ export default function LoginScreen() {
       className="flex-1 bg-background px-6"
       style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 20 }}
     >
-      <Pressable
-        onPress={() => (router.canGoBack() ? router.back() : router.replace("/(auth)"))}
-        hitSlop={10}
-        className="h-9 w-9 items-center justify-center rounded-full bg-surface-raised"
-      >
-        <ChevronLeft color={Colors.foreground} size={20} />
-      </Pressable>
+      <BackButton fallbackHref="/(auth)" />
 
       <View className="mt-10">
         <Text className="pt-1 font-display text-3xl uppercase text-foreground">
