@@ -20,7 +20,14 @@ export function Card({ className, variant = "default", children, ...props }: Car
 
   if (variant === "gradient") {
     return (
-      <View className={cn(base, "overflow-hidden p-0")} {...props}>
+      // NativeWind's className interop only reliably targets core RN
+      // primitives, not third-party wrappers like LinearGradient — so the
+      // caller's layout className goes on a plain inner View, not the
+      // gradient itself, or classes like flex-row silently no-op.
+      <View
+        className={cn("overflow-hidden rounded-card", variantClass[variant])}
+        {...props}
+      >
         <LinearGradient
           // Subtle top-left lift so the card reads as a raised surface
           // instead of a flat rectangle.
@@ -29,7 +36,7 @@ export function Card({ className, variant = "default", children, ...props }: Car
           end={{ x: 1, y: 1 }}
           style={{ padding: 16 }}
         >
-          {children}
+          <View className={className}>{children}</View>
         </LinearGradient>
       </View>
     );

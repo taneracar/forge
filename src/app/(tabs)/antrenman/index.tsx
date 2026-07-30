@@ -192,12 +192,13 @@ export default function AntrenmanHomeScreen() {
       ) : (
         <>
           {openSession && (
-            <Animated.View entering={FadeInDown.duration(320)} className="mt-5">
+            <Animated.View entering={FadeInDown.duration(320)}>
               <Pressable
                 onPress={() => {
                   haptics.select();
                   router.push(`/(tabs)/antrenman/session/${openSession.id}`);
                 }}
+                className="mt-5"
               >
                 <Card variant="raised" className="border-success/40 flex-row items-center gap-3">
                   <LiveDot />
@@ -226,12 +227,13 @@ export default function AntrenmanHomeScreen() {
           />
 
           {currentWorkout ? (
-            <Animated.View entering={FadeInDown.duration(320).delay(60)} className="mt-3">
+            <Animated.View entering={FadeInDown.duration(320).delay(60)}>
               <Pressable
                 onPress={() => {
                   haptics.select();
                   router.push(`/(tabs)/antrenman/builder/${currentWorkout.id}`);
                 }}
+                className="mt-3"
               >
                 <Card variant="gradient">
                   <View className="flex-row items-start justify-between">
