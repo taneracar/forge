@@ -149,7 +149,11 @@
     },
     "entriesLabel": "Today's Entries",
     "emptyState": "No water logged yet today.",
-    "weeklyLabel": "This Week"
+    "weeklyLabel": "This Week",
+    "editGoal": "Edit goal",
+    "goalModalTitle": "Daily Goal",
+    "customLabel": "Custom",
+    "customModalTitle": "Add Custom Amount"
   },
   "weight": {
     "eyebrow": "Weight",

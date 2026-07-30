@@ -72,3 +72,21 @@ export async function deleteWaterLog(id: string): Promise<void> {
   const { error } = await supabase.from("water_logs").delete().eq("id", id);
   if (error) throw error;
 }
+
+export async function getDailyGoal(userId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("daily_water_goal_ml")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  return data?.daily_water_goal_ml ?? DAILY_WATER_GOAL_ML;
+}
+
+export async function setDailyGoal(userId: string, goalMl: number): Promise<void> {
+  const { error } = await supabase
+    .from("profiles")
+    .update({ daily_water_goal_ml: goalMl })
+    .eq("id", userId);
+  if (error) throw error;
+}

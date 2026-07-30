@@ -149,7 +149,11 @@
     },
     "entriesLabel": "Bugünkü Kayıtlar",
     "emptyState": "Bugün henüz su kaydın yok.",
-    "weeklyLabel": "Haftalık"
+    "weeklyLabel": "Haftalık",
+    "editGoal": "Hedefi düzenle",
+    "goalModalTitle": "Günlük Hedef",
+    "customLabel": "Özel",
+    "customModalTitle": "Özel Miktar Ekle"
   },
   "weight": {
     "eyebrow": "Kilo",
