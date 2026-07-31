@@ -158,7 +158,18 @@
   "weight": {
     "eyebrow": "Weight",
     "title": "Weight Tracker",
-    "description": "Log your daily weight, see your weekly and monthly trend."
+    "description": "Log your daily weight, see your weekly and monthly trend.",
+    "averageLabel": "7-Day Average",
+    "trendUp": "+{{amount}} kg this week",
+    "trendDown": "{{amount}} kg this week",
+    "trendFlat": "No change this week",
+    "noTrend": "Log a few more days to see your trend",
+    "logButton": "Log Weight",
+    "logModalTitle": "Log Weight",
+    "recentLabel": "Recent Entries",
+    "emptyState": "No weight logged yet.",
+    "emptyStateDescription": "Log your weight to start tracking your trend.",
+    "weeklyLabel": "Last 7 Weeks"
   },
   "profile": {
     "eyebrow": "Profile",

@@ -15,6 +15,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { getDashboard } from "@/services/profile.service";
 import type { mockDashboard } from "@/mock/user";
 import { listTodayLogs } from "@/lib/water";
+import { getWeightSummary } from "@/lib/weight";
 import { listUserWorkouts, type SavedWorkout } from "@/lib/workouts";
 
 export default function DashboardScreen() {
@@ -23,22 +24,41 @@ export default function DashboardScreen() {
 
   const [dashboard, setDashboard] = useState<typeof mockDashboard | null>(null);
   const [waterLiters, setWaterLiters] = useState(0);
+  const [weightAverage, setWeightAverage] = useState<number | null>(null);
   const [currentWorkout, setCurrentWorkout] = useState<SavedWorkout | null>(null);
 
   useEffect(() => {
     if (!userId) return;
-    Promise.all([getDashboard(), listTodayLogs(userId), listUserWorkouts(userId)]).then(
-      ([mock, waterLogs, workouts]) => {
-        setDashboard(mock);
-        setWaterLiters(waterLogs.reduce((sum, log) => sum + log.amountMl, 0) / 1000);
-        setCurrentWorkout(workouts[0] ?? null);
-      },
-    );
+    Promise.all([
+      getDashboard(),
+      listTodayLogs(userId).catch(() => []),
+      getWeightSummary(userId).catch(() => ({
+        currentAverage: null,
+        previousAverage: null,
+        trendKg: null,
+      })),
+      listUserWorkouts(userId).catch(() => []),
+    ]).then(([mock, waterLogs, weightSummary, workouts]) => {
+      setDashboard(mock);
+      setWaterLiters(waterLogs.reduce((sum, log) => sum + log.amountMl, 0) / 1000);
+      setWeightAverage(weightSummary.currentAverage);
+      setCurrentWorkout(workouts[0] ?? null);
+    });
   }, [userId]);
 
   function goToWorkout() {
     haptics.select();
     router.push("/(tabs)/antrenman");
+  }
+
+  function goToWater() {
+    haptics.select();
+    router.push("/(tabs)/su");
+  }
+
+  function goToWeight() {
+    haptics.select();
+    router.push("/(tabs)/kilo");
   }
 
   return (
@@ -83,7 +103,7 @@ export default function DashboardScreen() {
                 />
               </Animated.View>
             </View>
-            <View className="flex-1 basis-[47%]">
+            <Pressable onPress={goToWater} className="flex-1 basis-[47%]">
               <Animated.View entering={FadeInDown.duration(280).delay(80)}>
                 <StatTile
                   label={t("dashboard.stats.water")}
@@ -92,17 +112,17 @@ export default function DashboardScreen() {
                   icon={<Droplet color={Colors.mutedForeground} size={13} />}
                 />
               </Animated.View>
-            </View>
-            <View className="flex-1 basis-[47%]">
+            </Pressable>
+            <Pressable onPress={goToWeight} className="flex-1 basis-[47%]">
               <Animated.View entering={FadeInDown.duration(280).delay(120)}>
                 <StatTile
                   label={t("dashboard.stats.weight")}
-                  value={dashboard.weight.current.toLocaleString()}
-                  unit={dashboard.weight.unit}
+                  value={weightAverage !== null ? weightAverage.toFixed(1) : t("common:notSet")}
+                  unit={weightAverage !== null ? "kg" : undefined}
                   icon={<Scale color={Colors.mutedForeground} size={13} />}
                 />
               </Animated.View>
-            </View>
+            </Pressable>
           </View>
 
           <Animated.View entering={FadeInDown.duration(280).delay(160)}>
