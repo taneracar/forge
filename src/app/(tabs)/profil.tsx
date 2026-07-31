@@ -1,9 +1,24 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { View, Text } from "react-native";
 import { useTranslation } from "react-i18next";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import {
+  Activity,
+  Calendar,
+  CalendarDays,
+  Dumbbell,
+  Ruler,
+  Scale,
+  Target,
+  User,
+  Users,
+} from "lucide-react-native";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Screen } from "@/components/ui/screen";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/cn";
+import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth.store";
 import {
@@ -17,10 +32,10 @@ import {
 
 export default function ProfilScreen() {
   const { t } = useTranslation(["panel", "common"]);
-  const insets = useSafeAreaInsets();
   const email = useAuthStore((state) => state.session?.user.email);
   const userId = useAuthStore((state) => state.session?.user.id);
   const [profile, setProfile] = useState<OnboardingValues | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) return;
@@ -29,76 +44,147 @@ export default function ProfilScreen() {
       .select("*")
       .eq("id", userId)
       .maybeSingle()
-      .then(({ data }) => setProfile(data));
+      .then(({ data }) => {
+        setProfile(data);
+        setLoading(false);
+      });
   }, [userId]);
 
   const notSet = t("common:notSet");
   const fields = [
-    { label: t("panel:profile.fields.name"), value: profile?.name ?? notSet },
-    { label: t("panel:profile.fields.age"), value: profile?.age ?? notSet },
     {
+      key: "gender",
       label: t("panel:profile.fields.gender"),
       value: labelFor(genderOptions, profile?.gender, t),
+      icon: Users,
+      mono: false,
     },
     {
+      key: "age",
+      label: t("panel:profile.fields.age"),
+      value: profile?.age ?? notSet,
+      icon: Calendar,
+      mono: true,
+    },
+    {
+      key: "height",
       label: t("panel:profile.fields.height"),
-      value: profile?.height_cm ? `${profile.height_cm} cm` : notSet,
+      value: profile?.height_cm ?? notSet,
+      unit: profile?.height_cm ? "cm" : undefined,
+      icon: Ruler,
+      mono: true,
     },
     {
+      key: "weight",
       label: t("panel:profile.fields.weight"),
-      value: profile?.weight_kg ? `${profile.weight_kg} kg` : notSet,
+      value: profile?.weight_kg ?? notSet,
+      unit: profile?.weight_kg ? "kg" : undefined,
+      icon: Scale,
+      mono: true,
     },
     {
+      key: "goal",
       label: t("panel:profile.fields.goal"),
       value: labelFor(goalOptions, profile?.goal, t),
+      icon: Target,
+      mono: false,
     },
     {
+      key: "activityLevel",
       label: t("panel:profile.fields.activityLevel"),
       value: labelFor(activityOptions, profile?.activity_level, t),
+      icon: Activity,
+      mono: false,
     },
     {
+      key: "experience",
       label: t("panel:profile.fields.experience"),
       value: labelFor(experienceOptions, profile?.workout_experience, t),
+      icon: Dumbbell,
+      mono: false,
     },
     {
+      key: "days",
       label: t("panel:profile.fields.days"),
       value: profile?.preferred_training_days ?? notSet,
+      icon: CalendarDays,
+      mono: true,
     },
   ];
 
   return (
-    <ScrollView
-      className="flex-1 bg-background px-6"
-      contentContainerStyle={{ paddingTop: insets.top + 24, paddingBottom: 40 }}
-    >
-      <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
-        {t("panel:profile.eyebrow")}
-      </Text>
-      <Text className="mt-3 font-display text-4xl uppercase text-foreground">
+    <Screen>
+      <Text className="pt-1 font-display text-4xl uppercase text-foreground">
         {t("panel:profile.title")}
       </Text>
-      <Text className="mt-4 font-body text-foreground">{email}</Text>
 
-      <View className="mt-8 flex-row flex-wrap gap-3">
-        {fields.map((field) => (
-          <View key={field.label} style={{ width: "47%" }}>
-            <Card>
-              <Text className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                {field.label}
-              </Text>
-              <Text className="mt-1 font-body font-semibold text-foreground">
-                {field.value}
-              </Text>
-            </Card>
+      {loading ? (
+        <View className="mt-6 gap-3">
+          <Skeleton height={92} />
+          <View className="flex-row flex-wrap gap-3">
+            <Skeleton height={84} className="flex-1 basis-[47%]" />
+            <Skeleton height={84} className="flex-1 basis-[47%]" />
+            <Skeleton height={84} className="flex-1 basis-[47%]" />
+            <Skeleton height={84} className="flex-1 basis-[47%]" />
           </View>
-        ))}
-      </View>
+        </View>
+      ) : (
+        <>
+          <Animated.View entering={FadeInDown.duration(280)} className="mt-6">
+            <Card variant="gradient" className="flex-row items-center gap-4">
+              <View className="h-14 w-14 items-center justify-center rounded-full bg-primary/15">
+                <User color={Colors.primary} size={24} />
+              </View>
+              <View className="flex-1">
+                <Text className="font-display text-xl uppercase text-foreground">
+                  {profile?.name ?? notSet}
+                </Text>
+                <Text className="mt-0.5 font-body text-xs text-muted-foreground">
+                  {email}
+                </Text>
+              </View>
+            </Card>
+          </Animated.View>
 
-      <View className="mt-8">
-        <Button variant="outline" onPress={() => supabase.auth.signOut()}>
-          {t("common:buttons.logout")}
-        </Button>
-      </View>
-    </ScrollView>
+          <View className="mt-6 flex-row flex-wrap gap-3">
+            {fields.map((field, i) => (
+              <View key={field.key} className="flex-1 basis-[47%]">
+                <Animated.View entering={FadeInDown.duration(280).delay(Math.min(i, 8) * 30)}>
+                  <Card variant="raised" className="gap-2">
+                    <View className="flex-row items-center gap-1.5">
+                      <field.icon color={Colors.mutedForeground} size={13} />
+                      <Text className="font-body-medium text-xs text-muted-foreground">
+                        {field.label}
+                      </Text>
+                    </View>
+                    <View className="flex-row items-baseline gap-1">
+                      <Text
+                        className={cn(
+                          "text-lg text-foreground",
+                          field.mono ? "font-mono" : "font-body-semibold",
+                        )}
+                      >
+                        {field.value}
+                      </Text>
+                      {field.unit && (
+                        <Text className="font-body-medium text-xs text-muted-foreground">
+                          {field.unit}
+                        </Text>
+                      )}
+                    </View>
+                  </Card>
+                </Animated.View>
+              </View>
+            ))}
+          </View>
+
+          <View className="mt-8">
+            <Button variant="outline" onPress={() => supabase.auth.signOut()}>
+              {t("common:buttons.logout")}
+            </Button>
+          </View>
+        </>
+      )}
+    </Screen>
   );
 }

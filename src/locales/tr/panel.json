@@ -158,7 +158,18 @@
   "weight": {
     "eyebrow": "Kilo",
     "title": "Kilo Takibi",
-    "description": "Günlük kilonu gir, haftalık ve aylık trendini grafikte gör."
+    "description": "Günlük kilonu gir, haftalık ve aylık trendini grafikte gör.",
+    "averageLabel": "7 Günlük Ortalama",
+    "trendUp": "Bu hafta +{{amount}} kg",
+    "trendDown": "Bu hafta {{amount}} kg",
+    "trendFlat": "Bu hafta değişim yok",
+    "noTrend": "Trendini görmek için birkaç gün daha gir",
+    "logButton": "Kilo Gir",
+    "logModalTitle": "Kilo Gir",
+    "recentLabel": "Son Girişler",
+    "emptyState": "Henüz kilo girişi yok.",
+    "emptyStateDescription": "Trendini takip etmeye başlamak için kilonu gir.",
+    "weeklyLabel": "Son 7 Hafta"
   },
   "profile": {
     "eyebrow": "Profil",

@@ -1,13 +1,6 @@
 import { Tabs } from "expo-router";
 import { useTranslation } from "react-i18next";
-import {
-  LayoutDashboard,
-  Dumbbell,
-  Utensils,
-  Droplet,
-  Scale,
-  User,
-} from "lucide-react-native";
+import { LayoutDashboard, Dumbbell, Utensils, User } from "lucide-react-native";
 import { Colors } from "@/constants/colors";
 
 export default function TabsLayout() {
@@ -52,22 +45,12 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="su"
-        options={{
-          title: t("tabs.water"),
-          tabBarIcon: ({ color, size }) => (
-            <Droplet color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="kilo"
-        options={{
-          title: t("tabs.weight"),
-          tabBarIcon: ({ color, size }) => <Scale color={color} size={size} />,
-        }}
-      />
+      {/* Water and Weight are quick, low-depth daily actions — reached from
+          the Dashboard instead of their own tab. The routes stay part of
+          this Tabs navigator (href: null) so the tab bar remains visible
+          when a card pushes into them. */}
+      <Tabs.Screen name="su" options={{ href: null }} />
+      <Tabs.Screen name="kilo" options={{ href: null }} />
       <Tabs.Screen
         name="profil"
         options={{
