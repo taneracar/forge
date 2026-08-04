@@ -12,17 +12,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
 import { useAuthStore } from "@/store/auth.store";
-import { getDashboard } from "@/services/profile.service";
-import type { mockDashboard } from "@/mock/user";
-import { listTodayLogs } from "@/lib/water";
+import { listTodayLogs as listTodayWaterLogs } from "@/lib/water";
 import { getWeightSummary } from "@/lib/weight";
+import { listTodayLogs as listTodayMealLogs, totalsFor } from "@/lib/nutrition";
 import { listUserWorkouts, type SavedWorkout } from "@/lib/workouts";
 
 export default function DashboardScreen() {
   const { t } = useTranslation(["panel", "common"]);
   const userId = useAuthStore((state) => state.session?.user.id);
 
-  const [dashboard, setDashboard] = useState<typeof mockDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [calories, setCalories] = useState(0);
+  const [proteinG, setProteinG] = useState(0);
   const [waterLiters, setWaterLiters] = useState(0);
   const [weightAverage, setWeightAverage] = useState<number | null>(null);
   const [currentWorkout, setCurrentWorkout] = useState<SavedWorkout | null>(null);
@@ -30,25 +31,34 @@ export default function DashboardScreen() {
   useEffect(() => {
     if (!userId) return;
     Promise.all([
-      getDashboard(),
-      listTodayLogs(userId).catch(() => []),
+      listTodayMealLogs(userId).catch(() => []),
+      listTodayWaterLogs(userId).catch(() => []),
       getWeightSummary(userId).catch(() => ({
         currentAverage: null,
         previousAverage: null,
         trendKg: null,
       })),
       listUserWorkouts(userId).catch(() => []),
-    ]).then(([mock, waterLogs, weightSummary, workouts]) => {
-      setDashboard(mock);
-      setWaterLiters(waterLogs.reduce((sum, log) => sum + log.amountMl, 0) / 1000);
-      setWeightAverage(weightSummary.currentAverage);
-      setCurrentWorkout(workouts[0] ?? null);
-    });
+    ])
+      .then(([mealLogs, waterLogs, weightSummary, workouts]) => {
+        const totals = totalsFor(mealLogs);
+        setCalories(totals.calories);
+        setProteinG(totals.proteinG);
+        setWaterLiters(waterLogs.reduce((sum, log) => sum + log.amountMl, 0) / 1000);
+        setWeightAverage(weightSummary.currentAverage);
+        setCurrentWorkout(workouts[0] ?? null);
+      })
+      .finally(() => setLoading(false));
   }, [userId]);
 
   function goToWorkout() {
     haptics.select();
     router.push("/(tabs)/antrenman");
+  }
+
+  function goToNutrition() {
+    haptics.select();
+    router.push("/(tabs)/beslenme");
   }
 
   function goToWater() {
@@ -67,7 +77,7 @@ export default function DashboardScreen() {
         {t("dashboard.title")}
       </Text>
 
-      {!dashboard ? (
+      {loading ? (
         <View className="mt-6 gap-3">
           <View className="flex-row flex-wrap gap-3">
             <Skeleton height={84} className="flex-1 basis-[47%]" />
@@ -83,26 +93,26 @@ export default function DashboardScreen() {
             {/* Sizing lives on a plain View (flex-1/basis-[47%] via
                 NativeWind only reliably targets core RN primitives, not
                 Reanimated's Animated.View) — Animated.View just animates. */}
-            <View className="flex-1 basis-[47%]">
+            <Pressable onPress={goToNutrition} className="flex-1 basis-[47%]">
               <Animated.View entering={FadeInDown.duration(280)}>
                 <StatTile
                   label={t("dashboard.stats.calories")}
-                  value={dashboard.calories.current.toLocaleString()}
-                  unit={dashboard.calories.unit}
+                  value={calories.toLocaleString()}
+                  unit="kcal"
                   icon={<Flame color={Colors.mutedForeground} size={13} />}
                 />
               </Animated.View>
-            </View>
-            <View className="flex-1 basis-[47%]">
+            </Pressable>
+            <Pressable onPress={goToNutrition} className="flex-1 basis-[47%]">
               <Animated.View entering={FadeInDown.duration(280).delay(40)}>
                 <StatTile
                   label={t("dashboard.stats.protein")}
-                  value={dashboard.protein.current.toLocaleString()}
-                  unit={dashboard.protein.unit}
+                  value={Math.round(proteinG).toLocaleString()}
+                  unit="g"
                   icon={<Utensils color={Colors.mutedForeground} size={13} />}
                 />
               </Animated.View>
-            </View>
+            </Pressable>
             <Pressable onPress={goToWater} className="flex-1 basis-[47%]">
               <Animated.View entering={FadeInDown.duration(280).delay(80)}>
                 <StatTile

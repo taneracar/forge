@@ -27,7 +27,8 @@
       "triceps": "Triceps",
       "kalca": "Glutes",
       "arka-bacak": "Hamstrings",
-      "baldir": "Calves"
+      "baldir": "Calves",
+      "kardiyo": "Cardio"
     },
     "equipment": {
       "barbell": "Barbell",
@@ -35,7 +36,9 @@
       "cable": "Cable",
       "machine": "Machine",
       "bodyweight": "Bodyweight",
-      "plate": "Plate"
+      "plate": "Plate",
+      "band": "Band",
+      "kettlebell": "Kettlebell"
     },
     "home": {
       "eyebrow": "Workout",
@@ -103,7 +106,12 @@
       "pickExercise": "Pick Exercise",
       "searchPlaceholder": "Search exercises...",
       "allMuscleGroups": "All",
-      "noResults": "No results found."
+      "noResults": "No results found.",
+      "exerciseDetail": {
+        "mediaPlaceholder": "Media coming soon",
+        "instructionsLabel": "Instructions",
+        "noInstructions": "No instructions available yet."
+      }
     },
     "session": {
       "durationLabel": "Duration",
@@ -133,7 +141,25 @@
   "nutrition": {
     "eyebrow": "Nutrition",
     "title": "Your Meals",
-    "description": "Log breakfast, lunch, dinner and snacks, track calories and macros."
+    "description": "Log breakfast, lunch, dinner and snacks, track calories and macros.",
+    "caloriesLabel": "Calories Today",
+    "caloriesFieldLabel": "Calories",
+    "proteinLabel": "Protein",
+    "carbsLabel": "Carbs",
+    "fatLabel": "Fat",
+    "addButton": "Add Meal",
+    "addModalTitle": "Add Meal",
+    "nameLabel": "Meal Name",
+    "namePlaceholder": "e.g. Grilled Chicken",
+    "mealTypes": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "dinner": "Dinner",
+      "snack": "Snack"
+    },
+    "entriesLabel": "Today's Meals",
+    "emptyState": "No meals logged yet today.",
+    "weeklyLabel": "This Week"
   },
   "water": {
     "eyebrow": "Water",
