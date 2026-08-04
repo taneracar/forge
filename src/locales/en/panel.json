@@ -27,7 +27,8 @@
       "triceps": "Triceps",
       "kalca": "Glutes",
       "arka-bacak": "Hamstrings",
-      "baldir": "Calves"
+      "baldir": "Calves",
+      "kardiyo": "Cardio"
     },
     "equipment": {
       "barbell": "Barbell",
@@ -35,7 +36,9 @@
       "cable": "Cable",
       "machine": "Machine",
       "bodyweight": "Bodyweight",
-      "plate": "Plate"
+      "plate": "Plate",
+      "band": "Band",
+      "kettlebell": "Kettlebell"
     },
     "home": {
       "eyebrow": "Workout",
@@ -103,7 +106,12 @@
       "pickExercise": "Pick Exercise",
       "searchPlaceholder": "Search exercises...",
       "allMuscleGroups": "All",
-      "noResults": "No results found."
+      "noResults": "No results found.",
+      "exerciseDetail": {
+        "mediaPlaceholder": "Media coming soon",
+        "instructionsLabel": "Instructions",
+        "noInstructions": "No instructions available yet."
+      }
     },
     "session": {
       "durationLabel": "Duration",

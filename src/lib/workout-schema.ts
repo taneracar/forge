@@ -29,6 +29,7 @@ export const muscleGroupOptions = [
   { value: "kalca", labelKey: "panel:workout.muscleGroups.kalca" },
   { value: "arka-bacak", labelKey: "panel:workout.muscleGroups.arka-bacak" },
   { value: "baldir", labelKey: "panel:workout.muscleGroups.baldir" },
+  { value: "kardiyo", labelKey: "panel:workout.muscleGroups.kardiyo" },
 ] as const;
 
 export const equipmentOptions = [
@@ -38,4 +39,6 @@ export const equipmentOptions = [
   { value: "machine", labelKey: "panel:workout.equipment.machine" },
   { value: "bodyweight", labelKey: "panel:workout.equipment.bodyweight" },
   { value: "plate", labelKey: "panel:workout.equipment.plate" },
+  { value: "band", labelKey: "panel:workout.equipment.band" },
+  { value: "kettlebell", labelKey: "panel:workout.equipment.kettlebell" },
 ] as const;

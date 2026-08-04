@@ -27,7 +27,8 @@
       "triceps": "Triceps",
       "kalca": "Kalça",
       "arka-bacak": "Arka Bacak",
-      "baldir": "Baldır"
+      "baldir": "Baldır",
+      "kardiyo": "Kardiyo"
     },
     "equipment": {
       "barbell": "Barbell",
@@ -35,7 +36,9 @@
       "cable": "Kablo",
       "machine": "Makine",
       "bodyweight": "Vücut Ağırlığı",
-      "plate": "Ağırlık Diski"
+      "plate": "Ağırlık Diski",
+      "band": "Direnç Bandı",
+      "kettlebell": "Kettlebell"
     },
     "home": {
       "eyebrow": "Antrenman",
@@ -103,7 +106,12 @@
       "pickExercise": "Hareket Seç",
       "searchPlaceholder": "Hareket ara...",
       "allMuscleGroups": "Tümü",
-      "noResults": "Sonuç bulunamadı."
+      "noResults": "Sonuç bulunamadı.",
+      "exerciseDetail": {
+        "mediaPlaceholder": "Görsel/video yakında",
+        "instructionsLabel": "Nasıl Yapılır",
+        "noInstructions": "Henüz talimat eklenmedi."
+      }
     },
     "session": {
       "durationLabel": "Süre",
