@@ -9,7 +9,10 @@
       "protein": "Protein",
       "water": "Su",
       "weight": "Kilo"
-    }
+    },
+    "thisWeekLabel": "Bu Hafta",
+    "weeklyWorkoutsLabel": "Antrenman",
+    "weeklyVolumeLabel": "Hacim"
   },
   "workout": {
     "eyebrow": "Antrenman",

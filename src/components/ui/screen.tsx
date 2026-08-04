@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { View, ScrollView, type ScrollViewProps } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AmbientBackground } from "@/components/ui/ambient-background";
 import { cn } from "@/lib/cn";
 
 interface ScreenProps extends ScrollViewProps {
@@ -11,8 +12,9 @@ interface ScreenProps extends ScrollViewProps {
 }
 
 /**
- * Standard screen frame: background + safe-area top padding. Replaces the
- * `paddingTop: insets.top + 24` boilerplate repeated across every screen.
+ * Standard screen frame: background + ambient glow + safe-area top padding.
+ * Replaces the `paddingTop: insets.top + 24` boilerplate repeated across
+ * every screen.
  */
 export function Screen({
   children,
@@ -25,28 +27,31 @@ export function Screen({
 
   if (!scroll) {
     return (
-      <View
-        className={cn("flex-1 bg-background px-5", className)}
-        style={{ paddingTop: insets.top + 20 }}
-      >
-        {children}
+      <View className="flex-1 bg-background">
+        <AmbientBackground />
+        <View className={cn("flex-1 px-5", className)} style={{ paddingTop: insets.top + 20 }}>
+          {children}
+        </View>
       </View>
     );
   }
 
   return (
-    <ScrollView
-      className={cn("flex-1 bg-background px-5", className)}
-      // Bottom padding clears the floating tab bar so the last row can scroll
-      // fully into view.
-      contentContainerStyle={[
-        { paddingTop: insets.top + 20, paddingBottom: 96 },
-        contentContainerStyle,
-      ]}
-      showsVerticalScrollIndicator={false}
-      {...props}
-    >
-      {children}
-    </ScrollView>
+    <View className="flex-1 bg-background">
+      <AmbientBackground />
+      <ScrollView
+        className={cn("flex-1 px-5", className)}
+        // Bottom padding clears the floating tab bar so the last row can scroll
+        // fully into view.
+        contentContainerStyle={[
+          { paddingTop: insets.top + 20, paddingBottom: 96 },
+          contentContainerStyle,
+        ]}
+        showsVerticalScrollIndicator={false}
+        {...props}
+      >
+        {children}
+      </ScrollView>
+    </View>
   );
 }

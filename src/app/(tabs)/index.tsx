@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { router } from "expo-router";
-import { Droplet, Dumbbell, Flame, Scale, Utensils } from "lucide-react-native";
+import { Droplet, Dumbbell, Flame, Scale, TrendingUp, Utensils } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Screen } from "@/components/ui/screen";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { SectionHeader } from "@/components/ui/section-header";
 import { StatTile } from "@/components/ui/stat-tile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Colors } from "@/constants/colors";
@@ -15,7 +16,12 @@ import { useAuthStore } from "@/store/auth.store";
 import { listTodayLogs as listTodayWaterLogs } from "@/lib/water";
 import { getWeightSummary } from "@/lib/weight";
 import { listTodayLogs as listTodayMealLogs, totalsFor } from "@/lib/nutrition";
-import { listUserWorkouts, type SavedWorkout } from "@/lib/workouts";
+import {
+  getWeeklyWorkoutStats,
+  listUserWorkouts,
+  type SavedWorkout,
+  type WeeklyWorkoutStats,
+} from "@/lib/workouts";
 
 export default function DashboardScreen() {
   const { t } = useTranslation(["panel", "common"]);
@@ -27,6 +33,10 @@ export default function DashboardScreen() {
   const [waterLiters, setWaterLiters] = useState(0);
   const [weightAverage, setWeightAverage] = useState<number | null>(null);
   const [currentWorkout, setCurrentWorkout] = useState<SavedWorkout | null>(null);
+  const [weeklyStats, setWeeklyStats] = useState<WeeklyWorkoutStats>({
+    sessionsCount: 0,
+    totalVolume: 0,
+  });
 
   useEffect(() => {
     if (!userId) return;
@@ -39,14 +49,16 @@ export default function DashboardScreen() {
         trendKg: null,
       })),
       listUserWorkouts(userId).catch(() => []),
+      getWeeklyWorkoutStats(userId).catch(() => ({ sessionsCount: 0, totalVolume: 0 })),
     ])
-      .then(([mealLogs, waterLogs, weightSummary, workouts]) => {
+      .then(([mealLogs, waterLogs, weightSummary, workouts, stats]) => {
         const totals = totalsFor(mealLogs);
         setCalories(totals.calories);
         setProteinG(totals.proteinG);
         setWaterLiters(waterLogs.reduce((sum, log) => sum + log.amountMl, 0) / 1000);
         setWeightAverage(weightSummary.currentAverage);
         setCurrentWorkout(workouts[0] ?? null);
+        setWeeklyStats(stats);
       })
       .finally(() => setLoading(false));
   }, [userId]);
@@ -170,6 +182,27 @@ export default function DashboardScreen() {
               {t("common:buttons.startWorkout")}
             </Button>
           </View>
+
+          <SectionHeader className="mt-7" title={t("dashboard.thisWeekLabel")} />
+          <Animated.View entering={FadeInDown.duration(280).delay(200)} className="mt-3">
+            <View className="flex-row gap-3">
+              <View className="flex-1">
+                <StatTile
+                  label={t("dashboard.weeklyWorkoutsLabel")}
+                  value={weeklyStats.sessionsCount.toLocaleString()}
+                  icon={<Dumbbell color={Colors.mutedForeground} size={13} />}
+                />
+              </View>
+              <View className="flex-1">
+                <StatTile
+                  label={t("dashboard.weeklyVolumeLabel")}
+                  value={weeklyStats.totalVolume.toLocaleString()}
+                  unit="kg"
+                  icon={<TrendingUp color={Colors.mutedForeground} size={13} />}
+                />
+              </View>
+            </View>
+          </Animated.View>
         </>
       )}
     </Screen>
