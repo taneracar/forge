@@ -133,7 +133,25 @@
   "nutrition": {
     "eyebrow": "Beslenme",
     "title": "Öğünlerin",
-    "description": "Kahvaltı, öğle, akşam ve ara öğünlerini kaydet, kalori ve makrolarını takip et."
+    "description": "Kahvaltı, öğle, akşam ve ara öğünlerini kaydet, kalori ve makrolarını takip et.",
+    "caloriesLabel": "Bugünkü Kalori",
+    "caloriesFieldLabel": "Kalori",
+    "proteinLabel": "Protein",
+    "carbsLabel": "Karbonhidrat",
+    "fatLabel": "Yağ",
+    "addButton": "Öğün Ekle",
+    "addModalTitle": "Öğün Ekle",
+    "nameLabel": "Öğün Adı",
+    "namePlaceholder": "örn. Izgara Tavuk",
+    "mealTypes": {
+      "breakfast": "Kahvaltı",
+      "lunch": "Öğle",
+      "dinner": "Akşam",
+      "snack": "Ara Öğün"
+    },
+    "entriesLabel": "Bugünkü Öğünler",
+    "emptyState": "Bugün henüz öğün girilmedi.",
+    "weeklyLabel": "Bu Hafta"
   },
   "water": {
     "eyebrow": "Su",

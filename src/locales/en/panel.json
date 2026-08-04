@@ -133,7 +133,25 @@
   "nutrition": {
     "eyebrow": "Nutrition",
     "title": "Your Meals",
-    "description": "Log breakfast, lunch, dinner and snacks, track calories and macros."
+    "description": "Log breakfast, lunch, dinner and snacks, track calories and macros.",
+    "caloriesLabel": "Calories Today",
+    "caloriesFieldLabel": "Calories",
+    "proteinLabel": "Protein",
+    "carbsLabel": "Carbs",
+    "fatLabel": "Fat",
+    "addButton": "Add Meal",
+    "addModalTitle": "Add Meal",
+    "nameLabel": "Meal Name",
+    "namePlaceholder": "e.g. Grilled Chicken",
+    "mealTypes": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "dinner": "Dinner",
+      "snack": "Snack"
+    },
+    "entriesLabel": "Today's Meals",
+    "emptyState": "No meals logged yet today.",
+    "weeklyLabel": "This Week"
   },
   "water": {
     "eyebrow": "Water",
