@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Modal, View, Text, Pressable, ScrollView, FlatList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
@@ -14,10 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/cn";
 import { haptics } from "@/lib/haptics";
 import { Colors } from "@/constants/colors";
-import { exerciseInstructions, searchExercises, type Exercise } from "@/lib/exercises";
+import { exerciseInstructions, listExercises, type Exercise } from "@/lib/exercises";
 import { muscleGroupOptions, equipmentOptions } from "@/lib/workout-schema";
 import { labelFor } from "@/lib/profile-schema";
 
@@ -42,12 +43,25 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState("");
   const [muscleGroup, setMuscleGroup] = useState<string | null>(null);
-  const [results, setResults] = useState<Exercise[]>([]);
+  const [allExercises, setAllExercises] = useState<Exercise[] | null>(null);
   const [detail, setDetail] = useState<Exercise | null>(null);
 
+  // The full catalog (~1.4k rows) is small enough to fetch once and filter
+  // in memory — avoids a round trip (and the empty-list flash) on every
+  // keystroke and every muscle-group tap.
   useEffect(() => {
-    searchExercises(query, muscleGroup ?? undefined).then(setResults);
-  }, [query, muscleGroup]);
+    listExercises().then(setAllExercises);
+  }, []);
+
+  const results = useMemo(() => {
+    if (!allExercises) return [];
+    const q = query.trim().toLowerCase();
+    return allExercises.filter((exercise) => {
+      if (muscleGroup && exercise.muscle_group !== muscleGroup) return false;
+      if (q && !exercise.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [allExercises, query, muscleGroup]);
 
   if (detail) {
     return (
@@ -140,42 +154,52 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
         ))}
       </ScrollView>
 
-      <FlatList
-        className="mt-4"
-        data={results}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ gap: 8, paddingBottom: 16 }}
-        ListEmptyComponent={
-          <EmptyState
-            className="mt-6"
-            icon={<Search color={Colors.mutedForeground} size={22} />}
-            title={t("panel:workout.builder.noResults")}
-          />
-        }
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => {
-              haptics.select();
-              setDetail(item);
-            }}
-          >
-            <Card className="flex-row items-center gap-3 py-3">
-              <View className="h-9 w-9 items-center justify-center rounded-tile bg-surface-overlay">
-                <Dumbbell color={Colors.mutedForeground} size={16} />
-              </View>
-              <View className="flex-1">
-                <Text className="font-body-semibold text-sm text-foreground">{item.name}</Text>
-                <Text className="mt-0.5 font-body text-xs text-muted-foreground">
-                  {labelFor(muscleGroupOptions, item.muscle_group, t)}
-                  {item.equipment ? ` · ${labelFor(equipmentOptions, item.equipment, t)}` : ""}
-                </Text>
-              </View>
-            </Card>
-          </Pressable>
-        )}
-      />
+      {!allExercises ? (
+        <View className="mt-4 gap-2">
+          <Skeleton height={62} />
+          <Skeleton height={62} />
+          <Skeleton height={62} />
+        </View>
+      ) : (
+        <FlatList
+          className="mt-4"
+          data={results}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ gap: 8, paddingBottom: 16 }}
+          ListEmptyComponent={
+            <EmptyState
+              className="mt-6"
+              icon={<Search color={Colors.mutedForeground} size={22} />}
+              title={t("panel:workout.builder.noResults")}
+            />
+          }
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() => {
+                haptics.select();
+                setDetail(item);
+              }}
+            >
+              <Card className="flex-row items-center gap-3 py-3">
+                <View className="h-9 w-9 items-center justify-center rounded-tile bg-surface-overlay">
+                  <Dumbbell color={Colors.mutedForeground} size={16} />
+                </View>
+                <View className="flex-1">
+                  <Text className="font-body-semibold text-sm text-foreground">{item.name}</Text>
+                  <Text className="mt-0.5 font-body text-xs text-muted-foreground">
+                    {labelFor(muscleGroupOptions, item.muscle_group, t)}
+                    {item.equipment
+                      ? ` · ${labelFor(equipmentOptions, item.equipment, t)}`
+                      : ""}
+                  </Text>
+                </View>
+              </Card>
+            </Pressable>
+          )}
+        />
+      )}
     </View>
   );
 }
