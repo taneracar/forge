@@ -3,6 +3,7 @@ import { Modal, View, Text, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react-native";
+import { AmbientBackground } from "@/components/ui/ambient-background";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PressableScale } from "@/components/ui/pressable-scale";
@@ -76,96 +77,104 @@ function AddMealContent({
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-background px-5"
-      contentContainerStyle={{
-        paddingTop: insets.top + 12,
-        paddingBottom: insets.bottom + 24,
-      }}
-    >
-      <View className="flex-row items-center justify-between">
-        <Text className="font-display text-2xl uppercase text-foreground">
-          {t("panel:nutrition.addModalTitle")}
-        </Text>
-        <Pressable
-          onPress={onClose}
-          hitSlop={10}
-          className="h-9 w-9 items-center justify-center rounded-full bg-surface-raised"
-        >
-          <X color={Colors.foreground} size={18} />
-        </Pressable>
-      </View>
+    <View className="flex-1 bg-background">
+      <AmbientBackground />
+      <ScrollView
+        className="flex-1 px-5"
+        contentContainerStyle={{
+          paddingTop: insets.top + 12,
+          paddingBottom: insets.bottom + 24,
+          flexGrow: 1,
+        }}
+      >
+        <View className="flex-row items-center justify-between">
+          <Text className="font-display text-2xl uppercase text-foreground">
+            {t("panel:nutrition.addModalTitle")}
+          </Text>
+          <Pressable
+            onPress={onClose}
+            hitSlop={10}
+            className="h-9 w-9 items-center justify-center rounded-full bg-surface-raised"
+          >
+            <X color={Colors.foreground} size={18} />
+          </Pressable>
+        </View>
 
-      <View className="mt-6 flex-row flex-wrap gap-2">
-        {MEAL_TYPES.map((type) => (
-          <PressableScale key={type} onPress={() => setMealType(type)}>
-            <View
-              className={cn(
-                "rounded-full border px-4 py-2.5",
-                mealType === type
-                  ? "border-primary bg-primary/15"
-                  : "border-border-strong bg-surface",
-              )}
-            >
-              <Text
-                className={cn(
-                  "font-body-medium text-sm",
-                  mealType === type ? "text-primary" : "text-muted-foreground",
-                )}
-              >
-                {t(`panel:nutrition.mealTypes.${type}`)}
-              </Text>
+        {/* Centers the form in whatever space is left below the header,
+            instead of leaving a dead void underneath the Add button. */}
+        <View className="flex-1 justify-center">
+          <View className="flex-row flex-wrap gap-2">
+            {MEAL_TYPES.map((type) => (
+              <PressableScale key={type} onPress={() => setMealType(type)}>
+                <View
+                  className={cn(
+                    "rounded-full border px-4 py-2.5",
+                    mealType === type
+                      ? "border-primary bg-primary/15"
+                      : "border-border-strong bg-surface",
+                  )}
+                >
+                  <Text
+                    className={cn(
+                      "font-body-medium text-sm",
+                      mealType === type ? "text-primary" : "text-muted-foreground",
+                    )}
+                  >
+                    {t(`panel:nutrition.mealTypes.${type}`)}
+                  </Text>
+                </View>
+              </PressableScale>
+            ))}
+          </View>
+
+          <View className="mt-6 gap-4">
+            <Input
+              label={t("panel:nutrition.nameLabel")}
+              placeholder={t("panel:nutrition.namePlaceholder")}
+              value={name}
+              onChangeText={setName}
+            />
+            <Input
+              label={t("panel:nutrition.caloriesFieldLabel")}
+              keyboardType="numeric"
+              value={calories}
+              onChangeText={setCalories}
+            />
+            <View className="flex-row gap-3">
+              <View className="flex-1">
+                <Input
+                  label={`${t("panel:nutrition.proteinLabel")} (g)`}
+                  keyboardType="numeric"
+                  value={protein}
+                  onChangeText={setProtein}
+                />
+              </View>
+              <View className="flex-1">
+                <Input
+                  label={`${t("panel:nutrition.carbsLabel")} (g)`}
+                  keyboardType="numeric"
+                  value={carbs}
+                  onChangeText={setCarbs}
+                />
+              </View>
+              <View className="flex-1">
+                <Input
+                  label={`${t("panel:nutrition.fatLabel")} (g)`}
+                  keyboardType="numeric"
+                  value={fat}
+                  onChangeText={setFat}
+                />
+              </View>
             </View>
-          </PressableScale>
-        ))}
-      </View>
+          </View>
 
-      <View className="mt-6 gap-4">
-        <Input
-          label={t("panel:nutrition.nameLabel")}
-          placeholder={t("panel:nutrition.namePlaceholder")}
-          value={name}
-          onChangeText={setName}
-        />
-        <Input
-          label={t("panel:nutrition.caloriesFieldLabel")}
-          keyboardType="numeric"
-          value={calories}
-          onChangeText={setCalories}
-        />
-        <View className="flex-row gap-3">
-          <View className="flex-1">
-            <Input
-              label={`${t("panel:nutrition.proteinLabel")} (g)`}
-              keyboardType="numeric"
-              value={protein}
-              onChangeText={setProtein}
-            />
-          </View>
-          <View className="flex-1">
-            <Input
-              label={`${t("panel:nutrition.carbsLabel")} (g)`}
-              keyboardType="numeric"
-              value={carbs}
-              onChangeText={setCarbs}
-            />
-          </View>
-          <View className="flex-1">
-            <Input
-              label={`${t("panel:nutrition.fatLabel")} (g)`}
-              keyboardType="numeric"
-              value={fat}
-              onChangeText={setFat}
-            />
+          <View className="mt-8">
+            <Button variant="primary" size="lg" onPress={handleSave} disabled={!canSave}>
+              {t("common:buttons.add")}
+            </Button>
           </View>
         </View>
-      </View>
-
-      <View className="mt-8">
-        <Button variant="primary" size="lg" onPress={handleSave} disabled={!canSave}>
-          {t("common:buttons.add")}
-        </Button>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
