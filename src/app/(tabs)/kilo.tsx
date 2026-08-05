@@ -3,6 +3,7 @@ import { View, Text, Pressable } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
 import { Plus, Scale, TrendingDown, TrendingUp, X } from "lucide-react-native";
+import { BackButton } from "@/components/ui/back-button";
 import { Screen } from "@/components/ui/screen";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -111,7 +112,8 @@ export default function KiloScreen() {
 
   return (
     <Screen>
-      <Text className="pt-1 font-display text-4xl uppercase text-foreground">
+      <BackButton />
+      <Text className="mt-2 pt-1 font-display text-4xl uppercase text-foreground">
         {t("panel:weight.title")}
       </Text>
 
