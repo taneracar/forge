@@ -10,6 +10,7 @@ import {
   Search,
   X,
 } from "lucide-react-native";
+import { AmbientBackground } from "@/components/ui/ambient-background";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -77,10 +78,12 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
   }
 
   return (
-    <View
-      className="flex-1 bg-background px-5"
-      style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }}
-    >
+    <View className="flex-1 bg-background">
+      <AmbientBackground />
+      <View
+        className="flex-1 px-5"
+        style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }}
+      >
       <View className="flex-row items-center justify-between">
         <Text className="font-display text-2xl uppercase text-foreground">
           {t("panel:workout.builder.pickExercise")}
@@ -200,6 +203,7 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
           )}
         />
       )}
+      </View>
     </View>
   );
 }
@@ -218,10 +222,12 @@ function ExerciseDetail({
   const { text, steps } = exerciseInstructions(exercise, i18n.language);
 
   return (
-    <View
-      className="flex-1 bg-background"
-      style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }}
-    >
+    <View className="flex-1 bg-background">
+      <AmbientBackground />
+      <View
+        className="flex-1"
+        style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }}
+      >
       <View className="flex-row items-center px-5">
         <Pressable
           onPress={onBack}
@@ -296,6 +302,7 @@ function ExerciseDetail({
         >
           {t("panel:workout.builder.addExerciseButton")}
         </Button>
+      </View>
       </View>
     </View>
   );

@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { Droplet, Pencil, Plus, X } from "lucide-react-native";
+import { BackButton } from "@/components/ui/back-button";
 import { Screen } from "@/components/ui/screen";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -126,7 +127,8 @@ export default function SuScreen() {
 
   return (
     <Screen>
-      <Text className="font-display text-4xl uppercase text-foreground">
+      <BackButton />
+      <Text className="mt-2 font-display text-4xl uppercase text-foreground">
         {t("panel:water.title")}
       </Text>
 

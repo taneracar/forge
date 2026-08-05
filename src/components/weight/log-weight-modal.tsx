@@ -3,6 +3,7 @@ import { Modal, View, Text, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react-native";
+import { AmbientBackground } from "@/components/ui/ambient-background";
 import { Button } from "@/components/ui/button";
 import { NumberPill } from "@/components/ui/number-pill";
 import { Colors } from "@/constants/colors";
@@ -46,42 +47,47 @@ function LogWeightContent({
   const [value, setValue] = useState(startingWeightKg);
 
   return (
-    <View
-      className="flex-1 bg-background px-5"
-      style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }}
-    >
-      <View className="flex-row items-center justify-between">
-        <Text className="font-display text-2xl uppercase text-foreground">
-          {t("panel:weight.logModalTitle")}
-        </Text>
-        <Pressable
-          onPress={onClose}
-          hitSlop={10}
-          className="h-9 w-9 items-center justify-center rounded-full bg-surface-raised"
-        >
-          <X color={Colors.foreground} size={18} />
-        </Pressable>
-      </View>
+    <View className="flex-1 bg-background">
+      <AmbientBackground />
+      <View
+        className="flex-1 px-5"
+        style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }}
+      >
+        <View className="flex-row items-center justify-between">
+          <Text className="font-display text-2xl uppercase text-foreground">
+            {t("panel:weight.logModalTitle")}
+          </Text>
+          <Pressable
+            onPress={onClose}
+            hitSlop={10}
+            className="h-9 w-9 items-center justify-center rounded-full bg-surface-raised"
+          >
+            <X color={Colors.foreground} size={18} />
+          </Pressable>
+        </View>
 
-      <View className="mt-8">
-        <NumberPill
-          value={value}
-          onChange={(next) => setValue(Math.max(20, next))}
-          step={0.5}
-        />
-      </View>
+        {/* Centers the stepper in whatever space is left below the header,
+            instead of leaving a dead void underneath the Save button. */}
+        <View className="flex-1 justify-center">
+          <NumberPill
+            value={value}
+            onChange={(next) => setValue(Math.max(20, next))}
+            step={0.5}
+          />
 
-      <View className="mt-8">
-        <Button
-          variant="primary"
-          size="lg"
-          onPress={() => {
-            onSave(value);
-            onClose();
-          }}
-        >
-          {t("common:buttons.save")}
-        </Button>
+          <View className="mt-8">
+            <Button
+              variant="primary"
+              size="lg"
+              onPress={() => {
+                onSave(value);
+                onClose();
+              }}
+            >
+              {t("common:buttons.save")}
+            </Button>
+          </View>
+        </View>
       </View>
     </View>
   );
