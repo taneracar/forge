@@ -211,18 +211,23 @@ export function SignupWizard() {
   }
 
   return (
-    <Screen contentContainerStyle={{ paddingBottom: 40 }}>
-      {step === 0 && <BackButton fallbackHref="/(auth)" className="mb-2" />}
+    <Screen contentContainerStyle={{ paddingBottom: 40, flexGrow: 1 }}>
+      <View className="flex-1">
+        {step === 0 && <BackButton fallbackHref="/(auth)" className="mb-2" />}
 
-      <View className="mb-8 flex-row gap-1.5">
-        {stepKeys.map((key, i) => (
-          <View
-            key={key}
-            className={cn("h-1 flex-1 rounded-full", i <= step ? "bg-primary" : "bg-border")}
-          />
-        ))}
-      </View>
+        <View className="mb-8 flex-row gap-1.5">
+          {stepKeys.map((key, i) => (
+            <View
+              key={key}
+              className={cn("h-1 flex-1 rounded-full", i <= step ? "bg-primary" : "bg-border")}
+            />
+          ))}
+        </View>
 
+        {/* Centers the eyebrow/title/fields block in whatever space is left
+            between the progress bar and the login prompt, instead of
+            top-pinning it with a dead void below on short steps. */}
+        <View className="flex-1 justify-center">
       <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
         {t(`onboarding:steps.${stepKey}.eyebrow`)}
       </Text>
@@ -587,6 +592,8 @@ export function SignupWizard() {
                 : t("common:buttons.continue")}
             </Button>
           </View>
+        </View>
+        </View>
         </View>
 
         {step === 0 && (
