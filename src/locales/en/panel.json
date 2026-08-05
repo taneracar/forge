@@ -9,7 +9,10 @@
       "protein": "Protein",
       "water": "Water",
       "weight": "Weight"
-    }
+    },
+    "thisWeekLabel": "This Week",
+    "weeklyWorkoutsLabel": "Workouts",
+    "weeklyVolumeLabel": "Volume"
   },
   "workout": {
     "eyebrow": "Workout",

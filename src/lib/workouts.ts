@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { calculateVolume } from "@/lib/workout-calculations";
 
 export const MAX_SAVED_WORKOUTS = 5;
 
@@ -59,4 +60,31 @@ export async function countUserWorkouts(userId: string): Promise<number> {
 export async function deleteWorkout(id: string): Promise<void> {
   const { error } = await supabase.from("workouts").delete().eq("id", id);
   if (error) throw error;
+}
+
+export interface WeeklyWorkoutStats {
+  sessionsCount: number;
+  totalVolume: number;
+}
+
+/** Completed sessions in the last 7 days, for the Dashboard's weekly summary. */
+export async function getWeeklyWorkoutStats(userId: string): Promise<WeeklyWorkoutStats> {
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 6);
+  weekAgo.setHours(0, 0, 0, 0);
+
+  const { data, error } = await supabase
+    .from("workout_sessions")
+    .select("workout_sets(weight, reps, completed)")
+    .eq("user_id", userId)
+    .not("completed_at", "is", null)
+    .gte("completed_at", weekAgo.toISOString());
+  if (error) throw error;
+
+  const sessions = data ?? [];
+  const totalVolume = sessions.reduce(
+    (sum, session) => sum + calculateVolume(session.workout_sets ?? []),
+    0,
+  );
+  return { sessionsCount: sessions.length, totalVolume };
 }

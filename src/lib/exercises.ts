@@ -23,21 +23,6 @@ export async function listExercises(): Promise<Exercise[]> {
   return data ?? [];
 }
 
-export async function searchExercises(query: string, muscleGroup?: string): Promise<Exercise[]> {
-  let request = supabase.from("exercises").select("*").order("name");
-  if (query.trim()) request = request.ilike("name", `%${query.trim()}%`);
-  if (muscleGroup) request = request.eq("muscle_group", muscleGroup);
-  const { data, error } = await request;
-  if (error) throw error;
-  return data ?? [];
-}
-
-export async function getExercise(id: string): Promise<Exercise | null> {
-  const { data, error } = await supabase.from("exercises").select("*").eq("id", id).maybeSingle();
-  if (error) throw error;
-  return data;
-}
-
 /** English is the base/fallback language app-wide; Turkish only for `tr` locale. */
 export function exerciseInstructions(
   exercise: Exercise,
