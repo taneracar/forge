@@ -113,7 +113,10 @@
       "exerciseDetail": {
         "mediaPlaceholder": "Media coming soon",
         "instructionsLabel": "Instructions",
-        "noInstructions": "No instructions available yet."
+        "noInstructions": "No instructions available yet.",
+        "personalRecordLabel": "Personal Record",
+        "recentSessionsLabel": "Recent Sessions",
+        "noHistory": "You haven't logged this exercise yet."
       }
     },
     "session": {

@@ -8,9 +8,11 @@ import {
   Image as ImageIcon,
   Plus,
   Search,
+  Trophy,
   X,
 } from "lucide-react-native";
 import { AmbientBackground } from "@/components/ui/ambient-background";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -19,7 +21,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/cn";
 import { haptics } from "@/lib/haptics";
 import { Colors } from "@/constants/colors";
-import { exerciseInstructions, listExercises, type Exercise } from "@/lib/exercises";
+import { useAuthStore } from "@/store/auth.store";
+import {
+  exerciseInstructions,
+  getExerciseHistory,
+  listExercises,
+  type Exercise,
+  type ExerciseHistory,
+} from "@/lib/exercises";
 import { muscleGroupOptions, equipmentOptions } from "@/lib/workout-schema";
 import { labelFor } from "@/lib/profile-schema";
 
@@ -67,6 +76,7 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
   if (detail) {
     return (
       <ExerciseDetail
+        key={detail.id}
         exercise={detail}
         onBack={() => setDetail(null)}
         onAdd={() => {
@@ -219,7 +229,18 @@ function ExerciseDetail({
 }) {
   const { t, i18n } = useTranslation(["panel", "common"]);
   const insets = useSafeAreaInsets();
+  const userId = useAuthStore((state) => state.session?.user.id);
   const { text, steps } = exerciseInstructions(exercise, i18n.language);
+  const [history, setHistory] = useState<ExerciseHistory | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) return;
+    getExerciseHistory(userId, exercise.id)
+      .then(setHistory)
+      .catch(() => setHistory({ personalRecord: null, recentSessions: [] }))
+      .finally(() => setHistoryLoading(false));
+  }, [userId, exercise.id]);
 
   return (
     <View className="flex-1 bg-background">
@@ -268,6 +289,59 @@ function ExerciseDetail({
             </View>
           )}
         </View>
+
+        {historyLoading ? (
+          <Skeleton height={56} className="mt-6" />
+        ) : history?.personalRecord ? (
+          <>
+            <View className="mt-6 flex-row items-center gap-3 rounded-tile border border-warning/20 bg-warning/10 px-4 py-3">
+              <Trophy color={Colors.warning} size={18} />
+              <Text className="flex-1 font-body-medium text-xs text-muted-foreground">
+                {t("panel:workout.builder.exerciseDetail.personalRecordLabel")}
+              </Text>
+              <Text className="font-mono text-base text-warning">
+                {history.personalRecord.weight ?? 0} kg × {history.personalRecord.reps ?? 0}
+              </Text>
+            </View>
+
+            <Text className="mt-6 font-body-semibold text-sm text-foreground">
+              {t("panel:workout.builder.exerciseDetail.recentSessionsLabel")}
+            </Text>
+            <View className="mt-3 gap-2">
+              {history.recentSessions.map((session) => {
+                const isPrSession = session.sets.some(
+                  (s) =>
+                    s.weight === history.personalRecord?.weight &&
+                    s.reps === history.personalRecord?.reps,
+                );
+                return (
+                  <View
+                    key={session.sessionId}
+                    className="rounded-tile border border-border-strong bg-surface px-4 py-3"
+                  >
+                    <View className="flex-row items-center gap-2">
+                      <Text className="font-body text-xs text-muted-foreground">
+                        {new Date(session.completedAt).toLocaleDateString(undefined, {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })}
+                      </Text>
+                      {isPrSession && <Badge label="PR" tone="warning" />}
+                    </View>
+                    <Text className="mt-1 font-mono text-sm text-foreground">
+                      {session.sets.map((s) => `${s.weight ?? 0}×${s.reps ?? 0}`).join("  ·  ")}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          </>
+        ) : (
+          <Text className="mt-6 font-body text-sm text-muted-foreground">
+            {t("panel:workout.builder.exerciseDetail.noHistory")}
+          </Text>
+        )}
 
         <Text className="mt-6 font-body-semibold text-sm text-foreground">
           {t("panel:workout.builder.exerciseDetail.instructionsLabel")}
