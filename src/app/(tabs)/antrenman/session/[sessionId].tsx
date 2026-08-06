@@ -8,6 +8,7 @@ import { Plus, Timer } from "lucide-react-native";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
@@ -46,6 +47,7 @@ interface SessionDetail {
   started_at: string;
   workout_id: string | null;
   workouts: { name: string } | null;
+  notes: string | null;
 }
 
 interface PriorSetRow {
@@ -66,13 +68,14 @@ export default function ActiveSessionScreen() {
   const [priorBestByExercise, setPriorBestByExercise] = useState<Record<string, PriorSetRow>>(
     {},
   );
+  const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       const { data: session } = await supabase
         .from("workout_sessions")
-        .select("started_at, workout_id, workouts(name)")
+        .select("started_at, workout_id, workouts(name), notes")
         .eq("id", sessionId)
         .single<SessionDetail>();
       if (!session) {
@@ -81,6 +84,7 @@ export default function ActiveSessionScreen() {
       }
       setStartedAt(session.started_at);
       setWorkoutName(session.workouts?.name ?? "");
+      setNotes(session.notes ?? "");
 
       let exerciseRows: WorkoutExerciseRow[] = [];
       if (session.workout_id) {
@@ -207,6 +211,14 @@ export default function ActiveSessionScreen() {
       ),
     );
     supabase.from("workout_sets").delete().eq("id", setId).then(() => {});
+  }
+
+  function handleBlurNotes() {
+    supabase
+      .from("workout_sessions")
+      .update({ notes: notes.trim() || null })
+      .eq("id", sessionId)
+      .then(() => {});
   }
 
   async function handleFinish() {
@@ -377,6 +389,26 @@ export default function ActiveSessionScreen() {
             </Card>
           </Animated.View>
         ))}
+
+        <Animated.View entering={FadeInDown.duration(280).delay(groups.length * 50)}>
+          <Card>
+            <Text className="font-body-semibold text-base text-foreground">
+              {t("panel:workout.session.notesLabel")}
+            </Text>
+            <Input
+              value={notes}
+              onChangeText={setNotes}
+              onBlur={handleBlurNotes}
+              placeholder={t("panel:workout.session.notesPlaceholder")}
+              placeholderTextColor={Colors.muted}
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+              containerClassName="mt-2.5"
+              className="min-h-[88px]"
+            />
+          </Card>
+        </Animated.View>
       </ScrollView>
 
       <View className="gap-1 pb-3 pt-1">

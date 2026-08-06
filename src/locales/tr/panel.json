@@ -129,7 +129,9 @@
       "discardButton": "Antrenmanı Sil",
       "discardConfirmTitle": "Antrenmanı sil?",
       "discardConfirmMessage": "Bu antrenman ve kaydedilen tüm setler silinecek.",
-      "noOpenSession": "Açık bir antrenman bulunamadı."
+      "noOpenSession": "Açık bir antrenman bulunamadı.",
+      "notesLabel": "Notlar",
+      "notesPlaceholder": "Bu antrenman nasıl geçti?"
     },
     "history": {
       "eyebrow": "Geçmiş",
@@ -140,7 +142,8 @@
       "totalTime": "Toplam antrenman süresi:",
       "detail": {
         "title": "Antrenman Detayı",
-        "setsLabel": "Setler"
+        "setsLabel": "Setler",
+        "notesLabel": "Notlar"
       }
     }
   },
