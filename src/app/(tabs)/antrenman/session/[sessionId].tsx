@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
 import { supabase } from "@/lib/supabase";
+import { useWorkoutHomeStore } from "@/store/workout-home.store";
 import { DurationTimer } from "@/components/workout/duration-timer";
 import { SetRow, SET_COLUMNS } from "@/components/workout/set-row";
 import {
@@ -57,6 +58,7 @@ export default function ActiveSessionScreen() {
   const { t } = useTranslation(["panel", "common"]);
   const insets = useSafeAreaInsets();
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
+  const invalidateWorkoutHome = useWorkoutHomeStore((state) => state.invalidate);
 
   const [workoutName, setWorkoutName] = useState("");
   const [startedAt, setStartedAt] = useState<string | null>(null);
@@ -214,6 +216,7 @@ export default function ActiveSessionScreen() {
       .from("workout_sessions")
       .update({ completed_at: new Date().toISOString(), duration_seconds: durationSeconds })
       .eq("id", sessionId);
+    invalidateWorkoutHome();
     router.replace("/(tabs)/antrenman");
   }
 
@@ -228,6 +231,7 @@ export default function ActiveSessionScreen() {
           style: "destructive",
           onPress: async () => {
             await supabase.from("workout_sessions").delete().eq("id", sessionId);
+            invalidateWorkoutHome();
             router.replace("/(tabs)/antrenman");
           },
         },

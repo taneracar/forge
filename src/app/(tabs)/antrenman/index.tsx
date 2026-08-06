@@ -22,38 +22,8 @@ import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth.store";
-import { calculateVolume, formatDuration } from "@/lib/workout-calculations";
-
-interface CurrentWorkout {
-  id: string;
-  name: string;
-  exerciseNames: string[];
-}
-
-interface RecentSession {
-  id: string;
-  workoutName: string;
-  completedAt: string;
-  durationSeconds: number | null;
-  volume: number;
-}
-
-interface OpenSession {
-  id: string;
-}
-
-interface WorkoutExerciseRow {
-  order_index: number;
-  exercises: { name: string } | null;
-}
-
-interface SessionRow {
-  id: string;
-  completed_at: string;
-  duration_seconds: number | null;
-  workouts: { name: string } | null;
-  workout_sets: { weight: number | null; reps: number | null; completed: boolean }[];
-}
+import { useWorkoutHomeStore } from "@/store/workout-home.store";
+import { formatDuration } from "@/lib/workout-calculations";
 
 /** Slow pulse so an unfinished workout reads as live without being noisy. */
 function LiveDot() {
@@ -75,81 +45,20 @@ function LiveDot() {
 export default function AntrenmanHomeScreen() {
   const { t } = useTranslation(["panel", "common"]);
   const userId = useAuthStore((state) => state.session?.user.id);
-  const [currentWorkout, setCurrentWorkout] = useState<CurrentWorkout | null>(null);
-  const [recentSessions, setRecentSessions] = useState<RecentSession[]>([]);
-  const [openSession, setOpenSession] = useState<OpenSession | null>(null);
-  const [loading, setLoading] = useState(true);
+  const currentWorkout = useWorkoutHomeStore((state) => state.currentWorkout);
+  const recentSessions = useWorkoutHomeStore((state) => state.recentSessions);
+  const openSession = useWorkoutHomeStore((state) => state.openSession);
+  const loading = useWorkoutHomeStore((state) => state.loading);
+  const load = useWorkoutHomeStore((state) => state.load);
+  const setOpenSession = useWorkoutHomeStore((state) => state.setOpenSession);
   const [starting, setStarting] = useState(false);
 
-  const load = useCallback(async () => {
-    if (!userId) return;
-    setLoading(true);
-
-    const [{ data: workout }, { data: sessions }, { data: open }] = await Promise.all([
-      supabase
-        .from("workouts")
-        .select("id, name")
-        .eq("user_id", userId)
-        .order("last_selected_at", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from("workout_sessions")
-        .select(
-          "id, completed_at, duration_seconds, workouts(name), workout_sets(weight, reps, completed)",
-        )
-        .eq("user_id", userId)
-        .not("completed_at", "is", null)
-        .order("completed_at", { ascending: false })
-        .limit(5)
-        .returns<SessionRow[]>(),
-      supabase
-        .from("workout_sessions")
-        .select("id")
-        .eq("user_id", userId)
-        .is("completed_at", null)
-        .order("started_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-    ]);
-
-    if (workout) {
-      const { data: exercises } = await supabase
-        .from("workout_exercises")
-        .select("order_index, exercises(name)")
-        .eq("workout_id", workout.id)
-        .order("order_index")
-        .returns<WorkoutExerciseRow[]>();
-      setCurrentWorkout({
-        id: workout.id,
-        name: workout.name,
-        exerciseNames: (exercises ?? [])
-          .map((e) => e.exercises?.name)
-          .filter((name): name is string => Boolean(name)),
-      });
-    } else {
-      setCurrentWorkout(null);
-    }
-
-    setRecentSessions(
-      (sessions ?? []).map((s) => ({
-        id: s.id,
-        workoutName: s.workouts?.name ?? "—",
-        completedAt: s.completed_at,
-        durationSeconds: s.duration_seconds,
-        volume: calculateVolume(s.workout_sets ?? []),
-      })),
-    );
-
-    setOpenSession(open ? { id: open.id } : null);
-    setLoading(false);
-  }, [userId]);
-
+  // `load` no-ops once already cached, so this is cheap on every tab visit —
+  // it only actually refetches after a mutation elsewhere calls invalidate().
   useFocusEffect(
     useCallback(() => {
-      load();
-    }, [load]),
+      if (userId) load(userId);
+    }, [userId, load]),
   );
 
   async function handleStart() {
@@ -162,6 +71,7 @@ export default function AntrenmanHomeScreen() {
       .single();
     setStarting(false);
     if (error || !data) return;
+    setOpenSession({ id: data.id });
     haptics.success();
     router.push(`/(tabs)/antrenman/session/${data.id}`);
   }
