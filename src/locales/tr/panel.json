@@ -113,7 +113,10 @@
       "exerciseDetail": {
         "mediaPlaceholder": "Görsel/video yakında",
         "instructionsLabel": "Nasıl Yapılır",
-        "noInstructions": "Henüz talimat eklenmedi."
+        "noInstructions": "Henüz talimat eklenmedi.",
+        "personalRecordLabel": "Kişisel Rekor",
+        "recentSessionsLabel": "Son Antrenmanlar",
+        "noHistory": "Bu hareketi henüz kaydetmedin."
       }
     },
     "session": {

@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { bestPerformance, type SetPerformance } from "@/lib/workout-calculations";
 
 export interface Exercise {
   id: string;
@@ -21,6 +22,70 @@ export async function listExercises(): Promise<Exercise[]> {
   const { data, error } = await supabase.from("exercises").select("*").order("name");
   if (error) throw error;
   return data ?? [];
+}
+
+export interface ExerciseSessionLog {
+  sessionId: string;
+  completedAt: string;
+  sets: SetPerformance[];
+}
+
+export interface ExerciseHistory {
+  personalRecord: (SetPerformance & { achievedAt: string }) | null;
+  recentSessions: ExerciseSessionLog[];
+}
+
+interface ExerciseSetRow {
+  weight: number | null;
+  reps: number | null;
+  workout_sessions: { id: string; completed_at: string } | null;
+}
+
+/**
+ * All-time PR (heaviest set, reps break ties — same rule as session/history
+ * screens) plus the last few sessions this exercise appeared in, for the
+ * "how have I done this before" panel in the exercise detail view.
+ */
+export async function getExerciseHistory(
+  userId: string,
+  exerciseId: string,
+  sessionLimit = 4,
+): Promise<ExerciseHistory> {
+  const { data, error } = await supabase
+    .from("workout_sets")
+    .select("weight, reps, workout_sessions!inner(id, completed_at, user_id)")
+    .eq("exercise_id", exerciseId)
+    .eq("completed", true)
+    .eq("workout_sessions.user_id", userId)
+    .not("workout_sessions.completed_at", "is", null)
+    .returns<ExerciseSetRow[]>();
+  if (error) throw error;
+
+  const rows = (data ?? []).filter((row) => row.workout_sessions !== null);
+
+  const bySession = new Map<string, ExerciseSessionLog>();
+  for (const row of rows) {
+    const session = row.workout_sessions!;
+    if (!bySession.has(session.id)) {
+      bySession.set(session.id, {
+        sessionId: session.id,
+        completedAt: session.completed_at,
+        sets: [],
+      });
+    }
+    bySession.get(session.id)!.sets.push({ weight: row.weight, reps: row.reps });
+  }
+
+  const recentSessions = Array.from(bySession.values())
+    .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+    .slice(0, sessionLimit);
+
+  const best = bestPerformance(rows);
+  const personalRecord = best
+    ? { weight: best.weight, reps: best.reps, achievedAt: best.workout_sessions!.completed_at }
+    : null;
+
+  return { personalRecord, recentSessions };
 }
 
 /** English is the base/fallback language app-wide; Turkish only for `tr` locale. */
