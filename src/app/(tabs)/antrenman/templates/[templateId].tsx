@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
 import { useAuthStore } from "@/store/auth.store";
+import { useWorkoutHomeStore } from "@/store/workout-home.store";
 import { MAX_SAVED_WORKOUTS, countUserWorkouts } from "@/lib/workouts";
 import { labelFor } from "@/lib/profile-schema";
 import {
@@ -35,6 +36,7 @@ export default function WorkoutTemplateDetailScreen() {
   const { t } = useTranslation(["panel", "common"]);
   const { templateId } = useLocalSearchParams<{ templateId: string }>();
   const userId = useAuthStore((state) => state.session?.user.id);
+  const invalidateWorkoutHome = useWorkoutHomeStore((state) => state.invalidate);
   const insets = useSafeAreaInsets();
 
   const [template, setTemplate] = useState<TemplateDetail | null>(null);
@@ -67,6 +69,7 @@ export default function WorkoutTemplateDetailScreen() {
     setApplying(true);
     const newWorkoutId = await applyTemplate(templateId, userId, t);
     setApplying(false);
+    invalidateWorkoutHome();
     haptics.success();
     router.replace(`/(tabs)/antrenman/builder/${newWorkoutId}`);
   }

@@ -17,6 +17,7 @@ import { haptics } from "@/lib/haptics";
 import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth.store";
+import { useWorkoutHomeStore } from "@/store/workout-home.store";
 import { ExercisePicker } from "@/components/workout/exercise-picker";
 import type { Exercise } from "@/lib/exercises";
 import { MAX_SAVED_WORKOUTS, countUserWorkouts } from "@/lib/workouts";
@@ -39,6 +40,7 @@ export default function WorkoutBuilderScreen() {
   const { workoutId } = useLocalSearchParams<{ workoutId: string }>();
   const isNew = workoutId === "new";
   const userId = useAuthStore((state) => state.session?.user.id);
+  const invalidateWorkoutHome = useWorkoutHomeStore((state) => state.invalidate);
 
   const [name, setName] = useState("");
   const [items, setItems] = useState<BuilderExerciseItem[]>([]);
@@ -157,6 +159,7 @@ export default function WorkoutBuilderScreen() {
     }
 
     setSaving(false);
+    invalidateWorkoutHome();
     router.back();
   }
 

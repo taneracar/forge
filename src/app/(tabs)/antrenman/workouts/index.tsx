@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
 import { useAuthStore } from "@/store/auth.store";
+import { useWorkoutHomeStore } from "@/store/workout-home.store";
 import {
   MAX_SAVED_WORKOUTS,
   deleteWorkout,
@@ -25,6 +26,7 @@ import {
 export default function MyWorkoutsScreen() {
   const { t } = useTranslation(["panel", "common"]);
   const userId = useAuthStore((state) => state.session?.user.id);
+  const invalidateWorkoutHome = useWorkoutHomeStore((state) => state.invalidate);
   const [workouts, setWorkouts] = useState<SavedWorkout[]>([]);
   const [loading, setLoading] = useState(true);
   const [selecting, setSelecting] = useState<string | null>(null);
@@ -65,6 +67,7 @@ export default function MyWorkoutsScreen() {
     await selectWorkout(workout.id);
     haptics.success();
     await load();
+    invalidateWorkoutHome();
     setSelecting(null);
   }
 
@@ -80,6 +83,7 @@ export default function MyWorkoutsScreen() {
           onPress: async () => {
             setWorkouts((prev) => prev.filter((w) => w.id !== workout.id));
             await deleteWorkout(workout.id);
+            invalidateWorkoutHome();
           },
         },
       ],
