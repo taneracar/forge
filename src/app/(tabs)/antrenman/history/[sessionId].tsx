@@ -37,6 +37,7 @@ interface SessionDetail {
   completed_at: string | null;
   duration_seconds: number | null;
   workouts: { name: string } | null;
+  notes: string | null;
 }
 
 interface PriorSetRow {
@@ -65,7 +66,7 @@ export default function WorkoutHistoryDetailScreen() {
     async function load() {
       const { data: sessionData } = await supabase
         .from("workout_sessions")
-        .select("started_at, completed_at, duration_seconds, workouts(name)")
+        .select("started_at, completed_at, duration_seconds, workouts(name), notes")
         .eq("id", sessionId)
         .single<SessionDetail>();
       setSession(sessionData ?? null);
@@ -230,6 +231,15 @@ export default function WorkoutHistoryDetailScreen() {
           </Animated.View>
         ))}
       </View>
+
+      {session.notes && (
+        <>
+          <SectionHeader className="mt-7" title={t("panel:workout.history.detail.notesLabel")} />
+          <Card className="mt-3">
+            <Text className="font-body text-sm text-foreground">{session.notes}</Text>
+          </Card>
+        </>
+      )}
     </Screen>
   );
 }

@@ -129,7 +129,9 @@
       "discardButton": "Discard Workout",
       "discardConfirmTitle": "Discard workout?",
       "discardConfirmMessage": "This workout and all logged sets will be deleted.",
-      "noOpenSession": "No open workout found."
+      "noOpenSession": "No open workout found.",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "How did this workout feel?"
     },
     "history": {
       "eyebrow": "History",
@@ -140,7 +142,8 @@
       "totalTime": "Total training time:",
       "detail": {
         "title": "Workout Detail",
-        "setsLabel": "Sets"
+        "setsLabel": "Sets",
+        "notesLabel": "Notes"
       }
     }
   },
