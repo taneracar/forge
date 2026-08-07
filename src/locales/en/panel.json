@@ -219,6 +219,9 @@
       "activityLevel": "Activity Level",
       "experience": "Training Experience",
       "days": "Weekly Training Days"
+    },
+    "edit": {
+      "title": "Edit Profile"
     }
   },
   "reminders": {

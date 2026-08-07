@@ -29,6 +29,11 @@ export const onboardingSchema = z.object({
 
 export type OnboardingValues = z.infer<typeof onboardingSchema>;
 
+// Everything from onboarding except name — the Profile screen edits it
+// inline elsewhere and never through this form.
+export const editableProfileSchema = onboardingSchema.omit({ name: true });
+export type EditableProfileValues = z.infer<typeof editableProfileSchema>;
+
 export const accountSchema = z.object({
   email: z.string().email("common:validation.emailInvalid"),
   password: z

@@ -219,6 +219,9 @@
       "activityLevel": "Aktivite Seviyesi",
       "experience": "Antrenman Deneyimi",
       "days": "Haftalık Antrenman Günü"
+    },
+    "edit": {
+      "title": "Profili Düzenle"
     }
   },
   "reminders": {

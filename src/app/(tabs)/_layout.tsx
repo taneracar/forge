@@ -51,8 +51,9 @@ export default function TabsLayout() {
           when a card pushes into them. */}
       <Tabs.Screen name="su" options={{ href: null }} />
       <Tabs.Screen name="kilo" options={{ href: null }} />
-      {/* Reached from a row on the Profile screen, same as Water/Weight above. */}
+      {/* Reached from a row/icon on the Profile screen, same as Water/Weight above. */}
       <Tabs.Screen name="hatirlaticilar" options={{ href: null }} />
+      <Tabs.Screen name="profil-duzenle" options={{ href: null }} />
       <Tabs.Screen
         name="profil"
         options={{

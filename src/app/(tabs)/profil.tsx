@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { View, Text, Pressable } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import {
@@ -10,6 +10,7 @@ import {
   CalendarDays,
   ChevronRight,
   Dumbbell,
+  Pencil,
   Ruler,
   Scale,
   Target,
@@ -41,18 +42,22 @@ export default function ProfilScreen() {
   const [profile, setProfile] = useState<OnboardingValues | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!userId) return;
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .maybeSingle()
-      .then(({ data }) => {
-        setProfile(data);
-        setLoading(false);
-      });
-  }, [userId]);
+  // Refetches on every focus (not just mount) so edits made on the Edit
+  // Profile screen show up immediately on the way back.
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) return;
+      supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle()
+        .then(({ data }) => {
+          setProfile(data);
+          setLoading(false);
+        });
+    }, [userId]),
+  );
 
   const notSet = t("common:notSet");
   const fields = [
@@ -118,9 +123,23 @@ export default function ProfilScreen() {
 
   return (
     <Screen>
-      <Text className="pt-1 font-display text-4xl uppercase text-foreground">
-        {t("panel:profile.title")}
-      </Text>
+      <View className="flex-row items-center justify-between pt-1">
+        <Text className="font-display text-4xl uppercase text-foreground">
+          {t("panel:profile.title")}
+        </Text>
+        {!loading && (
+          <Pressable
+            onPress={() => {
+              haptics.select();
+              router.push("/(tabs)/profil-duzenle");
+            }}
+            hitSlop={10}
+            className="h-10 w-10 items-center justify-center rounded-full bg-surface-raised active:bg-surface-overlay"
+          >
+            <Pencil color={Colors.foreground} size={16} />
+          </Pressable>
+        )}
+      </View>
 
       {loading ? (
         <View className="mt-6 gap-3">

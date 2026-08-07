@@ -50,9 +50,12 @@
     "email": "E-posta",
     "password": "Şifre",
     "name": "İsim",
+    "gender": "Cinsiyet",
     "age": "Yaş",
     "height": "Boy (cm)",
     "weight": "Kilo (kg)",
+    "goal": "Hedef",
+    "activityLevel": "Aktivite Seviyesi",
     "experience": "Antrenman Deneyimi",
     "days": "Haftalık Antrenman Günü"
   },

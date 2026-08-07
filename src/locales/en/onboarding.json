@@ -50,9 +50,12 @@
     "email": "Email",
     "password": "Password",
     "name": "Name",
+    "gender": "Gender",
     "age": "Age",
     "height": "Height (cm)",
     "weight": "Weight (kg)",
+    "goal": "Goal",
+    "activityLevel": "Activity Level",
     "experience": "Training Experience",
     "days": "Weekly Training Days"
   },
