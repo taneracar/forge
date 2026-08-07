@@ -221,7 +221,7 @@
       "days": "Weekly Training Days"
     },
     "edit": {
-      "title": "Edit Profile"
+      "fieldTitle": "Edit {{field}}"
     }
   },
   "reminders": {

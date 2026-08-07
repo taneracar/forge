@@ -10,13 +10,13 @@ import {
   CalendarDays,
   ChevronRight,
   Dumbbell,
-  Pencil,
   Ruler,
   Scale,
   Target,
   User,
   Users,
 } from "lucide-react-native";
+import { EditFieldModal, type EditFieldConfig } from "@/components/profile/edit-field-modal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Screen } from "@/components/ui/screen";
@@ -35,15 +35,20 @@ import {
   type OnboardingValues,
 } from "@/lib/profile-schema";
 
+interface EditingField {
+  config: EditFieldConfig;
+  title: string;
+  currentValue: string | number | null;
+}
+
 export default function ProfilScreen() {
   const { t } = useTranslation(["panel", "common"]);
   const email = useAuthStore((state) => state.session?.user.email);
   const userId = useAuthStore((state) => state.session?.user.id);
   const [profile, setProfile] = useState<OnboardingValues | null>(null);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<EditingField | null>(null);
 
-  // Refetches on every focus (not just mount) so edits made on the Edit
-  // Profile screen show up immediately on the way back.
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
@@ -60,13 +65,24 @@ export default function ProfilScreen() {
   );
 
   const notSet = t("common:notSet");
-  const fields = [
+  const fields: {
+    key: string;
+    label: string;
+    value: string | number;
+    unit?: string;
+    icon: typeof Users;
+    mono: boolean;
+    rawValue: string | number | null;
+    config: EditFieldConfig;
+  }[] = [
     {
       key: "gender",
       label: t("panel:profile.fields.gender"),
       value: labelFor(genderOptions, profile?.gender, t),
       icon: Users,
       mono: false,
+      rawValue: profile?.gender ?? null,
+      config: { kind: "options", column: "gender", options: genderOptions },
     },
     {
       key: "age",
@@ -74,6 +90,8 @@ export default function ProfilScreen() {
       value: profile?.age ?? notSet,
       icon: Calendar,
       mono: true,
+      rawValue: profile?.age ?? null,
+      config: { kind: "number", column: "age", step: 1 },
     },
     {
       key: "height",
@@ -82,6 +100,8 @@ export default function ProfilScreen() {
       unit: profile?.height_cm ? "cm" : undefined,
       icon: Ruler,
       mono: true,
+      rawValue: profile?.height_cm ?? null,
+      config: { kind: "number", column: "height_cm", step: 1, unit: "cm", withStepper: true },
     },
     {
       key: "weight",
@@ -90,6 +110,8 @@ export default function ProfilScreen() {
       unit: profile?.weight_kg ? "kg" : undefined,
       icon: Scale,
       mono: true,
+      rawValue: profile?.weight_kg ?? null,
+      config: { kind: "number", column: "weight_kg", step: 0.5, unit: "kg", withStepper: true },
     },
     {
       key: "goal",
@@ -97,6 +119,8 @@ export default function ProfilScreen() {
       value: labelFor(goalOptions, profile?.goal, t),
       icon: Target,
       mono: false,
+      rawValue: profile?.goal ?? null,
+      config: { kind: "options", column: "goal", options: goalOptions },
     },
     {
       key: "activityLevel",
@@ -104,6 +128,8 @@ export default function ProfilScreen() {
       value: labelFor(activityOptions, profile?.activity_level, t),
       icon: Activity,
       mono: false,
+      rawValue: profile?.activity_level ?? null,
+      config: { kind: "options", column: "activity_level", options: activityOptions },
     },
     {
       key: "experience",
@@ -111,6 +137,8 @@ export default function ProfilScreen() {
       value: labelFor(experienceOptions, profile?.workout_experience, t),
       icon: Dumbbell,
       mono: false,
+      rawValue: profile?.workout_experience ?? null,
+      config: { kind: "options", column: "workout_experience", options: experienceOptions },
     },
     {
       key: "days",
@@ -118,28 +146,16 @@ export default function ProfilScreen() {
       value: profile?.preferred_training_days ?? notSet,
       icon: CalendarDays,
       mono: true,
+      rawValue: profile?.preferred_training_days ?? null,
+      config: { kind: "days", column: "preferred_training_days" },
     },
   ];
 
   return (
     <Screen>
-      <View className="flex-row items-center justify-between pt-1">
-        <Text className="font-display text-4xl uppercase text-foreground">
-          {t("panel:profile.title")}
-        </Text>
-        {!loading && (
-          <Pressable
-            onPress={() => {
-              haptics.select();
-              router.push("/(tabs)/profil-duzenle");
-            }}
-            hitSlop={10}
-            className="h-10 w-10 items-center justify-center rounded-full bg-surface-raised active:bg-surface-overlay"
-          >
-            <Pencil color={Colors.foreground} size={16} />
-          </Pressable>
-        )}
-      </View>
+      <Text className="pt-1 font-display text-4xl uppercase text-foreground">
+        {t("panel:profile.title")}
+      </Text>
 
       {loading ? (
         <View className="mt-6 gap-3">
@@ -173,29 +189,40 @@ export default function ProfilScreen() {
             {fields.map((field, i) => (
               <View key={field.key} className="flex-1 basis-[47%]">
                 <Animated.View entering={FadeInDown.duration(280).delay(Math.min(i, 8) * 30)}>
-                  <Card variant="raised" className="gap-2">
-                    <View className="flex-row items-center gap-1.5">
-                      <field.icon color={Colors.mutedForeground} size={13} />
-                      <Text className="font-body-medium text-xs text-muted-foreground">
-                        {field.label}
-                      </Text>
-                    </View>
-                    <View className="flex-row items-baseline gap-1">
-                      <Text
-                        className={cn(
-                          "text-lg text-foreground",
-                          field.mono ? "font-mono" : "font-body-semibold",
-                        )}
-                      >
-                        {field.value}
-                      </Text>
-                      {field.unit && (
+                  <Pressable
+                    onPress={() => {
+                      haptics.select();
+                      setEditing({
+                        config: field.config,
+                        title: t("panel:profile.edit.fieldTitle", { field: field.label }),
+                        currentValue: field.rawValue,
+                      });
+                    }}
+                  >
+                    <Card variant="raised" className="gap-2">
+                      <View className="flex-row items-center gap-1.5">
+                        <field.icon color={Colors.mutedForeground} size={13} />
                         <Text className="font-body-medium text-xs text-muted-foreground">
-                          {field.unit}
+                          {field.label}
                         </Text>
-                      )}
-                    </View>
-                  </Card>
+                      </View>
+                      <View className="flex-row items-baseline gap-1">
+                        <Text
+                          className={cn(
+                            "text-lg text-foreground",
+                            field.mono ? "font-mono" : "font-body-semibold",
+                          )}
+                        >
+                          {field.value}
+                        </Text>
+                        {field.unit && (
+                          <Text className="font-body-medium text-xs text-muted-foreground">
+                            {field.unit}
+                          </Text>
+                        )}
+                      </View>
+                    </Card>
+                  </Pressable>
                 </Animated.View>
               </View>
             ))}
@@ -227,6 +254,18 @@ export default function ProfilScreen() {
           </View>
         </>
       )}
+
+      <EditFieldModal
+        visible={editing !== null}
+        title={editing?.title ?? ""}
+        field={editing?.config ?? null}
+        currentValue={editing?.currentValue ?? null}
+        userId={userId}
+        onClose={() => setEditing(null)}
+        onSaved={(column, value) =>
+          setProfile((prev) => (prev ? { ...prev, [column]: value } : prev))
+        }
+      />
     </Screen>
   );
 }

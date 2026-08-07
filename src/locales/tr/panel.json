@@ -221,7 +221,7 @@
       "days": "Haftalık Antrenman Günü"
     },
     "edit": {
-      "title": "Profili Düzenle"
+      "fieldTitle": "Düzenle: {{field}}"
     }
   },
   "reminders": {
