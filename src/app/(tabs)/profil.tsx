@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
+import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import {
   Activity,
+  Bell,
   Calendar,
   CalendarDays,
+  ChevronRight,
   Dumbbell,
   Ruler,
   Scale,
@@ -19,6 +22,7 @@ import { Screen } from "@/components/ui/screen";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/cn";
 import { Colors } from "@/constants/colors";
+import { haptics } from "@/lib/haptics";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth.store";
 import {
@@ -178,7 +182,26 @@ export default function ProfilScreen() {
             ))}
           </View>
 
-          <View className="mt-8">
+          <Animated.View entering={FadeInDown.duration(280).delay(240)} className="mt-6">
+            <Pressable
+              onPress={() => {
+                haptics.select();
+                router.push("/(tabs)/hatirlaticilar");
+              }}
+            >
+              <Card className="flex-row items-center gap-3 py-3.5">
+                <View className="h-9 w-9 items-center justify-center rounded-tile bg-primary/15">
+                  <Bell color={Colors.primary} size={16} />
+                </View>
+                <Text className="flex-1 font-body-semibold text-sm text-foreground">
+                  {t("panel:reminders.profileRow")}
+                </Text>
+                <ChevronRight color={Colors.muted} size={18} />
+              </Card>
+            </Pressable>
+          </Animated.View>
+
+          <View className="mt-6">
             <Button variant="outline" onPress={() => supabase.auth.signOut()}>
               {t("common:buttons.logout")}
             </Button>
