@@ -173,7 +173,7 @@ function EditFieldContent({
       )}
 
       {field.kind === "days" && (
-        <View className="flex-row flex-wrap gap-2">
+        <View className="flex-row flex-wrap justify-center gap-2">
           {DAYS.map((day) => {
             const selected = value === day;
             return (

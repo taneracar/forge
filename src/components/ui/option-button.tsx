@@ -10,16 +10,18 @@ interface OptionButtonProps {
 
 export function OptionButton({ label, selected, onPress }: OptionButtonProps) {
   return (
-    <PressableScale onPress={onPress}>
+    // flex:1 lets this stretch to match a taller sibling (e.g. a two-line
+    // label next to single-line ones) instead of staying content-sized.
+    <PressableScale onPress={onPress} style={{ flex: 1 }}>
       <View
         className={cn(
-          "rounded-tile border p-4",
+          "flex-1 items-center justify-center rounded-tile border p-4",
           selected ? "border-primary bg-primary/15" : "border-border-strong bg-surface-raised",
         )}
       >
         <Text
           className={cn(
-            "font-body-medium text-sm",
+            "text-center font-body-medium text-sm",
             selected ? "text-primary" : "text-foreground",
           )}
         >
