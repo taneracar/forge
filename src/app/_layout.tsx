@@ -1,5 +1,8 @@
 import "@/global.css";
 import "@/lib/i18n";
+// Registers the foreground notification handler as a side effect so it's
+// active from launch, not just once the user visits the Reminders screen.
+import "@/lib/notifications";
 
 import { useEffect } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";

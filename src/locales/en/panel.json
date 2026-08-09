@@ -219,6 +219,36 @@
       "activityLevel": "Activity Level",
       "experience": "Training Experience",
       "days": "Weekly Training Days"
+    },
+    "edit": {
+      "fieldTitle": "Edit {{field}}"
+    }
+  },
+  "reminders": {
+    "profileRow": "Reminders",
+    "title": "Reminders",
+    "addButton": "Add Reminder",
+    "emptyState": "No reminders yet.",
+    "emptyStateDescription": "Set a reminder so you never miss your supplements.",
+    "everyDayLabel": "Every day",
+    "deleteConfirmTitle": "Delete reminder?",
+    "deleteConfirmMessage": "\"{{name}}\" will no longer notify you.",
+    "modal": {
+      "title": "New Reminder",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g. Creatine",
+      "timeLabel": "Time",
+      "daysLabel": "Repeat",
+      "permissionDenied": "Enable notifications in system settings to use reminders."
+    },
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
     }
   }
 }

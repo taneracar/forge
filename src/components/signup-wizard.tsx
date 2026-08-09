@@ -5,12 +5,14 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { Eye, EyeOff, Check, Minus, Plus } from "lucide-react-native";
+import { Eye, EyeOff, Check } from "lucide-react-native";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { OptionButton } from "@/components/ui/option-button";
 import { PressableScale } from "@/components/ui/pressable-scale";
 import { Screen } from "@/components/ui/screen";
+import { Stepper } from "@/components/ui/stepper";
 import { cn } from "@/lib/cn";
 import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
@@ -49,64 +51,6 @@ const stepKeys = [
 ] as const;
 
 const trainingDays = [1, 2, 3, 4, 5, 6, 7];
-
-function OptionButton({
-  label,
-  selected,
-  onPress,
-}: {
-  label: string;
-  selected: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <PressableScale onPress={onPress}>
-      <View
-        className={cn(
-          "rounded-tile border p-4",
-          selected ? "border-primary bg-primary/15" : "border-border-strong bg-surface-raised",
-        )}
-      >
-        <Text
-          className={cn(
-            "font-body-medium text-sm",
-            selected ? "text-primary" : "text-foreground",
-          )}
-        >
-          {label}
-        </Text>
-      </View>
-    </PressableScale>
-  );
-}
-
-function Stepper({
-  value,
-  onChange,
-  step,
-  fallback,
-}: {
-  value: number | undefined;
-  onChange: (value: number) => void;
-  step: number;
-  fallback: number;
-}) {
-  const current = value ?? fallback;
-  return (
-    <View className="flex-row gap-2">
-      <PressableScale onPress={() => onChange(current - step)}>
-        <View className="h-12 w-12 items-center justify-center rounded-tile border border-border-strong bg-surface-raised">
-          <Minus color={Colors.foreground} size={16} />
-        </View>
-      </PressableScale>
-      <PressableScale onPress={() => onChange(current + step)}>
-        <View className="h-12 w-12 items-center justify-center rounded-tile border border-border-strong bg-surface-raised">
-          <Plus color={Colors.foreground} size={16} />
-        </View>
-      </PressableScale>
-    </View>
-  );
-}
 
 export function SignupWizard() {
   const { t } = useTranslation(["onboarding", "common"]);

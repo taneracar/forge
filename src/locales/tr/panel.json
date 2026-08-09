@@ -219,6 +219,36 @@
       "activityLevel": "Aktivite Seviyesi",
       "experience": "Antrenman Deneyimi",
       "days": "Haftalık Antrenman Günü"
+    },
+    "edit": {
+      "fieldTitle": "Düzenle: {{field}}"
+    }
+  },
+  "reminders": {
+    "profileRow": "Hatırlatıcılar",
+    "title": "Hatırlatıcılar",
+    "addButton": "Hatırlatıcı Ekle",
+    "emptyState": "Henüz hatırlatıcı yok.",
+    "emptyStateDescription": "Takviyelerini kaçırmamak için bir hatırlatıcı kur.",
+    "everyDayLabel": "Her gün",
+    "deleteConfirmTitle": "Hatırlatıcı silinsin mi?",
+    "deleteConfirmMessage": "\"{{name}}\" artık seni bilgilendirmeyecek.",
+    "modal": {
+      "title": "Yeni Hatırlatıcı",
+      "nameLabel": "İsim",
+      "namePlaceholder": "örn. Creatine",
+      "timeLabel": "Saat",
+      "daysLabel": "Tekrar",
+      "permissionDenied": "Hatırlatıcıları kullanmak için sistem ayarlarından bildirimlere izin ver."
+    },
+    "days": {
+      "sun": "Paz",
+      "mon": "Pzt",
+      "tue": "Sal",
+      "wed": "Çar",
+      "thu": "Per",
+      "fri": "Cum",
+      "sat": "Cmt"
     }
   }
 }
