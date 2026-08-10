@@ -7,6 +7,8 @@ interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
   containerClassName?: string;
+  /** e.g. a search icon, rendered inside the input on the left. */
+  leftElement?: ReactNode;
   /** e.g. a password show/hide toggle, rendered inside the input on the right. */
   rightElement?: ReactNode;
 }
@@ -16,6 +18,7 @@ export function Input({
   error,
   className,
   containerClassName,
+  leftElement,
   rightElement,
   onFocus,
   onBlur,
@@ -32,6 +35,7 @@ export function Input({
         <TextInput
           className={cn(
             "rounded-tile border bg-surface-raised px-4 py-3.5 text-base text-foreground",
+            leftElement && "pl-12",
             rightElement && "pr-12",
             focused ? "border-primary" : error ? "border-danger" : "border-border-strong",
             className,
@@ -47,6 +51,7 @@ export function Input({
           }}
           {...props}
         />
+        {leftElement && <View className="absolute left-4">{leftElement}</View>}
         {rightElement && <View className="absolute right-4">{rightElement}</View>}
       </View>
       {error && <Text className="font-body text-xs text-danger">{error}</Text>}

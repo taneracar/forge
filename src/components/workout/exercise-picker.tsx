@@ -1,16 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Modal, View, Text, Pressable, ScrollView, FlatList } from "react-native";
+import { Modal, View, Text, Pressable, ScrollView, FlatList, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import {
-  ChevronLeft,
-  Dumbbell,
-  Image as ImageIcon,
-  Plus,
-  Search,
-  Trophy,
-  X,
-} from "lucide-react-native";
+import { ChevronLeft, Plus, Search, Trophy, X } from "lucide-react-native";
 import { AmbientBackground } from "@/components/ui/ambient-background";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,6 +23,11 @@ import {
 } from "@/lib/exercises";
 import { muscleGroupOptions, equipmentOptions } from "@/lib/workout-schema";
 import { labelFor } from "@/lib/profile-schema";
+
+// A single stand-in image for every exercise until real photos/GIFs are
+// wired up (see the media-licensing note in the exercise-import script) —
+// styled with the app's own surface/muted tokens so it doesn't clash.
+const EXERCISE_IMAGE_PLACEHOLDER = "https://placehold.co/600x600/2A241E/6B655C?text=Exercise";
 
 interface ExercisePickerProps {
   visible: boolean;
@@ -94,17 +91,24 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
         className="flex-1 px-5"
         style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }}
       >
-      <View className="flex-row items-center justify-between">
-        <Text className="font-display text-2xl uppercase text-foreground">
+      <View className="flex-row items-start justify-between">
+        <Text className="flex-1 font-display text-2xl uppercase text-foreground">
           {t("panel:workout.builder.pickExercise")}
         </Text>
-        <Pressable
-          onPress={onClose}
-          hitSlop={10}
-          className="h-9 w-9 items-center justify-center rounded-full bg-surface-raised"
-        >
-          <X color={Colors.foreground} size={18} />
-        </Pressable>
+        <View className="flex-row items-center gap-3">
+          {allExercises && (
+            <Text className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+              {results.length} {t("panel:workout.builder.resultsLabel")}
+            </Text>
+          )}
+          <Pressable
+            onPress={onClose}
+            hitSlop={10}
+            className="h-9 w-9 items-center justify-center rounded-full bg-surface-raised"
+          >
+            <X color={Colors.foreground} size={18} />
+          </Pressable>
+        </View>
       </View>
 
       <View className="mt-4">
@@ -113,6 +117,7 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
           value={query}
           onChangeText={setQuery}
           autoCapitalize="none"
+          leftElement={<Search color={Colors.muted} size={16} />}
         />
       </View>
 
@@ -126,16 +131,14 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
         <Pressable
           onPress={() => setMuscleGroup(null)}
           className={cn(
-            "h-9 justify-center rounded-full border px-3.5",
-            muscleGroup === null
-              ? "border-primary bg-primary/15"
-              : "border-border-strong bg-surface",
+            "h-9 justify-center rounded-full px-3.5",
+            muscleGroup === null ? "bg-primary" : "bg-surface-raised",
           )}
         >
           <Text
             className={cn(
-              "font-body-medium text-xs",
-              muscleGroup === null ? "text-primary" : "text-muted-foreground",
+              "font-body-semibold text-xs uppercase tracking-wide",
+              muscleGroup === null ? "text-primary-foreground" : "text-muted-foreground",
             )}
           >
             {t("panel:workout.builder.allMuscleGroups")}
@@ -149,16 +152,14 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
               setMuscleGroup(opt.value);
             }}
             className={cn(
-              "h-9 justify-center rounded-full border px-3.5",
-              muscleGroup === opt.value
-                ? "border-primary bg-primary/15"
-                : "border-border-strong bg-surface",
+              "h-9 justify-center rounded-full px-3.5",
+              muscleGroup === opt.value ? "bg-primary" : "bg-surface-raised",
             )}
           >
             <Text
               className={cn(
-                "font-body-medium text-xs",
-                muscleGroup === opt.value ? "text-primary" : "text-muted-foreground",
+                "font-body-semibold text-xs uppercase tracking-wide",
+                muscleGroup === opt.value ? "text-primary-foreground" : "text-muted-foreground",
               )}
             >
               {t(opt.labelKey)}
@@ -169,9 +170,9 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
 
       {!allExercises ? (
         <View className="mt-4 gap-2">
-          <Skeleton height={62} />
-          <Skeleton height={62} />
-          <Skeleton height={62} />
+          <Skeleton height={72} />
+          <Skeleton height={72} />
+          <Skeleton height={72} />
         </View>
       ) : (
         <FlatList
@@ -188,29 +189,39 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
               title={t("panel:workout.builder.noResults")}
             />
           }
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => {
-                haptics.select();
-                setDetail(item);
-              }}
-            >
-              <Card className="flex-row items-center gap-3 py-3">
-                <View className="h-9 w-9 items-center justify-center rounded-tile bg-surface-overlay">
-                  <Dumbbell color={Colors.mutedForeground} size={16} />
-                </View>
-                <View className="flex-1">
-                  <Text className="font-body-semibold text-sm text-foreground">{item.name}</Text>
-                  <Text className="mt-0.5 font-body text-xs text-muted-foreground">
-                    {labelFor(muscleGroupOptions, item.muscle_group, t)}
-                    {item.equipment
-                      ? ` · ${labelFor(equipmentOptions, item.equipment, t)}`
-                      : ""}
-                  </Text>
-                </View>
-              </Card>
-            </Pressable>
-          )}
+          renderItem={({ item }) => {
+            const subtitle = [
+              item.equipment ? labelFor(equipmentOptions, item.equipment, t) : null,
+              labelFor(muscleGroupOptions, item.muscle_group, t),
+            ]
+              .filter(Boolean)
+              .join(" · ")
+              .toUpperCase();
+            return (
+              <Pressable
+                onPress={() => {
+                  haptics.select();
+                  setDetail(item);
+                }}
+              >
+                <Card className="flex-row items-center gap-3 py-3">
+                  <Image
+                    source={{ uri: EXERCISE_IMAGE_PLACEHOLDER }}
+                    className="h-14 w-14 rounded-tile bg-surface-overlay"
+                    resizeMode="cover"
+                  />
+                  <View className="flex-1">
+                    <Text className="font-body-semibold text-base text-foreground">
+                      {item.name}
+                    </Text>
+                    <Text className="mt-0.5 font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {subtitle}
+                    </Text>
+                  </View>
+                </Card>
+              </Pressable>
+            );
+          }}
         />
       )}
       </View>
@@ -242,6 +253,15 @@ function ExerciseDetail({
       .finally(() => setHistoryLoading(false));
   }, [userId, exercise.id]);
 
+  const tags = [
+    labelFor(muscleGroupOptions, exercise.muscle_group, t),
+    exercise.equipment ? labelFor(equipmentOptions, exercise.equipment, t) : null,
+    exercise.body_part,
+  ].filter((tag): tag is string => Boolean(tag));
+
+  const primaryMuscle = exercise.target_muscle ?? labelFor(muscleGroupOptions, exercise.muscle_group, t);
+  const secondaryMuscles = exercise.secondary_muscles ?? [];
+
   return (
     <View className="flex-1 bg-background">
       <AmbientBackground />
@@ -264,28 +284,76 @@ function ExerciseDetail({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 16 }}
       >
-        <View className="mt-2 aspect-square items-center justify-center rounded-card bg-surface-raised">
-          <ImageIcon color={Colors.muted} size={32} />
-          <Text className="mt-2 font-body text-xs text-muted-foreground">
-            {t("panel:workout.builder.exerciseDetail.mediaPlaceholder")}
-          </Text>
-        </View>
+        <Image
+          source={{ uri: EXERCISE_IMAGE_PLACEHOLDER }}
+          className="mt-2 w-full rounded-card bg-surface-raised"
+          style={{ aspectRatio: 1.5 }}
+          resizeMode="cover"
+        />
 
-        <Text className="mt-5 font-display text-2xl uppercase text-foreground">
+        <Text className="mt-5 font-display text-3xl uppercase text-foreground">
           {exercise.name}
         </Text>
 
         <View className="mt-3 flex-row flex-wrap gap-2">
-          <View className="rounded-full border border-border-strong bg-surface px-3.5 py-1.5">
-            <Text className="font-body-medium text-xs text-muted-foreground">
-              {labelFor(muscleGroupOptions, exercise.muscle_group, t)}
-            </Text>
-          </View>
-          {exercise.equipment && (
-            <View className="rounded-full border border-border-strong bg-surface px-3.5 py-1.5">
-              <Text className="font-body-medium text-xs text-muted-foreground">
-                {labelFor(equipmentOptions, exercise.equipment, t)}
+          {tags.map((tag, i) => (
+            <View
+              key={tag}
+              className={cn(
+                "rounded-full px-3.5 py-1.5",
+                i === 0 ? "bg-primary" : "border border-border-strong bg-surface",
+              )}
+            >
+              <Text
+                className={cn(
+                  "font-body-semibold text-xs uppercase tracking-wide",
+                  i === 0 ? "text-primary-foreground" : "text-muted-foreground",
+                )}
+              >
+                {tag}
               </Text>
+            </View>
+          ))}
+        </View>
+
+        <View className="mt-6 flex-row items-center justify-between">
+          <Text className="font-body-semibold text-sm text-foreground">
+            {t("panel:workout.builder.exerciseDetail.musclesLabel")}
+          </Text>
+          <Text className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+            1 {t("panel:workout.builder.exerciseDetail.primaryLabel")}
+          </Text>
+        </View>
+        <View className="mt-3 gap-3">
+          <View>
+            <Text className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+              {t("panel:workout.builder.exerciseDetail.primaryLabel")}
+            </Text>
+            <View className="mt-1.5 flex-row flex-wrap gap-2">
+              <View className="rounded-full border border-success/30 bg-success/10 px-3.5 py-1.5">
+                <Text className="font-body-semibold text-xs uppercase tracking-wide text-success">
+                  {primaryMuscle}
+                </Text>
+              </View>
+            </View>
+          </View>
+          {secondaryMuscles.length > 0 && (
+            <View>
+              <Text className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                {t("panel:workout.builder.exerciseDetail.secondaryLabel")}
+              </Text>
+              <View className="mt-1.5 flex-row flex-wrap gap-2">
+                {secondaryMuscles.map((muscle) => (
+                  <View
+                    key={muscle}
+                    className="rounded-full border border-border-strong bg-surface px-3.5 py-1.5"
+                  >
+                    <Text className="font-body-medium text-xs uppercase tracking-wide text-muted-foreground">
+                      {muscle}
+                    </Text>
+                  </View>
+                ))}
+              </View>
             </View>
           )}
         </View>
@@ -343,18 +411,25 @@ function ExerciseDetail({
           </Text>
         )}
 
-        <Text className="mt-6 font-body-semibold text-sm text-foreground">
-          {t("panel:workout.builder.exerciseDetail.instructionsLabel")}
-        </Text>
+        <View className="mt-6 flex-row items-center justify-between">
+          <Text className="font-body-semibold text-sm text-foreground">
+            {t("panel:workout.builder.exerciseDetail.instructionsLabel")}
+          </Text>
+          {steps && steps.length > 0 && (
+            <Text className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+              {steps.length} {t("panel:workout.builder.exerciseDetail.stepsLabel")}
+            </Text>
+          )}
+        </View>
 
         {steps && steps.length > 0 ? (
-          <View className="mt-3 gap-3">
+          <View className="mt-3 gap-2">
             {steps.map((step, i) => (
-              <View key={i} className="flex-row gap-3">
-                <View className="h-6 w-6 items-center justify-center rounded-full bg-primary/15">
-                  <Text className="font-mono text-xs text-primary">{i + 1}</Text>
-                </View>
-                <Text className="flex-1 font-body text-sm text-muted-foreground">{step}</Text>
+              <View key={i} className="gap-1 rounded-tile bg-surface-raised px-4 py-3">
+                <Text className="font-mono text-xs text-muted-foreground">
+                  {String(i + 1).padStart(2, "0")}
+                </Text>
+                <Text className="font-body text-sm text-foreground">{step}</Text>
               </View>
             ))}
           </View>
