@@ -12,7 +12,14 @@
     },
     "thisWeekLabel": "Bu Hafta",
     "weeklyWorkoutsLabel": "Antrenman",
-    "weeklyVolumeLabel": "Hacim"
+    "weeklyVolumeLabel": "Hacim",
+    "activity": {
+      "title": "Aktivite",
+      "allTime": "Tüm Zamanlar",
+      "wkStreak": "Hf. Seri",
+      "total": "Toplam",
+      "best": "En İyi"
+    }
   },
   "workout": {
     "eyebrow": "Antrenman",

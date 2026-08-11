@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
 import { StatTile } from "@/components/ui/stat-tile";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ActivityHeatmap } from "@/components/dashboard/activity-heatmap";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
 import { useAuthStore } from "@/store/auth.store";
@@ -17,8 +18,10 @@ import { listTodayLogs as listTodayWaterLogs } from "@/lib/water";
 import { getWeightSummary } from "@/lib/weight";
 import { listTodayLogs as listTodayMealLogs, totalsFor } from "@/lib/nutrition";
 import {
+  getActivityHeatmap,
   getWeeklyWorkoutStats,
   listUserWorkouts,
+  type ActivityHeatmap as ActivityHeatmapData,
   type SavedWorkout,
   type WeeklyWorkoutStats,
 } from "@/lib/workouts";
@@ -37,6 +40,7 @@ export default function DashboardScreen() {
     sessionsCount: 0,
     totalVolume: 0,
   });
+  const [activity, setActivity] = useState<ActivityHeatmapData | null>(null);
 
   useEffect(() => {
     if (!userId) return;
@@ -50,8 +54,9 @@ export default function DashboardScreen() {
       })),
       listUserWorkouts(userId).catch(() => []),
       getWeeklyWorkoutStats(userId).catch(() => ({ sessionsCount: 0, totalVolume: 0 })),
+      getActivityHeatmap(userId).catch(() => null),
     ])
-      .then(([mealLogs, waterLogs, weightSummary, workouts, stats]) => {
+      .then(([mealLogs, waterLogs, weightSummary, workouts, stats, activityData]) => {
         const totals = totalsFor(mealLogs);
         setCalories(totals.calories);
         setProteinG(totals.proteinG);
@@ -59,6 +64,7 @@ export default function DashboardScreen() {
         setWeightAverage(weightSummary.currentAverage);
         setCurrentWorkout(workouts[0] ?? null);
         setWeeklyStats(stats);
+        setActivity(activityData);
       })
       .finally(() => setLoading(false));
   }, [userId]);
@@ -101,6 +107,17 @@ export default function DashboardScreen() {
         </View>
       ) : (
         <>
+          {activity && (
+            <Animated.View entering={FadeInDown.duration(280)} className="mt-6">
+              <ActivityHeatmap
+                weeks={activity.weeks}
+                weekStreak={activity.weekStreak}
+                bestWeekStreak={activity.bestWeekStreak}
+                totalSessions={activity.totalSessions}
+              />
+            </Animated.View>
+          )}
+
           <View className="mt-6 flex-row flex-wrap gap-3">
             {/* Sizing lives on a plain View (flex-1/basis-[47%] via
                 NativeWind only reliably targets core RN primitives, not
