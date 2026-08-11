@@ -14,6 +14,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ExerciseImagePlaceholder } from "@/components/ui/exercise-image-placeholder";
 import { Input } from "@/components/ui/input";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -84,6 +85,7 @@ function ExerciseRow({
             <Text className="flex-1 font-body-semibold text-sm text-foreground">
               {item.name}
             </Text>
+            <ExerciseImagePlaceholder className="h-10 w-10 rounded-tile" iconSize={16} />
             <GripVertical color={Colors.muted} size={18} />
           </Card>
         </Pressable>
