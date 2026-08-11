@@ -12,7 +12,14 @@
     },
     "thisWeekLabel": "This Week",
     "weeklyWorkoutsLabel": "Workouts",
-    "weeklyVolumeLabel": "Volume"
+    "weeklyVolumeLabel": "Volume",
+    "activity": {
+      "title": "Activity",
+      "allTime": "All-Time",
+      "wkStreak": "Wk Streak",
+      "total": "Total",
+      "best": "Best"
+    }
   },
   "workout": {
     "eyebrow": "Workout",
