@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Modal, View, Text, Pressable, ScrollView, FlatList, Image } from "react-native";
+import { Modal, View, Text, Pressable, ScrollView, FlatList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, Plus, Search, Trophy, X } from "lucide-react-native";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ExerciseImagePlaceholder } from "@/components/ui/exercise-image-placeholder";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/cn";
@@ -23,11 +24,6 @@ import {
 } from "@/lib/exercises";
 import { muscleGroupOptions, equipmentOptions } from "@/lib/workout-schema";
 import { labelFor } from "@/lib/profile-schema";
-
-// A single stand-in image for every exercise until real photos/GIFs are
-// wired up (see the media-licensing note in the exercise-import script) —
-// styled with the app's own surface/muted tokens so it doesn't clash.
-const EXERCISE_IMAGE_PLACEHOLDER = "https://placehold.co/600x600/2A241E/6B655C?text=Exercise";
 
 interface ExercisePickerProps {
   visible: boolean;
@@ -205,11 +201,7 @@ function PickerContent({ onClose, onSelect }: Omit<ExercisePickerProps, "visible
                 }}
               >
                 <Card className="flex-row items-center gap-3 py-3">
-                  <Image
-                    source={{ uri: EXERCISE_IMAGE_PLACEHOLDER }}
-                    className="h-14 w-14 rounded-tile bg-surface-overlay"
-                    resizeMode="cover"
-                  />
+                  <ExerciseImagePlaceholder className="h-14 w-14 rounded-tile" iconSize={20} />
                   <View className="flex-1">
                     <Text className="font-body-semibold text-base text-foreground">
                       {item.name}
@@ -284,11 +276,10 @@ function ExerciseDetail({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 16 }}
       >
-        <Image
-          source={{ uri: EXERCISE_IMAGE_PLACEHOLDER }}
-          className="mt-2 w-full rounded-card bg-surface-raised"
+        <ExerciseImagePlaceholder
+          className="mt-2 w-full rounded-card"
           style={{ aspectRatio: 1.5 }}
-          resizeMode="cover"
+          iconSize={48}
         />
 
         <Text className="mt-5 font-display text-3xl uppercase text-foreground">

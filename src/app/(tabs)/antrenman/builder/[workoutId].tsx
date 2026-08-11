@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
-import { ArrowDown, ArrowUp, Dumbbell, Plus, Trash2 } from "lucide-react-native";
+import { Dumbbell, GripVertical, Plus, Trash2 } from "lucide-react-native";
+import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import {
+  NestableDraggableFlatList,
+  NestableScrollContainer,
+  type RenderItemParams,
+} from "react-native-draggable-flatlist";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -32,6 +37,54 @@ interface WorkoutExerciseRow {
   order_index: number;
   exercise_id: string;
   exercises: { name: string } | null;
+}
+
+function ExerciseRow({
+  item,
+  index,
+  drag,
+  isActive,
+  onRemove,
+}: RenderItemParams<BuilderExerciseItem> & { index: number; onRemove: (key: string) => void }) {
+  return (
+    <View className="mb-2">
+      <Swipeable
+        friction={2}
+        rightThreshold={44}
+        renderRightActions={() => (
+          <Pressable
+            onPress={() => {
+              haptics.select();
+              onRemove(item.key);
+            }}
+            className="ml-2 w-16 items-center justify-center rounded-tile bg-danger"
+          >
+            <Trash2 color={Colors.dangerForeground} size={18} />
+          </Pressable>
+        )}
+      >
+        {/* Long-press anywhere on the row to pick it up — matches the
+            reorder gesture users already know from iOS home-screen icons,
+            no separate handle to discover. The grip icon is a passive hint. */}
+        <Pressable onLongPress={drag} delayLongPress={150} disabled={isActive}>
+          <Card
+            className={cn(
+              "flex-row items-center gap-3 py-3",
+              isActive && "border-primary",
+            )}
+          >
+            <View className="h-8 w-8 items-center justify-center rounded-full bg-primary/15">
+              <Text className="font-mono text-xs text-primary">{index + 1}</Text>
+            </View>
+            <Text className="flex-1 font-body-semibold text-sm text-foreground">
+              {item.name}
+            </Text>
+            <GripVertical color={Colors.muted} size={18} />
+          </Card>
+        </Pressable>
+      </Swipeable>
+    </View>
+  );
 }
 
 export default function WorkoutBuilderScreen() {
@@ -81,16 +134,6 @@ export default function WorkoutBuilderScreen() {
 
   function handleRemove(key: string) {
     setItems((prev) => prev.filter((item) => item.key !== key));
-  }
-
-  function handleMove(index: number, direction: -1 | 1) {
-    setItems((prev) => {
-      const next = [...prev];
-      const target = index + direction;
-      if (target < 0 || target >= next.length) return prev;
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
   }
 
   async function handleSave() {
@@ -172,8 +215,12 @@ export default function WorkoutBuilderScreen() {
         </Text>
       </View>
 
-      <ScrollView
-        className="mt-5 flex-1"
+      {/* NestableScrollContainer/NestableDraggableFlatList are gesture-handler
+          components, not core RN primitives — NativeWind's className interop
+          isn't guaranteed to reach them (same caveat as LinearGradient in
+          Card), so layout here goes through style/contentContainerStyle. */}
+      <NestableScrollContainer
+        style={{ marginTop: 20, flex: 1 }}
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -203,55 +250,15 @@ export default function WorkoutBuilderScreen() {
             description={t("panel:workout.builder.emptyStateDescription")}
           />
         ) : (
-          <View className="mt-3 gap-2">
-            {items.map((item, index) => (
-              <Animated.View
-                key={item.key}
-                entering={FadeInDown.duration(240)}
-                layout={LinearTransition.duration(220)}
-              >
-                <Card className="flex-row items-center gap-3 py-3">
-                  <View className="h-8 w-8 items-center justify-center rounded-full bg-primary/15">
-                    <Text className="font-mono text-xs text-primary">{index + 1}</Text>
-                  </View>
-                  <Text className="flex-1 font-body-semibold text-sm text-foreground">
-                    {item.name}
-                  </Text>
-                  <View className="flex-row items-center gap-1">
-                    <Pressable
-                      onPress={() => handleMove(index, -1)}
-                      disabled={index === 0}
-                      hitSlop={6}
-                      className="h-8 w-8 items-center justify-center rounded-tile active:bg-surface-overlay"
-                    >
-                      <ArrowUp
-                        color={index === 0 ? Colors.muted : Colors.mutedForeground}
-                        size={16}
-                      />
-                    </Pressable>
-                    <Pressable
-                      onPress={() => handleMove(index, 1)}
-                      disabled={index === items.length - 1}
-                      hitSlop={6}
-                      className="h-8 w-8 items-center justify-center rounded-tile active:bg-surface-overlay"
-                    >
-                      <ArrowDown
-                        color={index === items.length - 1 ? Colors.muted : Colors.mutedForeground}
-                        size={16}
-                      />
-                    </Pressable>
-                    <Pressable
-                      onPress={() => handleRemove(item.key)}
-                      hitSlop={6}
-                      className="h-8 w-8 items-center justify-center rounded-tile active:bg-surface-overlay"
-                    >
-                      <Trash2 color={Colors.danger} size={16} />
-                    </Pressable>
-                  </View>
-                </Card>
-              </Animated.View>
-            ))}
-          </View>
+          <NestableDraggableFlatList
+            data={items}
+            keyExtractor={(item) => item.key}
+            containerStyle={{ marginTop: 12 }}
+            onDragEnd={({ data }) => setItems(data)}
+            renderItem={(params) => (
+              <ExerciseRow {...params} index={params.getIndex() ?? 0} onRemove={handleRemove} />
+            )}
+          />
         )}
 
         <Pressable
@@ -272,7 +279,7 @@ export default function WorkoutBuilderScreen() {
         </Pressable>
 
         {error && <Text className="mt-4 font-body text-xs text-danger">{error}</Text>}
-      </ScrollView>
+      </NestableScrollContainer>
 
       <View className="pb-3 pt-1">
         <Button variant="primary" size="lg" loading={saving} onPress={handleSave}>
