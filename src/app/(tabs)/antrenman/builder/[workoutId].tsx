@@ -47,7 +47,12 @@ function ExerciseRow({
   onRemove,
 }: RenderItemParams<BuilderExerciseItem> & { index: number; onRemove: (key: string) => void }) {
   return (
-    <View className="mb-2">
+    // overflow-hidden + rounded-card on this outer wrapper (not the Card
+    // itself) so the row's flat rectangle fully covers the swipe-action
+    // pane at rest — Card's own rounded corners would otherwise leave a
+    // transparent sliver at the top/bottom-right where the always-mounted
+    // red delete button peeks through.
+    <View className="mb-2 overflow-hidden rounded-card">
       <Swipeable
         friction={2}
         rightThreshold={44}
@@ -69,7 +74,7 @@ function ExerciseRow({
         <Pressable onLongPress={drag} delayLongPress={150} disabled={isActive}>
           <Card
             className={cn(
-              "flex-row items-center gap-3 py-3",
+              "flex-row items-center gap-3 rounded-none py-3",
               isActive && "border-primary",
             )}
           >
