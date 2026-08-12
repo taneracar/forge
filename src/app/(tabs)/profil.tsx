@@ -170,19 +170,36 @@ export default function ProfilScreen() {
       ) : (
         <>
           <Animated.View entering={FadeInDown.duration(280)} className="mt-6">
-            <Card variant="gradient" className="flex-row items-center gap-4">
-              <View className="h-14 w-14 items-center justify-center rounded-full bg-primary/15">
-                <User color={Colors.primary} size={24} />
-              </View>
-              <View className="flex-1">
-                <Text className="font-display text-xl uppercase text-foreground">
-                  {profile?.name ?? notSet}
-                </Text>
-                <Text className="mt-0.5 font-body text-xs text-muted-foreground">
-                  {email}
-                </Text>
-              </View>
-            </Card>
+            <Pressable
+              onPress={() => {
+                haptics.select();
+                setEditing({
+                  config: { kind: "username", column: "username" },
+                  title: t("panel:profile.edit.fieldTitle", {
+                    field: t("panel:profile.fields.username"),
+                  }),
+                  currentValue: profile?.username ?? null,
+                });
+              }}
+            >
+              <Card variant="gradient" className="flex-row items-center gap-4">
+                <View className="h-14 w-14 items-center justify-center rounded-full bg-primary/15">
+                  <User color={Colors.primary} size={24} />
+                </View>
+                <View className="flex-1">
+                  <Text className="font-display text-xl uppercase text-foreground">
+                    {profile?.name ?? notSet}
+                  </Text>
+                  <Text className="mt-0.5 font-mono text-sm text-primary">
+                    @{profile?.username ?? "—"}
+                  </Text>
+                  <Text className="mt-0.5 font-body text-xs text-muted-foreground">
+                    {email}
+                  </Text>
+                </View>
+                <ChevronRight color={Colors.muted} size={18} />
+              </Card>
+            </Pressable>
           </Animated.View>
 
           <View className="mt-6 flex-row flex-wrap gap-3">

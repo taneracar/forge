@@ -1,32 +1,37 @@
 {
   "steps": {
     "account": {
-      "eyebrow": "Step 1 / 6",
+      "eyebrow": "Step 1 / 7",
       "title": "Create Your Account",
       "description": "Start your training journey."
     },
     "name": {
-      "eyebrow": "Step 2 / 6",
+      "eyebrow": "Step 2 / 7",
       "title": "What's Your Name?",
       "description": "How should we address you?"
     },
+    "username": {
+      "eyebrow": "Step 3 / 7",
+      "title": "Pick a Username",
+      "description": "This is how other people will find you."
+    },
     "aboutYou": {
-      "eyebrow": "Step 3 / 6",
+      "eyebrow": "Step 4 / 7",
       "title": "About You",
       "description": "This will help us tailor your program to you."
     },
     "goal": {
-      "eyebrow": "Step 4 / 6",
+      "eyebrow": "Step 5 / 7",
       "title": "What's Your Goal?",
       "description": "Your workout and nutrition plan will be shaped around it."
     },
     "activity": {
-      "eyebrow": "Step 5 / 6",
+      "eyebrow": "Step 6 / 7",
       "title": "Your Activity Level?",
       "description": "Choose the option that best describes your daily activity."
     },
     "experience": {
-      "eyebrow": "Step 6 / 6",
+      "eyebrow": "Step 7 / 7",
       "title": "Your Training Experience?",
       "description": "Choose your experience level and how many days a week you want to train."
     }
@@ -35,6 +40,7 @@
     "email": "Email",
     "password": "Password",
     "name": "Name",
+    "username": "Username",
     "gender": "Sex",
     "age": "Age",
     "height": "Height",
@@ -81,7 +87,8 @@
     "alreadyRegistered": "This email is already registered.",
     "signupFailed": "Something went wrong during sign up.",
     "saveFailed": "Something went wrong while saving.",
-    "noSession": "No session found, please log in again."
+    "noSession": "No session found, please log in again.",
+    "usernameTaken": "This username is already taken."
   },
   "haveAccountPrompt": "Already have an account?",
   "loginLink": "Log in"

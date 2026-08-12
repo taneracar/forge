@@ -1,32 +1,37 @@
 {
   "steps": {
     "account": {
-      "eyebrow": "Adım 1 / 6",
+      "eyebrow": "Adım 1 / 7",
       "title": "Hesabını Oluştur",
       "description": "Antrenman yolculuğuna başla."
     },
     "name": {
-      "eyebrow": "Adım 2 / 6",
+      "eyebrow": "Adım 2 / 7",
       "title": "İsmin Ne?",
       "description": "Sana nasıl hitap edelim?"
     },
+    "username": {
+      "eyebrow": "Adım 3 / 7",
+      "title": "Kullanıcı Adını Seç",
+      "description": "Diğer kullanıcılar seni bu adla bulacak."
+    },
     "aboutYou": {
-      "eyebrow": "Adım 3 / 6",
+      "eyebrow": "Adım 4 / 7",
       "title": "Hakkında",
       "description": "Programını sana göre ayarlamamız için."
     },
     "goal": {
-      "eyebrow": "Adım 4 / 6",
+      "eyebrow": "Adım 5 / 7",
       "title": "Hedefin Ne?",
       "description": "Antrenman ve beslenme planın buna göre şekillenecek."
     },
     "activity": {
-      "eyebrow": "Adım 5 / 6",
+      "eyebrow": "Adım 6 / 7",
       "title": "Aktivite Seviyen?",
       "description": "Günlük hareketliliğini en iyi tanımlayan seçeneği seç."
     },
     "experience": {
-      "eyebrow": "Adım 6 / 6",
+      "eyebrow": "Adım 7 / 7",
       "title": "Antrenman Deneyimin?",
       "description": "Deneyim seviyeni ve haftada kaç gün antrenman yapmak istediğini seç."
     }
@@ -35,6 +40,7 @@
     "email": "E-posta",
     "password": "Şifre",
     "name": "İsim",
+    "username": "Kullanıcı Adı",
     "gender": "Cinsiyet",
     "age": "Yaş",
     "height": "Boy",
@@ -81,7 +87,8 @@
     "alreadyRegistered": "Bu e-posta zaten kayıtlı.",
     "signupFailed": "Kayıt sırasında bir sorun oluştu.",
     "saveFailed": "Kaydedilirken bir sorun oluştu.",
-    "noSession": "Oturum bulunamadı, tekrar giriş yap."
+    "noSession": "Oturum bulunamadı, tekrar giriş yap.",
+    "usernameTaken": "Bu kullanıcı adı zaten alınmış."
   },
   "haveAccountPrompt": "Zaten hesabın var mı?",
   "loginLink": "Giriş yap"

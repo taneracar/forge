@@ -29,6 +29,7 @@
     "passwordLetter": "En az bir harf içermeli",
     "passwordNumber": "En az bir rakam içermeli",
     "nameRequired": "İsmini gir",
+    "usernameInvalid": "3–20 karakter: sadece küçük harf, rakam ve _",
     "ageInvalid": "Geçerli bir yaş gir",
     "genderRequired": "Bir seçenek seç",
     "heightInvalid": "Geçerli bir boy gir",

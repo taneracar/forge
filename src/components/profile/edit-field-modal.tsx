@@ -12,7 +12,8 @@ import { Colors } from "@/constants/colors";
 import { cn } from "@/lib/cn";
 import { haptics } from "@/lib/haptics";
 import { supabase } from "@/lib/supabase";
-import type { OnboardingValues } from "@/lib/profile-schema";
+import { isUsernameAvailable } from "@/lib/social";
+import { USERNAME_PATTERN, type OnboardingValues } from "@/lib/profile-schema";
 
 type OptionsColumn = "gender" | "goal" | "activity_level" | "workout_experience";
 type NumberColumn = "age" | "height_cm" | "weight_kg";
@@ -20,7 +21,10 @@ type NumberColumn = "age" | "height_cm" | "weight_kg";
 export type EditFieldConfig =
   | { kind: "options"; column: OptionsColumn; options: readonly { value: string; labelKey: string }[] }
   | { kind: "number"; column: NumberColumn; step: number; unit?: string; withStepper?: boolean }
-  | { kind: "days"; column: "preferred_training_days" };
+  | { kind: "days"; column: "preferred_training_days" }
+  // Its own kind rather than a generic "text" one: a username carries format
+  // rules and a uniqueness check that nothing else here needs.
+  | { kind: "username"; column: "username" };
 
 interface EditFieldModalProps {
   visible: boolean;
@@ -90,8 +94,9 @@ function EditFieldContent({
   onSaved,
 }: Omit<EditFieldModalProps, "visible" | "field"> & { field: EditFieldConfig }) {
   const { t } = useTranslation(["panel", "onboarding", "common"]);
+  const isTextKind = field.kind === "options" || field.kind === "username";
   const [value, setValue] = useState<string | number>(
-    currentValue ?? (field.kind === "options" ? "" : field.kind === "days" ? 1 : 0),
+    currentValue ?? (isTextKind ? "" : field.kind === "days" ? 1 : 0),
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -99,12 +104,28 @@ function EditFieldContent({
   const isValid =
     field.kind === "options"
       ? typeof value === "string" && value.length > 0
-      : typeof value === "number" && Number.isFinite(value) && value > 0;
+      : field.kind === "username"
+        ? typeof value === "string" && USERNAME_PATTERN.test(value)
+        : typeof value === "number" && Number.isFinite(value) && value > 0;
 
   async function handleSave() {
     if (!userId || !isValid || saving) return;
     setSaving(true);
     setError(null);
+
+    // Skipped when the name is unchanged — it would report itself as taken.
+    const changed =
+      String(value).toLowerCase() !== String(currentValue ?? "").toLowerCase();
+    if (field.kind === "username" && changed) {
+      const available = await isUsernameAvailable(String(value));
+      if (!available) {
+        setSaving(false);
+        haptics.error();
+        setError(t("onboarding:errors.usernameTaken"));
+        return;
+      }
+    }
+
     const { error: updateError } = await supabase
       .from("profiles")
       .update({ [field.column]: value })
@@ -112,7 +133,13 @@ function EditFieldContent({
     setSaving(false);
     if (updateError) {
       haptics.error();
-      setError(t("onboarding:errors.saveFailed"));
+      // 23505 = unique violation, i.e. the name was claimed between the
+      // check above and this write.
+      setError(
+        updateError.code === "23505"
+          ? t("onboarding:errors.usernameTaken")
+          : t("onboarding:errors.saveFailed"),
+      );
       return;
     }
     haptics.success();
@@ -145,6 +172,21 @@ function EditFieldContent({
             </View>
           ))}
         </View>
+      )}
+
+      {field.kind === "username" && (
+        <Input
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={String(value)}
+          onChangeText={(text) => setValue(text.toLowerCase().trim())}
+          leftElement={<Text className="font-mono text-sm text-muted-foreground">@</Text>}
+          error={
+            String(value).length > 0 && !isValid
+              ? t("common:validation.usernameInvalid")
+              : undefined
+          }
+        />
       )}
 
       {field.kind === "number" && (

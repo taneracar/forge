@@ -1,7 +1,11 @@
 import { z } from "zod";
 
+/** Mirrors the `profiles_username_format` check constraint in schema.sql. */
+export const USERNAME_PATTERN = /^[a-z0-9_]{3,20}$/;
+
 export const onboardingSchema = z.object({
   name: z.string().min(1, "common:validation.nameRequired"),
+  username: z.string().regex(USERNAME_PATTERN, "common:validation.usernameInvalid"),
   age: z
     .number({ error: "common:validation.ageInvalid" })
     .int()

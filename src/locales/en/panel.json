@@ -94,14 +94,38 @@
         "general": "General"
       },
       "items": {
-        "itis-gunu": { "name": "Push Day", "description": "A high-volume push workout for chest, shoulders and triceps." },
-        "cekis-gunu": { "name": "Pull Day", "description": "A pull-focused workout targeting your back and biceps." },
-        "tum-vucut-devre": { "name": "Full Body Circuit", "description": "A circuit workout that trains your whole body to burn more calories." },
-        "ust-vucut-yakimi": { "name": "Upper Body Burn", "description": "High-rep cable work to burn through your upper body." },
-        "squat-deadlift-gunu": { "name": "Squat & Deadlift Day", "description": "Build maximum strength with the core compound lifts." },
-        "bench-odakli": { "name": "Bench Focus", "description": "A workout built around improving your bench press." },
-        "baslangic-tum-vucut": { "name": "Beginner Full Body", "description": "A foundational full-body program for those just starting out." },
-        "alt-vucut": { "name": "Lower Body", "description": "A balanced program for your legs and glutes." }
+        "itis-gunu": {
+          "name": "Push Day",
+          "description": "A high-volume push workout for chest, shoulders and triceps."
+        },
+        "cekis-gunu": {
+          "name": "Pull Day",
+          "description": "A pull-focused workout targeting your back and biceps."
+        },
+        "tum-vucut-devre": {
+          "name": "Full Body Circuit",
+          "description": "A circuit workout that trains your whole body to burn more calories."
+        },
+        "ust-vucut-yakimi": {
+          "name": "Upper Body Burn",
+          "description": "High-rep cable work to burn through your upper body."
+        },
+        "squat-deadlift-gunu": {
+          "name": "Squat & Deadlift Day",
+          "description": "Build maximum strength with the core compound lifts."
+        },
+        "bench-odakli": {
+          "name": "Bench Focus",
+          "description": "A workout built around improving your bench press."
+        },
+        "baslangic-tum-vucut": {
+          "name": "Beginner Full Body",
+          "description": "A foundational full-body program for those just starting out."
+        },
+        "alt-vucut": {
+          "name": "Lower Body",
+          "description": "A balanced program for your legs and glutes."
+        }
       }
     },
     "builder": {
@@ -221,6 +245,7 @@
     "eyebrow": "Profile",
     "title": "Your Profile",
     "fields": {
+      "username": "Username",
       "name": "Name",
       "age": "Age",
       "gender": "Gender",

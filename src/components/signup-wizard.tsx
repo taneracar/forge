@@ -18,6 +18,7 @@ import { WheelPickerSheet } from "@/components/ui/wheel-picker-sheet";
 import { cn } from "@/lib/cn";
 import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
+import { isUsernameAvailable } from "@/lib/social";
 import { useAuthStore } from "@/store/auth.store";
 import {
   signupSchema,
@@ -32,13 +33,22 @@ import {
 const stepFields = [
   ["email", "password"],
   ["name"],
+  ["username"],
   ["gender", "age", "height_cm", "weight_kg"],
   ["goal"],
   ["activity_level"],
   ["workout_experience", "preferred_training_days"],
 ] as const satisfies (keyof SignupValues)[][];
 
-const stepKeys = ["account", "name", "aboutYou", "goal", "activity", "experience"] as const;
+const stepKeys = [
+  "account",
+  "name",
+  "username",
+  "aboutYou",
+  "goal",
+  "activity",
+  "experience",
+] as const;
 
 const trainingDays = [1, 2, 3, 4, 5, 6, 7];
 
@@ -104,7 +114,14 @@ export function SignupWizard() {
       .upsert({ id: user.id, ...profileValues });
 
     if (error) {
-      setSubmitError(t("onboarding:errors.saveFailed"));
+      // 23505 = unique violation, which here can only be the username index:
+      // someone took the name between the step-3 check and this insert.
+      setSubmitError(
+        error.code === "23505"
+          ? t("onboarding:errors.usernameTaken")
+          : t("onboarding:errors.saveFailed"),
+      );
+      if (error.code === "23505") setStep(stepKeys.indexOf("username"));
       return;
     }
 
@@ -115,9 +132,9 @@ export function SignupWizard() {
   async function handleNext() {
     const valid = await trigger(stepFields[step]);
     if (!valid) return;
+    setSubmitError(null);
 
     if (step === 0) {
-      setSubmitError(null);
       const { email, password } = watch();
       const { data, error } = await supabase.auth.signUp({ email, password });
 
@@ -132,6 +149,17 @@ export function SignupWizard() {
 
       if (!data.session) {
         setCheckEmail(true);
+        return;
+      }
+    }
+
+    // Checked here rather than on submit so a taken name is caught on the step
+    // that owns it. The unique index is still the real guard — this is a
+    // courtesy check and can race, which the insert error below handles.
+    if (stepKeys[step] === "username") {
+      const available = await isUsernameAvailable(watch("username"));
+      if (!available) {
+        setSubmitError(t("onboarding:errors.usernameTaken"));
         return;
       }
     }
@@ -280,6 +308,29 @@ export function SignupWizard() {
             )}
 
             {step === 2 && (
+              <Controller
+                control={control}
+                name="username"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    label={t("onboarding:labels.username")}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    // The DB check constraint only accepts lowercase, so
+                    // normalise while typing instead of rejecting afterwards.
+                    onChangeText={(text) => onChange(text.toLowerCase().trim())}
+                    onBlur={onBlur}
+                    value={value ?? ""}
+                    leftElement={
+                      <Text className="font-mono text-sm text-muted-foreground">@</Text>
+                    }
+                    error={errors.username ? t(errors.username.message ?? "") : undefined}
+                  />
+                )}
+              />
+            )}
+
+            {step === 3 && (
               <View className="gap-2">
                 <Pressable onPress={() => setActiveField("gender")}>
                   <Card className="flex-row items-center gap-3 py-3.5">
@@ -354,7 +405,7 @@ export function SignupWizard() {
               </View>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <View className="gap-1.5">
                 <View className="flex-row flex-wrap gap-2">
                   {goalOptions.map((opt) => (
@@ -377,7 +428,7 @@ export function SignupWizard() {
               </View>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <View className="gap-1.5">
                 <View className="flex-row flex-wrap gap-2">
                   {activityOptions.map((opt) => (
@@ -402,7 +453,7 @@ export function SignupWizard() {
               </View>
             )}
 
-            {step === 5 && (
+            {step === 6 && (
               <>
                 <View className="gap-1.5">
                   <Text className="font-body-medium text-xs text-muted-foreground">
