@@ -6,34 +6,26 @@ import { X } from "lucide-react-native";
 import { AmbientBackground } from "@/components/ui/ambient-background";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PressableScale } from "@/components/ui/pressable-scale";
 import { Colors } from "@/constants/colors";
-import { cn } from "@/lib/cn";
 import type { MealType, NewMealLog } from "@/lib/nutrition";
-
-const MEAL_TYPES: MealType[] = ["breakfast", "lunch", "dinner", "snack"];
 
 interface AddMealModalProps {
   visible: boolean;
-  defaultMealType: MealType;
+  /** Fixed by which meal card's "+" was tapped — never chosen inside the form. */
+  mealType: MealType;
   onClose: () => void;
   onAdd: (meal: NewMealLog) => void;
 }
 
-export function AddMealModal({
-  visible,
-  defaultMealType,
-  onClose,
-  onAdd,
-}: AddMealModalProps) {
+export function AddMealModal({ visible, mealType, onClose, onAdd }: AddMealModalProps) {
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      {/* Keyed by defaultMealType so each open starts from a fresh, empty
-          form instead of syncing props into state via an effect. */}
+      {/* Keyed by mealType so each open starts from a fresh, empty form
+          instead of syncing props into state via an effect. */}
       {visible && (
         <AddMealContent
-          key={defaultMealType}
-          defaultMealType={defaultMealType}
+          key={mealType}
+          mealType={mealType}
           onClose={onClose}
           onAdd={onAdd}
         />
@@ -43,13 +35,12 @@ export function AddMealModal({
 }
 
 function AddMealContent({
-  defaultMealType,
+  mealType,
   onClose,
   onAdd,
 }: Omit<AddMealModalProps, "visible">) {
   const { t } = useTranslation(["panel", "common"]);
   const insets = useSafeAreaInsets();
-  const [mealType, setMealType] = useState<MealType>(defaultMealType);
   const [name, setName] = useState("");
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
@@ -88,9 +79,14 @@ function AddMealContent({
         }}
       >
         <View className="flex-row items-center justify-between">
-          <Text className="font-display text-2xl uppercase text-foreground">
-            {t("panel:nutrition.addModalTitle")}
-          </Text>
+          <View className="flex-1">
+            <Text className="font-mono text-xs uppercase tracking-[3px] text-primary">
+              {t(`panel:nutrition.mealTypes.${mealType}`)}
+            </Text>
+            <Text className="mt-1.5 font-display text-2xl uppercase text-foreground">
+              {t("panel:nutrition.addModalTitle")}
+            </Text>
+          </View>
           <Pressable
             onPress={onClose}
             hitSlop={10}
@@ -103,31 +99,7 @@ function AddMealContent({
         {/* Centers the form in whatever space is left below the header,
             instead of leaving a dead void underneath the Add button. */}
         <View className="flex-1 justify-center">
-          <View className="flex-row flex-wrap gap-2">
-            {MEAL_TYPES.map((type) => (
-              <PressableScale key={type} onPress={() => setMealType(type)}>
-                <View
-                  className={cn(
-                    "rounded-full border px-4 py-2.5",
-                    mealType === type
-                      ? "border-primary bg-primary/15"
-                      : "border-border-strong bg-surface",
-                  )}
-                >
-                  <Text
-                    className={cn(
-                      "font-body-medium text-sm",
-                      mealType === type ? "text-primary" : "text-muted-foreground",
-                    )}
-                  >
-                    {t(`panel:nutrition.mealTypes.${type}`)}
-                  </Text>
-                </View>
-              </PressableScale>
-            ))}
-          </View>
-
-          <View className="mt-6 gap-4">
+          <View className="gap-4">
             <Input
               label={t("panel:nutrition.nameLabel")}
               placeholder={t("panel:nutrition.namePlaceholder")}
