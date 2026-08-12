@@ -65,7 +65,7 @@ export default function BeslenmeScreen() {
 
   async function handleAdd(meal: NewMealLog) {
     if (!userId) return;
-    const entry = await addMealLog(userId, meal, selectedDate);
+    const entry = await addMealLog(userId, meal);
     setLogs((prev) => [...prev, entry]);
     setWeekTotals((prev) => {
       const next = new Map(prev);
@@ -143,6 +143,7 @@ export default function BeslenmeScreen() {
                 <MealSection
                   mealType={mealType}
                   logs={logs.filter((entry) => entry.mealType === mealType)}
+                  canAdd={isToday}
                   onAdd={setAddingTo}
                   onDelete={handleDelete}
                 />
@@ -159,7 +160,7 @@ export default function BeslenmeScreen() {
 
       <AddMealModal
         visible={addingTo !== null}
-        defaultMealType={addingTo ?? "breakfast"}
+        mealType={addingTo ?? "breakfast"}
         onClose={() => setAddingTo(null)}
         onAdd={handleAdd}
       />

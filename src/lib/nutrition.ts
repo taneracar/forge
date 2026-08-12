@@ -143,23 +143,8 @@ export function totalsFor(logs: MealLog[]): DailyTotals {
   );
 }
 
-/**
- * `date` backdates the entry when logging against a day other than today —
- * anchored at local noon so the row can't drift into an adjacent day once
- * it round-trips through UTC.
- */
-export async function addMealLog(
-  userId: string,
-  meal: NewMealLog,
-  date?: Date,
-): Promise<MealLog> {
-  let loggedAt: string | undefined;
-  if (date && date.toDateString() !== new Date().toDateString()) {
-    const noon = new Date(date);
-    noon.setHours(12, 0, 0, 0);
-    loggedAt = noon.toISOString();
-  }
-
+/** Always logs against now — the UI only offers "add" on today. */
+export async function addMealLog(userId: string, meal: NewMealLog): Promise<MealLog> {
   const { data, error } = await supabase
     .from("meal_logs")
     .insert({
@@ -170,7 +155,6 @@ export async function addMealLog(
       protein_g: meal.proteinG ?? null,
       carbs_g: meal.carbsG ?? null,
       fat_g: meal.fatG ?? null,
-      ...(loggedAt ? { logged_at: loggedAt } : {}),
     })
     .select("id, meal_type, name, calories, protein_g, carbs_g, fat_g, logged_at")
     .single();

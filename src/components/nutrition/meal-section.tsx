@@ -18,11 +18,13 @@ const MEAL_COLOR: Record<MealType, string> = {
 interface MealSectionProps {
   mealType: MealType;
   logs: MealLog[];
+  /** False on any day but today — meals are only ever logged as you eat them. */
+  canAdd: boolean;
   onAdd: (mealType: MealType) => void;
   onDelete: (entry: MealLog) => void;
 }
 
-export function MealSection({ mealType, logs, onAdd, onDelete }: MealSectionProps) {
+export function MealSection({ mealType, logs, canAdd, onAdd, onDelete }: MealSectionProps) {
   const { t } = useTranslation("panel");
   const totals = totalsFor(logs);
   const accent = MEAL_COLOR[mealType];
@@ -78,15 +80,17 @@ export function MealSection({ mealType, logs, onAdd, onDelete }: MealSectionProp
         </View>
       )}
 
-      <Pressable
-        onPress={() => {
-          haptics.select();
-          onAdd(mealType);
-        }}
-        className="items-center justify-center rounded-tile bg-surface-overlay py-3 active:opacity-70"
-      >
-        <Plus color={Colors.primary} size={18} />
-      </Pressable>
+      {canAdd && (
+        <Pressable
+          onPress={() => {
+            haptics.select();
+            onAdd(mealType);
+          }}
+          className="items-center justify-center rounded-tile bg-surface-overlay py-3 active:opacity-70"
+        >
+          <Plus color={Colors.primary} size={18} />
+        </Pressable>
+      )}
     </Card>
   );
 }
