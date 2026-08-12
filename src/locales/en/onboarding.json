@@ -81,7 +81,8 @@
   },
   "checkEmail": {
     "title": "Check Your Email",
-    "description": "We sent you a link to confirm your account."
+    "description": "We sent you a link to confirm your account.",
+    "loginPrompt": "Once you've confirmed it, come back and"
   },
   "errors": {
     "alreadyRegistered": "This email is already registered.",

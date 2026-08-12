@@ -181,6 +181,16 @@
         "setsLabel": "Setler",
         "notesLabel": "Notlar"
       }
+    },
+    "plan": {
+      "restLabel": "Dinlenme",
+      "secondsSuffix": "sn",
+      "notesPlaceholder": "Tempo, tutuş, form notu…",
+      "setLabel": "Set",
+      "repsLabel": "Tekrar",
+      "rirLabel": "RIR",
+      "addSetButton": "Set Ekle",
+      "targetLabel": "Hedef"
     }
   },
   "nutrition": {
@@ -204,6 +214,30 @@
     "remaining": "{{value}} kcal kaldı",
     "overBy": "{{value}} kcal hedefi aştın",
     "weeklyLabel": "Bu Hafta"
+  },
+  "social": {
+    "title": "Sosyal",
+    "searchPlaceholder": "Kullanıcı adı veya isim ara…",
+    "searchPrompt": "Kişi bul",
+    "searchPromptDescription": "Aramak için en az 2 karakter yaz.",
+    "noResults": "Kullanıcı bulunamadı.",
+    "blockButton": "Engelle",
+    "unblockButton": "Engeli Kaldır",
+    "blockConfirmTitle": "Bu kullanıcıyı engelle?",
+    "blockConfirmMessage": "{{name}} seni bulamayacak, sen de onu göremeyeceksin.",
+    "blockedTitle": "Bu kullanıcıyı engelledin",
+    "blockedDescription": "Engel kalkana kadar aktivitesini göremezsin.",
+    "noActivity": "Gösterilecek aktivite yok.",
+    "notFound": "Kullanıcı bulunamadı",
+    "notFoundDescription": "Bu hesap kaldırılmış olabilir ya da görüntüleme iznin yok.",
+    "followButton": "Takip Et",
+    "unfollowButton": "Takip Ediliyor",
+    "followsYou": "Seni takip ediyor",
+    "followersLabel": "Takipçi",
+    "followingLabel": "Takip",
+    "noFollowers": "Henüz takipçi yok.",
+    "noFollowing": "Henüz kimseyi takip etmiyor.",
+    "yourFollowing": "Takip ettiklerin"
   },
   "water": {
     "eyebrow": "Su",
@@ -258,7 +292,9 @@
     },
     "edit": {
       "fieldTitle": "Düzenle: {{field}}"
-    }
+    },
+    "shareActivity": "Aktivitemi göster",
+    "shareActivityDescription": "Diğer kullanıcılar profilinde antrenman ısı haritanı görebilsin."
   },
   "reminders": {
     "profileRow": "Hatırlatıcılar",

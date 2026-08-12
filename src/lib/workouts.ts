@@ -113,23 +113,18 @@ function mondayOf(date: Date): Date {
 }
 
 /**
- * All-time workout activity for the Dashboard's GitHub-style heatmap: which
- * days had a completed session (last `HEATMAP_WEEKS` weeks, for the grid)
- * plus streak/total stats computed from the *full* session history, not
- * just the visible grid window — matches the "ALL-TIME" label next to it.
+ * Turns raw completion timestamps into the GitHub-style grid: which days had
+ * a completed session (last `HEATMAP_WEEKS` weeks, for the grid) plus
+ * streak/total stats computed from the *full* history, not just the visible
+ * window — matching the "ALL-TIME" label next to it.
+ *
+ * Kept separate from the query so another user's public profile renders from
+ * exactly this logic, fed by the `get_public_activity` RPC instead.
  */
-export async function getActivityHeatmap(userId: string): Promise<ActivityHeatmap> {
-  const { data, error } = await supabase
-    .from("workout_sessions")
-    .select("completed_at")
-    .eq("user_id", userId)
-    .not("completed_at", "is", null);
-  if (error) throw error;
-
-  const sessions = data ?? [];
-  const dayKeys = new Set(sessions.map((s) => new Date(s.completed_at as string).toDateString()));
+export function buildActivityHeatmap(completedAt: string[]): ActivityHeatmap {
+  const dayKeys = new Set(completedAt.map((ts) => new Date(ts).toDateString()));
   const weekKeys = new Set(
-    sessions.map((s) => mondayOf(new Date(s.completed_at as string)).toISOString().slice(0, 10)),
+    completedAt.map((ts) => mondayOf(new Date(ts)).toISOString().slice(0, 10)),
   );
 
   const today = new Date();
@@ -169,5 +164,16 @@ export async function getActivityHeatmap(userId: string): Promise<ActivityHeatma
     prevTime = t;
   }
 
-  return { weeks, weekStreak, bestWeekStreak, totalSessions: sessions.length };
+  return { weeks, weekStreak, bestWeekStreak, totalSessions: completedAt.length };
+}
+
+/** Your own activity, read straight from `workout_sessions` under normal RLS. */
+export async function getActivityHeatmap(userId: string): Promise<ActivityHeatmap> {
+  const { data, error } = await supabase
+    .from("workout_sessions")
+    .select("completed_at")
+    .eq("user_id", userId)
+    .not("completed_at", "is", null);
+  if (error) throw error;
+  return buildActivityHeatmap((data ?? []).map((s) => s.completed_at as string));
 }

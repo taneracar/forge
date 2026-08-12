@@ -10,12 +10,17 @@ interface OptionButtonProps {
 
 export function OptionButton({ label, selected, onPress }: OptionButtonProps) {
   return (
-    // flex:1 lets this stretch to match a taller sibling (e.g. a two-line
-    // label next to single-line ones) instead of staying content-sized.
-    <PressableScale onPress={onPress} style={{ flex: 1 }}>
+    // flexGrow (not `flex: 1`) on purpose. `flex: 1` also sets flexBasis to 0,
+    // which collapses the button to zero height whenever it sits in a column
+    // whose height comes from its content — i.e. every stacked list of
+    // options. flexGrow alone keeps the content height as the baseline and
+    // still stretches to match a taller sibling when the row gives it a
+    // definite height to fill.
+    <PressableScale onPress={onPress} style={{ flexGrow: 1 }}>
       <View
+        style={{ flexGrow: 1 }}
         className={cn(
-          "flex-1 items-center justify-center rounded-tile border p-4",
+          "items-center justify-center rounded-tile border p-4",
           selected ? "border-primary bg-primary/15" : "border-border-strong bg-surface-raised",
         )}
       >

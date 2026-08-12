@@ -81,7 +81,8 @@
   },
   "checkEmail": {
     "title": "E-postanı Kontrol Et",
-    "description": "Hesabını onaylaman için sana bir bağlantı gönderdik."
+    "description": "Hesabını onaylaman için sana bir bağlantı gönderdik.",
+    "loginPrompt": "Onayladıktan sonra buraya dönüp"
   },
   "errors": {
     "alreadyRegistered": "Bu e-posta zaten kayıtlı.",

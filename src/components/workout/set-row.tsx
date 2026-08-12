@@ -14,6 +14,8 @@ interface SetRowProps {
   reps: number | null;
   completed: boolean;
   isPR?: boolean;
+  /** Prescribed rep range for this set, e.g. "8–12". */
+  target?: string;
   onChangeWeight: (value: number) => void;
   onChangeReps: (value: number) => void;
   onToggleComplete: () => void;
@@ -26,6 +28,7 @@ export function SetRow({
   reps,
   completed,
   isPR,
+  target,
   onChangeWeight,
   onChangeReps,
   onToggleComplete,
@@ -67,13 +70,16 @@ export function SetRow({
         step={2.5}
         muted={completed}
       />
-      <NumberPill
-        className="flex-1"
-        value={reps}
-        onChange={onChangeReps}
-        step={1}
-        muted={completed}
-      />
+      <View className="flex-1">
+        <NumberPill value={reps} onChange={onChangeReps} step={1} muted={completed} />
+        {target && (
+          // The prescription sits under the actual, so the logged number
+          // stays the prominent one while the target is still visible.
+          <Text className="mt-0.5 text-center font-mono text-[10px] text-muted-foreground">
+            {target}
+          </Text>
+        )}
+      </View>
 
       <Pressable
         onPress={() => {

@@ -25,20 +25,17 @@ import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth.store";
 import { useWorkoutHomeStore } from "@/store/workout-home.store";
 import { ExercisePicker } from "@/components/workout/exercise-picker";
+import { ExercisePlanModal } from "@/components/workout/exercise-plan-modal";
 import type { Exercise } from "@/lib/exercises";
 import { MAX_SAVED_WORKOUTS, countUserWorkouts } from "@/lib/workouts";
-
-interface BuilderExerciseItem {
-  key: string;
-  exerciseId: string;
-  name: string;
-}
-
-interface WorkoutExerciseRow {
-  order_index: number;
-  exercise_id: string;
-  exercises: { name: string } | null;
-}
+import {
+  DEFAULT_REST_SECONDS,
+  defaultPlannedSets,
+  describeSets,
+  loadPlan,
+  savePlan,
+  type PlannedExercise,
+} from "@/lib/workout-plan";
 
 function ExerciseRow({
   item,
@@ -46,7 +43,12 @@ function ExerciseRow({
   drag,
   isActive,
   onRemove,
-}: RenderItemParams<BuilderExerciseItem> & { index: number; onRemove: (key: string) => void }) {
+  onEdit,
+}: RenderItemParams<PlannedExercise> & {
+  index: number;
+  onRemove: (key: string) => void;
+  onEdit: (item: PlannedExercise) => void;
+}) {
   return (
     // overflow-hidden + rounded-card on this outer wrapper (not the Card
     // itself) so the row's flat rectangle fully covers the swipe-action
@@ -69,10 +71,18 @@ function ExerciseRow({
           </Pressable>
         )}
       >
-        {/* Long-press anywhere on the row to pick it up — matches the
-            reorder gesture users already know from iOS home-screen icons,
-            no separate handle to discover. The grip icon is a passive hint. */}
-        <Pressable onLongPress={drag} delayLongPress={150} disabled={isActive}>
+        {/* Tap opens the set plan, long-press picks the row up to reorder —
+            the latter matches the gesture users already know from iOS
+            home-screen icons. The grip icon is a passive hint. */}
+        <Pressable
+          onPress={() => {
+            haptics.select();
+            onEdit(item);
+          }}
+          onLongPress={drag}
+          delayLongPress={150}
+          disabled={isActive}
+        >
           <Card
             className={cn(
               "flex-row items-center gap-3 rounded-none py-3",
@@ -82,9 +92,12 @@ function ExerciseRow({
             <View className="h-8 w-8 items-center justify-center rounded-full bg-primary/15">
               <Text className="font-mono text-xs text-primary">{index + 1}</Text>
             </View>
-            <Text className="flex-1 font-body-semibold text-sm text-foreground">
-              {item.name}
-            </Text>
+            <View className="flex-1">
+              <Text className="font-body-semibold text-sm text-foreground">{item.name}</Text>
+              <Text className="mt-0.5 font-mono text-xs text-muted-foreground">
+                {describeSets(item.sets)}
+              </Text>
+            </View>
             <ExerciseImagePlaceholder className="h-10 w-10 rounded-tile" iconSize={16} />
             <GripVertical color={Colors.muted} size={18} />
           </Card>
@@ -103,7 +116,8 @@ export default function WorkoutBuilderScreen() {
   const invalidateWorkoutHome = useWorkoutHomeStore((state) => state.invalidate);
 
   const [name, setName] = useState("");
-  const [items, setItems] = useState<BuilderExerciseItem[]>([]);
+  const [items, setItems] = useState<PlannedExercise[]>([]);
+  const [editing, setEditing] = useState<PlannedExercise | null>(null);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(!isNew);
@@ -113,21 +127,10 @@ export default function WorkoutBuilderScreen() {
     if (isNew) return;
     Promise.all([
       supabase.from("workouts").select("name").eq("id", workoutId).single(),
-      supabase
-        .from("workout_exercises")
-        .select("order_index, exercise_id, exercises(name)")
-        .eq("workout_id", workoutId)
-        .order("order_index")
-        .returns<WorkoutExerciseRow[]>(),
-    ]).then(([{ data: workout }, { data: exercises }]) => {
+      loadPlan(workoutId).catch((): PlannedExercise[] => []),
+    ]).then(([{ data: workout }, plan]) => {
       if (workout) setName(workout.name);
-      setItems(
-        (exercises ?? []).map((row, i) => ({
-          key: `${row.exercise_id}-${i}`,
-          exerciseId: row.exercise_id,
-          name: row.exercises?.name ?? "",
-        })),
-      );
+      setItems(plan);
       setLoading(false);
     });
   }, [isNew, workoutId]);
@@ -135,8 +138,21 @@ export default function WorkoutBuilderScreen() {
   function handleSelectExercise(exercise: Exercise) {
     setItems((prev) => [
       ...prev,
-      { key: `${exercise.id}-${Date.now()}`, exerciseId: exercise.id, name: exercise.name },
+      {
+        key: `${exercise.id}-${Date.now()}`,
+        exerciseId: exercise.id,
+        name: exercise.name,
+        // Arrives already prescribed, so an exercise is usable the moment
+        // it's added rather than needing a second editing pass.
+        restSeconds: DEFAULT_REST_SECONDS,
+        notes: "",
+        sets: defaultPlannedSets(),
+      },
     ]);
+  }
+
+  function handleEditSaved(next: PlannedExercise) {
+    setItems((prev) => prev.map((item) => (item.key === next.key ? next : item)));
   }
 
   function handleRemove(key: string) {
@@ -191,19 +207,14 @@ export default function WorkoutBuilderScreen() {
         setError(updateError.message);
         return;
       }
-      await supabase.from("workout_exercises").delete().eq("workout_id", id);
     }
 
-    if (items.length > 0 && id) {
-      const rows = items.map((item, index) => ({
-        workout_id: id,
-        exercise_id: item.exerciseId,
-        order_index: index,
-      }));
-      const { error: exercisesError } = await supabase.from("workout_exercises").insert(rows);
-      if (exercisesError) {
+    if (id) {
+      try {
+        await savePlan(id, items);
+      } catch (planError) {
         setSaving(false);
-        setError(exercisesError.message);
+        setError(planError instanceof Error ? planError.message : String(planError));
         return;
       }
     }
@@ -263,7 +274,12 @@ export default function WorkoutBuilderScreen() {
             containerStyle={{ marginTop: 12 }}
             onDragEnd={({ data }) => setItems(data)}
             renderItem={(params) => (
-              <ExerciseRow {...params} index={params.getIndex() ?? 0} onRemove={handleRemove} />
+              <ExerciseRow
+                {...params}
+                index={params.getIndex() ?? 0}
+                onRemove={handleRemove}
+                onEdit={setEditing}
+              />
             )}
           />
         )}
@@ -298,6 +314,13 @@ export default function WorkoutBuilderScreen() {
         visible={pickerVisible}
         onClose={() => setPickerVisible(false)}
         onSelect={handleSelectExercise}
+      />
+
+      <ExercisePlanModal
+        visible={editing !== null}
+        exercise={editing}
+        onClose={() => setEditing(null)}
+        onSave={handleEditSaved}
       />
     </View>
   );

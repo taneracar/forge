@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Dumbbell, Utensils, User } from "lucide-react-native";
+import { LayoutDashboard, Dumbbell, Utensils, User, Users } from "lucide-react-native";
 import { Colors } from "@/constants/colors";
 
 export default function TabsLayout() {
@@ -53,6 +53,13 @@ export default function TabsLayout() {
       <Tabs.Screen name="kilo" options={{ href: null }} />
       {/* Reached from a row on the Profile screen, same as Water/Weight above. */}
       <Tabs.Screen name="hatirlaticilar" options={{ href: null }} />
+      <Tabs.Screen
+        name="sosyal"
+        options={{
+          title: t("tabs.social"),
+          tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
+        }}
+      />
       <Tabs.Screen
         name="profil"
         options={{

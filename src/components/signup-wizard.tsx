@@ -5,7 +5,17 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { Eye, EyeOff, Check, UserRound, Cake, Ruler, Scale, ChevronRight } from "lucide-react-native";
+import {
+  Eye,
+  EyeOff,
+  Check,
+  Mail,
+  UserRound,
+  Cake,
+  Ruler,
+  Scale,
+  ChevronRight,
+} from "lucide-react-native";
 import { BackButton } from "@/components/ui/back-button";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
@@ -176,14 +186,29 @@ export function SignupWizard() {
   }
 
   if (checkEmail) {
+    // Reached only when the project has email confirmation switched on, in
+    // which case signUp returns no session and the wizard genuinely cannot
+    // continue — the profile insert needs an authenticated user. So this has
+    // to offer a way onward instead of being a dead end.
     return (
-      <Screen scroll={false}>
-        <Text className="pt-1 font-display text-3xl uppercase text-foreground">
-          {t("onboarding:checkEmail.title")}
-        </Text>
-        <Text className="mt-2 font-body text-muted-foreground">
-          {t("onboarding:checkEmail.description")}
-        </Text>
+      <Screen contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 items-center justify-center">
+          <View className="h-16 w-16 items-center justify-center rounded-full bg-primary/15">
+            <Mail color={Colors.primary} size={26} />
+          </View>
+          <Text className="mt-5 text-center font-display text-3xl uppercase text-foreground">
+            {t("onboarding:checkEmail.title")}
+          </Text>
+          <Text className="mt-3 text-center font-body text-muted-foreground">
+            {t("onboarding:checkEmail.description")}
+          </Text>
+          <Text className="mt-8 text-center font-body text-sm text-muted-foreground">
+            {t("onboarding:checkEmail.loginPrompt")}{" "}
+            <Link href="/(auth)/login" className="font-body-semibold text-primary">
+              {t("onboarding:loginLink")}
+            </Link>
+          </Text>
+        </View>
       </Screen>
     );
   }
