@@ -163,12 +163,10 @@
     "eyebrow": "Beslenme",
     "title": "Öğünlerin",
     "description": "Kahvaltı, öğle, akşam ve ara öğünlerini kaydet, kalori ve makrolarını takip et.",
-    "caloriesLabel": "Bugünkü Kalori",
     "caloriesFieldLabel": "Kalori",
     "proteinLabel": "Protein",
     "carbsLabel": "Karbonhidrat",
     "fatLabel": "Yağ",
-    "addButton": "Öğün Ekle",
     "addModalTitle": "Öğün Ekle",
     "nameLabel": "Öğün Adı",
     "namePlaceholder": "örn. Izgara Tavuk",
@@ -178,8 +176,9 @@
       "dinner": "Akşam",
       "snack": "Ara Öğün"
     },
-    "entriesLabel": "Bugünkü Öğünler",
-    "emptyState": "Bugün henüz öğün girilmedi.",
+    "todayTitle": "Bugün",
+    "remaining": "{{value}} kcal kaldı",
+    "overBy": "{{value}} kcal hedefi aştın",
     "weeklyLabel": "Bu Hafta"
   },
   "water": {

@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/supabase";
-import type { BarDatum } from "@/components/ui/bar-chart";
 
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -38,6 +37,24 @@ function startOfDay(daysAgo: number): Date {
   return d;
 }
 
+/** Local midnight of `date` itself, and of the next day — a half-open range. */
+function dayBounds(date: Date): { start: Date; end: Date } {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  return { start, end };
+}
+
+/** Monday of the calendar week containing `date`, at local midnight. */
+export function mondayOfWeek(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 function toMealLog(row: {
   id: string;
   meal_type: MealType;
@@ -71,6 +88,49 @@ export async function listTodayLogs(userId: string): Promise<MealLog[]> {
   return (data ?? []).map(toMealLog);
 }
 
+/** Meals logged on one specific calendar day, for the date-strip navigation. */
+export async function listLogsForDate(userId: string, date: Date): Promise<MealLog[]> {
+  const { start, end } = dayBounds(date);
+  const { data, error } = await supabase
+    .from("meal_logs")
+    .select("id, meal_type, name, calories, protein_g, carbs_g, fat_g, logged_at")
+    .eq("user_id", userId)
+    .gte("logged_at", start.toISOString())
+    .lt("logged_at", end.toISOString())
+    .order("logged_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map(toMealLog);
+}
+
+/**
+ * Calorie total per day across the Mon–Sun week containing `date`, keyed by
+ * `Date.toDateString()` — drives the day strip's "has entries" dots without
+ * a query per day.
+ */
+export async function listCalendarWeekTotals(
+  userId: string,
+  date: Date,
+): Promise<Map<string, number>> {
+  const start = mondayOfWeek(date);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 7);
+
+  const { data, error } = await supabase
+    .from("meal_logs")
+    .select("calories, logged_at")
+    .eq("user_id", userId)
+    .gte("logged_at", start.toISOString())
+    .lt("logged_at", end.toISOString());
+  if (error) throw error;
+
+  const totals = new Map<string, number>();
+  for (const row of data ?? []) {
+    const key = new Date(row.logged_at).toDateString();
+    totals.set(key, (totals.get(key) ?? 0) + row.calories);
+  }
+  return totals;
+}
+
 export function totalsFor(logs: MealLog[]): DailyTotals {
   return logs.reduce(
     (totals, log) => ({
@@ -83,33 +143,23 @@ export function totalsFor(logs: MealLog[]): DailyTotals {
   );
 }
 
-/** Last 7 days (oldest first), one summed calorie total per day for the shared BarChart. */
-export async function listWeekTotals(userId: string): Promise<BarDatum[]> {
-  const { data, error } = await supabase
-    .from("meal_logs")
-    .select("calories, logged_at")
-    .eq("user_id", userId)
-    .gte("logged_at", startOfDay(6).toISOString());
-  if (error) throw error;
-
-  const totalsByDate = new Map<string, number>();
-  for (const row of data ?? []) {
-    const key = new Date(row.logged_at).toDateString();
-    totalsByDate.set(key, (totalsByDate.get(key) ?? 0) + row.calories);
+/**
+ * `date` backdates the entry when logging against a day other than today —
+ * anchored at local noon so the row can't drift into an adjacent day once
+ * it round-trips through UTC.
+ */
+export async function addMealLog(
+  userId: string,
+  meal: NewMealLog,
+  date?: Date,
+): Promise<MealLog> {
+  let loggedAt: string | undefined;
+  if (date && date.toDateString() !== new Date().toDateString()) {
+    const noon = new Date(date);
+    noon.setHours(12, 0, 0, 0);
+    loggedAt = noon.toISOString();
   }
 
-  const result: BarDatum[] = [];
-  for (let i = 6; i >= 0; i--) {
-    const day = startOfDay(i);
-    result.push({
-      label: day.toLocaleDateString(undefined, { day: "2-digit", month: "2-digit" }),
-      value: totalsByDate.get(day.toDateString()) ?? 0,
-    });
-  }
-  return result;
-}
-
-export async function addMealLog(userId: string, meal: NewMealLog): Promise<MealLog> {
   const { data, error } = await supabase
     .from("meal_logs")
     .insert({
@@ -120,6 +170,7 @@ export async function addMealLog(userId: string, meal: NewMealLog): Promise<Meal
       protein_g: meal.proteinG ?? null,
       carbs_g: meal.carbsG ?? null,
       fat_g: meal.fatG ?? null,
+      ...(loggedAt ? { logged_at: loggedAt } : {}),
     })
     .select("id, meal_type, name, calories, protein_g, carbs_g, fat_g, logged_at")
     .single();
