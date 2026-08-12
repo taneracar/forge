@@ -1,77 +1,76 @@
 import { useEffect, useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text } from "react-native";
 import { useTranslation } from "react-i18next";
-import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
-import { Plus, Utensils, X } from "lucide-react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { Screen } from "@/components/ui/screen";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, type BarDatum } from "@/components/ui/bar-chart";
-import { PressableScale } from "@/components/ui/pressable-scale";
 import { AddMealModal } from "@/components/nutrition/add-meal-modal";
-import { Colors } from "@/constants/colors";
+import { CalorieSummary } from "@/components/nutrition/calorie-summary";
+import { DayStrip } from "@/components/nutrition/day-strip";
+import { MealSection } from "@/components/nutrition/meal-section";
 import { haptics } from "@/lib/haptics";
 import { useAuthStore } from "@/store/auth.store";
 import {
   addMealLog,
   deleteMealLog,
-  listTodayLogs,
-  listWeekTotals,
+  listCalendarWeekTotals,
+  listLogsForDate,
+  mondayOfWeek,
   totalsFor,
   type MealLog,
   type MealType,
   type NewMealLog,
 } from "@/lib/nutrition";
+import { getNutritionTargets, type NutritionTargets } from "@/lib/nutrition-targets";
 
-/** Icon-badge accent by meal type — reuses existing palette tokens, not new colors. */
-const mealTypeColor: Record<MealType, string> = {
-  breakfast: Colors.chartAlt,
-  lunch: Colors.primary,
-  dinner: Colors.warning,
-  snack: Colors.success,
-};
-
-function defaultMealTypeForNow(): MealType {
-  const hour = new Date().getHours();
-  if (hour < 11) return "breakfast";
-  if (hour < 16) return "lunch";
-  if (hour < 21) return "dinner";
-  return "snack";
-}
+const MEAL_ORDER: MealType[] = ["breakfast", "lunch", "dinner", "snack"];
 
 export default function BeslenmeScreen() {
-  const { t } = useTranslation(["panel", "common"]);
+  const { t, i18n } = useTranslation(["panel", "common"]);
   const userId = useAuthStore((state) => state.session?.user.id);
 
-  const [todayLogs, setTodayLogs] = useState<MealLog[]>([]);
-  const [weekTotals, setWeekTotals] = useState<BarDatum[]>([]);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const [logs, setLogs] = useState<MealLog[]>([]);
+  const [weekTotals, setWeekTotals] = useState<Map<string, number>>(new Map());
+  const [targets, setTargets] = useState<NutritionTargets | null>(null);
   const [loading, setLoading] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [addingTo, setAddingTo] = useState<MealType | null>(null);
+
+  useEffect(() => {
+    if (!userId) return;
+    getNutritionTargets(userId).then(setTargets);
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
     Promise.all([
-      listTodayLogs(userId).catch(() => []),
-      listWeekTotals(userId).catch(() => []),
+      listLogsForDate(userId, selectedDate).catch(() => []),
+      listCalendarWeekTotals(userId, selectedDate).catch(
+        () => new Map<string, number>(),
+      ),
     ])
-      .then(([logs, totals]) => {
-        setTodayLogs(logs);
+      .then(([dayLogs, totals]) => {
+        setLogs(dayLogs);
         setWeekTotals(totals);
       })
       .finally(() => setLoading(false));
-  }, [userId]);
+  }, [userId, selectedDate]);
 
   async function handleAdd(meal: NewMealLog) {
     if (!userId) return;
-    const entry = await addMealLog(userId, meal);
-    setTodayLogs((prev) => [...prev, entry]);
+    const entry = await addMealLog(userId, meal, selectedDate);
+    setLogs((prev) => [...prev, entry]);
     setWeekTotals((prev) => {
-      if (prev.length === 0) return prev;
-      const next = [...prev];
-      const last = next[next.length - 1];
-      next[next.length - 1] = { ...last, value: last.value + entry.calories };
+      const next = new Map(prev);
+      const key = selectedDate.toDateString();
+      next.set(key, (next.get(key) ?? 0) + entry.calories);
       return next;
     });
     haptics.success();
@@ -79,156 +78,89 @@ export default function BeslenmeScreen() {
 
   function handleDelete(entry: MealLog) {
     haptics.select();
-    setTodayLogs((prev) => prev.filter((e) => e.id !== entry.id));
+    setLogs((prev) => prev.filter((e) => e.id !== entry.id));
     setWeekTotals((prev) => {
-      if (prev.length === 0) return prev;
-      const next = [...prev];
-      const last = next[next.length - 1];
-      next[next.length - 1] = { ...last, value: Math.max(0, last.value - entry.calories) };
+      const next = new Map(prev);
+      const key = selectedDate.toDateString();
+      next.set(key, Math.max(0, (next.get(key) ?? 0) - entry.calories));
       return next;
     });
     void deleteMealLog(entry.id);
   }
 
-  const totals = totalsFor(todayLogs);
+  const totals = totalsFor(logs);
+  const isToday = selectedDate.toDateString() === new Date().toDateString();
+
+  // The bar chart reads from the same Mon–Sun map the strip does, so the
+  // "This Week" heading means the same range in both places.
+  const monday = mondayOfWeek(selectedDate);
+  const weekChart: BarDatum[] = Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(monday);
+    day.setDate(day.getDate() + i);
+    return {
+      label: day.toLocaleDateString(i18n.language, { weekday: "narrow" }),
+      value: weekTotals.get(day.toDateString()) ?? 0,
+    };
+  });
 
   return (
     <Screen>
       <Text className="pt-1 font-display text-4xl uppercase text-foreground">
-        {t("panel:nutrition.title")}
+        {isToday
+          ? t("panel:nutrition.todayTitle")
+          : selectedDate.toLocaleDateString(i18n.language, {
+              day: "numeric",
+              month: "long",
+            })}
       </Text>
 
-      {loading ? (
+      <View className="mt-4">
+        <DayStrip
+          selected={selectedDate}
+          totalsByDate={weekTotals}
+          onSelect={setSelectedDate}
+        />
+      </View>
+
+      {loading || !targets ? (
         <View className="mt-6 gap-3">
-          <Skeleton height={140} />
+          <Skeleton height={240} />
+          <Skeleton height={110} />
+          <Skeleton height={110} />
         </View>
       ) : (
         <>
-          <Animated.View entering={FadeInDown.duration(280)} className="mt-6">
-            <Card variant="gradient">
-              <View className="flex-row items-center justify-between">
-                <View>
-                  <Text className="font-body-medium text-xs text-muted-foreground">
-                    {t("panel:nutrition.caloriesLabel")}
-                  </Text>
-                  <Text className="mt-1 font-mono text-3xl text-foreground">
-                    {totals.calories}
-                    <Text className="font-body text-base text-muted-foreground"> kcal</Text>
-                  </Text>
-                </View>
-                <View className="h-12 w-12 items-center justify-center rounded-tile bg-primary/15">
-                  <Utensils color={Colors.primary} size={22} />
-                </View>
-              </View>
-              <View className="mt-4 flex-row gap-4">
-                <View className="flex-1">
-                  <Text className="font-body-medium text-xs text-muted-foreground">
-                    {t("panel:nutrition.proteinLabel")}
-                  </Text>
-                  <Text className="mt-0.5 font-mono text-base text-foreground">
-                    {Math.round(totals.proteinG)}
-                    <Text className="font-body text-xs text-muted-foreground"> g</Text>
-                  </Text>
-                </View>
-                <View className="flex-1">
-                  <Text className="font-body-medium text-xs text-muted-foreground">
-                    {t("panel:nutrition.carbsLabel")}
-                  </Text>
-                  <Text className="mt-0.5 font-mono text-base text-foreground">
-                    {Math.round(totals.carbsG)}
-                    <Text className="font-body text-xs text-muted-foreground"> g</Text>
-                  </Text>
-                </View>
-                <View className="flex-1">
-                  <Text className="font-body-medium text-xs text-muted-foreground">
-                    {t("panel:nutrition.fatLabel")}
-                  </Text>
-                  <Text className="mt-0.5 font-mono text-base text-foreground">
-                    {Math.round(totals.fatG)}
-                    <Text className="font-body text-xs text-muted-foreground"> g</Text>
-                  </Text>
-                </View>
-              </View>
-            </Card>
+          <Animated.View entering={FadeInDown.duration(280)} className="mt-5">
+            <CalorieSummary totals={totals} targets={targets} />
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.duration(280).delay(40)} className="mt-3">
-            <PressableScale
-              onPress={() => {
-                haptics.select();
-                setModalVisible(true);
-              }}
-            >
-              <Card variant="raised" className="flex-row items-center justify-center gap-2 py-4">
-                <Plus color={Colors.primary} size={18} />
-                <Text className="font-body-semibold text-sm text-foreground">
-                  {t("panel:nutrition.addButton")}
-                </Text>
-              </Card>
-            </PressableScale>
-          </Animated.View>
-
-          <SectionHeader className="mt-7" title={t("panel:nutrition.entriesLabel")} />
-
-          {todayLogs.length === 0 ? (
-            <EmptyState
-              className="mt-3"
-              icon={<Utensils color={Colors.mutedForeground} size={24} />}
-              title={t("panel:nutrition.emptyState")}
-            />
-          ) : (
-            <View className="mt-3 gap-2">
-              {todayLogs.map((entry, i) => (
-                <Animated.View
-                  key={entry.id}
-                  entering={FadeInDown.duration(240).delay(Math.min(i, 8) * 30)}
-                  layout={LinearTransition.duration(200)}
-                >
-                  <Card className="flex-row items-center justify-between">
-                    <View className="flex-1 flex-row items-center gap-3">
-                      <View
-                        className="h-8 w-8 items-center justify-center rounded-tile"
-                        style={{ backgroundColor: `${mealTypeColor[entry.mealType]}26` }}
-                      >
-                        <Utensils color={mealTypeColor[entry.mealType]} size={14} />
-                      </View>
-                      <View className="flex-1">
-                        <Text
-                          numberOfLines={1}
-                          className="font-body-semibold text-sm text-foreground"
-                        >
-                          {entry.name}
-                        </Text>
-                        <Text className="font-body text-xs text-muted-foreground">
-                          {t(`panel:nutrition.mealTypes.${entry.mealType}`)} ·{" "}
-                          {entry.calories} kcal
-                        </Text>
-                      </View>
-                    </View>
-                    <Pressable
-                      onPress={() => handleDelete(entry)}
-                      hitSlop={8}
-                      className="h-8 w-8 items-center justify-center rounded-tile active:bg-surface-overlay"
-                    >
-                      <X color={Colors.muted} size={16} />
-                    </Pressable>
-                  </Card>
-                </Animated.View>
-              ))}
-            </View>
-          )}
+          <View className="mt-3 gap-3">
+            {MEAL_ORDER.map((mealType, i) => (
+              <Animated.View
+                key={mealType}
+                entering={FadeInDown.duration(280).delay(40 + i * 40)}
+              >
+                <MealSection
+                  mealType={mealType}
+                  logs={logs.filter((entry) => entry.mealType === mealType)}
+                  onAdd={setAddingTo}
+                  onDelete={handleDelete}
+                />
+              </Animated.View>
+            ))}
+          </View>
 
           <SectionHeader className="mt-7" title={t("panel:nutrition.weeklyLabel")} />
           <Card className="mt-3">
-            <BarChart data={weekTotals} />
+            <BarChart data={weekChart} />
           </Card>
         </>
       )}
 
       <AddMealModal
-        visible={modalVisible}
-        defaultMealType={defaultMealTypeForNow()}
-        onClose={() => setModalVisible(false)}
+        visible={addingTo !== null}
+        defaultMealType={addingTo ?? "breakfast"}
+        onClose={() => setAddingTo(null)}
         onAdd={handleAdd}
       />
     </Screen>

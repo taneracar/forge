@@ -5,14 +5,16 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { Eye, EyeOff, Check } from "lucide-react-native";
+import { Eye, EyeOff, Check, UserRound, Cake, Ruler, Scale, ChevronRight } from "lucide-react-native";
 import { BackButton } from "@/components/ui/back-button";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { OptionButton } from "@/components/ui/option-button";
 import { PressableScale } from "@/components/ui/pressable-scale";
 import { Screen } from "@/components/ui/screen";
-import { Stepper } from "@/components/ui/stepper";
+import { WheelPickerSheet } from "@/components/ui/wheel-picker-sheet";
 import { cn } from "@/lib/cn";
 import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
@@ -24,33 +26,36 @@ import {
   goalOptions,
   activityOptions,
   experienceOptions,
+  labelFor,
 } from "@/lib/profile-schema";
 
 const stepFields = [
   ["email", "password"],
   ["name"],
-  ["gender"],
-  ["age"],
-  ["height_cm"],
-  ["weight_kg"],
+  ["gender", "age", "height_cm", "weight_kg"],
   ["goal"],
   ["activity_level"],
   ["workout_experience", "preferred_training_days"],
 ] as const satisfies (keyof SignupValues)[][];
 
-const stepKeys = [
-  "account",
-  "name",
-  "gender",
-  "age",
-  "height",
-  "weight",
-  "goal",
-  "activity",
-  "experience",
-] as const;
+const stepKeys = ["account", "name", "aboutYou", "goal", "activity", "experience"] as const;
 
 const trainingDays = [1, 2, 3, 4, 5, 6, 7];
+
+const ageItems = Array.from({ length: 100 - 13 + 1 }, (_, i) => {
+  const value = 13 + i;
+  return { label: String(value), value };
+});
+const heightItems = Array.from({ length: 230 - 100 + 1 }, (_, i) => {
+  const value = 100 + i;
+  return { label: `${value} cm`, value };
+});
+const weightItems = Array.from({ length: (250 - 30) / 0.5 + 1 }, (_, i) => {
+  const value = Math.round((30 + i * 0.5) * 10) / 10;
+  return { label: `${value} kg`, value };
+});
+
+type AboutYouField = "gender" | "age" | "height_cm" | "weight_kg";
 
 export function SignupWizard() {
   const { t } = useTranslation(["onboarding", "common"]);
@@ -61,6 +66,7 @@ export function SignupWizard() {
   const [checkEmail, setCheckEmail] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [activeField, setActiveField] = useState<AboutYouField | null>(null);
   const {
     control,
     trigger,
@@ -274,122 +280,81 @@ export function SignupWizard() {
             )}
 
             {step === 2 && (
-              <View className="gap-1.5">
-                <View className="flex-row gap-2">
-                  {genderOptions.map((opt) => (
-                    <View key={opt.value} className="flex-1">
-                      <OptionButton
-                        label={t(opt.labelKey)}
-                        selected={watch("gender") === opt.value}
-                        onPress={() =>
-                          setValue("gender", opt.value, { shouldValidate: true })
-                        }
-                      />
+              <View className="gap-2">
+                <Pressable onPress={() => setActiveField("gender")}>
+                  <Card className="flex-row items-center gap-3 py-3.5">
+                    <View className="h-9 w-9 items-center justify-center rounded-tile bg-primary/15">
+                      <UserRound color={Colors.primary} size={16} />
                     </View>
-                  ))}
-                </View>
-                {errors.gender && (
+                    <Text className="flex-1 font-body-semibold text-sm text-foreground">
+                      {t("onboarding:labels.gender")}
+                    </Text>
+                    <Text className="font-body text-sm text-muted-foreground">
+                      {watch("gender")
+                        ? labelFor(genderOptions, watch("gender"), t)
+                        : "—"}
+                    </Text>
+                    <ChevronRight color={Colors.muted} size={18} />
+                  </Card>
+                </Pressable>
+
+                <Pressable onPress={() => setActiveField("age")}>
+                  <Card className="flex-row items-center gap-3 py-3.5">
+                    <View className="h-9 w-9 items-center justify-center rounded-tile bg-primary/15">
+                      <Cake color={Colors.primary} size={16} />
+                    </View>
+                    <Text className="flex-1 font-body-semibold text-sm text-foreground">
+                      {t("onboarding:labels.age")}
+                    </Text>
+                    <Text className="font-body text-sm text-muted-foreground">
+                      {watch("age") ?? "—"}
+                    </Text>
+                    <ChevronRight color={Colors.muted} size={18} />
+                  </Card>
+                </Pressable>
+
+                <Pressable onPress={() => setActiveField("height_cm")}>
+                  <Card className="flex-row items-center gap-3 py-3.5">
+                    <View className="h-9 w-9 items-center justify-center rounded-tile bg-primary/15">
+                      <Ruler color={Colors.primary} size={16} />
+                    </View>
+                    <Text className="flex-1 font-body-semibold text-sm text-foreground">
+                      {t("onboarding:labels.height")}
+                    </Text>
+                    <Text className="font-body text-sm text-muted-foreground">
+                      {watch("height_cm") ? `${watch("height_cm")} cm` : "—"}
+                    </Text>
+                    <ChevronRight color={Colors.muted} size={18} />
+                  </Card>
+                </Pressable>
+
+                <Pressable onPress={() => setActiveField("weight_kg")}>
+                  <Card className="flex-row items-center gap-3 py-3.5">
+                    <View className="h-9 w-9 items-center justify-center rounded-tile bg-primary/15">
+                      <Scale color={Colors.primary} size={16} />
+                    </View>
+                    <Text className="flex-1 font-body-semibold text-sm text-foreground">
+                      {t("onboarding:labels.weight")}
+                    </Text>
+                    <Text className="font-body text-sm text-muted-foreground">
+                      {watch("weight_kg") ? `${watch("weight_kg")} kg` : "—"}
+                    </Text>
+                    <ChevronRight color={Colors.muted} size={18} />
+                  </Card>
+                </Pressable>
+
+                {(errors.gender || errors.age || errors.height_cm || errors.weight_kg) && (
                   <Text className="font-body text-xs text-danger">
-                    {t(errors.gender.message ?? "")}
+                    {t(
+                      (errors.gender ?? errors.age ?? errors.height_cm ?? errors.weight_kg)
+                        ?.message ?? "",
+                    )}
                   </Text>
                 )}
               </View>
             )}
 
             {step === 3 && (
-              <Controller
-                control={control}
-                name="age"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    label={t("onboarding:labels.age")}
-                    keyboardType="numeric"
-                    onChangeText={(text) =>
-                      onChange(text === "" ? undefined : Number(text))
-                    }
-                    onBlur={onBlur}
-                    value={value?.toString() ?? ""}
-                    error={errors.age ? t(errors.age.message ?? "") : undefined}
-                  />
-                )}
-              />
-            )}
-
-            {step === 4 && (
-              <View className="gap-1.5">
-                <Text className="font-body-medium text-xs text-muted-foreground">
-                  {t("onboarding:labels.height")}
-                </Text>
-                <View className="flex-row items-center gap-3">
-                  <Controller
-                    control={control}
-                    name="height_cm"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <View className="flex-1">
-                        <Input
-                          keyboardType="numeric"
-                          onChangeText={(text) =>
-                            onChange(text === "" ? undefined : Number(text))
-                          }
-                          onBlur={onBlur}
-                          value={value?.toString() ?? ""}
-                        />
-                      </View>
-                    )}
-                  />
-                  <Stepper
-                    value={watch("height_cm")}
-                    step={1}
-                    fallback={170}
-                    onChange={(v) => setValue("height_cm", v, { shouldValidate: true })}
-                  />
-                </View>
-                {errors.height_cm && (
-                  <Text className="font-body text-xs text-danger">
-                    {t(errors.height_cm.message ?? "")}
-                  </Text>
-                )}
-              </View>
-            )}
-
-            {step === 5 && (
-              <View className="gap-1.5">
-                <Text className="font-body-medium text-xs text-muted-foreground">
-                  {t("onboarding:labels.weight")}
-                </Text>
-                <View className="flex-row items-center gap-3">
-                  <Controller
-                    control={control}
-                    name="weight_kg"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <View className="flex-1">
-                        <Input
-                          keyboardType="numeric"
-                          onChangeText={(text) =>
-                            onChange(text === "" ? undefined : Number(text))
-                          }
-                          onBlur={onBlur}
-                          value={value?.toString() ?? ""}
-                        />
-                      </View>
-                    )}
-                  />
-                  <Stepper
-                    value={watch("weight_kg")}
-                    step={0.5}
-                    fallback={70}
-                    onChange={(v) => setValue("weight_kg", v, { shouldValidate: true })}
-                  />
-                </View>
-                {errors.weight_kg && (
-                  <Text className="font-body text-xs text-danger">
-                    {t(errors.weight_kg.message ?? "")}
-                  </Text>
-                )}
-              </View>
-            )}
-
-            {step === 6 && (
               <View className="gap-1.5">
                 <View className="flex-row flex-wrap gap-2">
                   {goalOptions.map((opt) => (
@@ -412,7 +377,7 @@ export function SignupWizard() {
               </View>
             )}
 
-            {step === 7 && (
+            {step === 4 && (
               <View className="gap-1.5">
                 <View className="flex-row flex-wrap gap-2">
                   {activityOptions.map((opt) => (
@@ -437,7 +402,7 @@ export function SignupWizard() {
               </View>
             )}
 
-            {step === 8 && (
+            {step === 5 && (
               <>
                 <View className="gap-1.5">
                   <Text className="font-body-medium text-xs text-muted-foreground">
@@ -549,6 +514,52 @@ export function SignupWizard() {
           </Text>
         )}
       </View>
+
+      <BottomSheet visible={activeField === "gender"} onClose={() => setActiveField(null)}>
+        <Text className="text-center font-display text-lg uppercase text-foreground">
+          {t("onboarding:labels.gender")}
+        </Text>
+        <View className="mt-4 gap-2">
+          {genderOptions.map((opt) => (
+            <OptionButton
+              key={opt.value}
+              label={t(opt.labelKey)}
+              selected={watch("gender") === opt.value}
+              onPress={() => {
+                setValue("gender", opt.value, { shouldValidate: true });
+                setActiveField(null);
+              }}
+            />
+          ))}
+        </View>
+      </BottomSheet>
+
+      <WheelPickerSheet
+        visible={activeField === "age"}
+        title={t("onboarding:labels.age")}
+        items={ageItems}
+        value={watch("age") ?? 26}
+        onClose={() => setActiveField(null)}
+        onSave={(v) => setValue("age", v, { shouldValidate: true })}
+      />
+
+      <WheelPickerSheet
+        visible={activeField === "height_cm"}
+        title={t("onboarding:labels.height")}
+        items={heightItems}
+        value={watch("height_cm") ?? 170}
+        onClose={() => setActiveField(null)}
+        onSave={(v) => setValue("height_cm", v, { shouldValidate: true })}
+      />
+
+      <WheelPickerSheet
+        visible={activeField === "weight_kg"}
+        title={t("onboarding:labels.weight")}
+        items={weightItems}
+        value={watch("weight_kg") ?? 70}
+        onClose={() => setActiveField(null)}
+        onSave={(v) => setValue("weight_kg", v, { shouldValidate: true })}
+      />
     </Screen>
   );
 }

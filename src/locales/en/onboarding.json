@@ -1,47 +1,32 @@
 {
   "steps": {
     "account": {
-      "eyebrow": "Step 1 / 9",
+      "eyebrow": "Step 1 / 6",
       "title": "Create Your Account",
       "description": "Start your training journey."
     },
     "name": {
-      "eyebrow": "Step 2 / 9",
+      "eyebrow": "Step 2 / 6",
       "title": "What's Your Name?",
       "description": "How should we address you?"
     },
-    "gender": {
-      "eyebrow": "Step 3 / 9",
-      "title": "What's Your Gender?",
-      "description": "So we can tailor your program to you."
-    },
-    "age": {
-      "eyebrow": "Step 4 / 9",
-      "title": "How Old Are You?",
-      "description": "So we can tailor your program to you."
-    },
-    "height": {
-      "eyebrow": "Step 5 / 9",
-      "title": "How Tall Are You?",
-      "description": "So we can track your progress."
-    },
-    "weight": {
-      "eyebrow": "Step 6 / 9",
-      "title": "How Much Do You Weigh?",
-      "description": "So we can track your progress."
+    "aboutYou": {
+      "eyebrow": "Step 3 / 6",
+      "title": "About You",
+      "description": "This will help us tailor your program to you."
     },
     "goal": {
-      "eyebrow": "Step 7 / 9",
+      "eyebrow": "Step 4 / 6",
       "title": "What's Your Goal?",
       "description": "Your workout and nutrition plan will be shaped around it."
     },
     "activity": {
-      "eyebrow": "Step 8 / 9",
+      "eyebrow": "Step 5 / 6",
       "title": "Your Activity Level?",
       "description": "Choose the option that best describes your daily activity."
     },
     "experience": {
-      "eyebrow": "Step 9 / 9",
+      "eyebrow": "Step 6 / 6",
       "title": "Your Training Experience?",
       "description": "Choose your experience level and how many days a week you want to train."
     }
@@ -50,10 +35,10 @@
     "email": "Email",
     "password": "Password",
     "name": "Name",
-    "gender": "Gender",
+    "gender": "Sex",
     "age": "Age",
-    "height": "Height (cm)",
-    "weight": "Weight (kg)",
+    "height": "Height",
+    "weight": "Weight",
     "goal": "Goal",
     "activityLevel": "Activity Level",
     "experience": "Training Experience",

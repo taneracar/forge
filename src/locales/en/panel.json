@@ -163,12 +163,10 @@
     "eyebrow": "Nutrition",
     "title": "Your Meals",
     "description": "Log breakfast, lunch, dinner and snacks, track calories and macros.",
-    "caloriesLabel": "Calories Today",
     "caloriesFieldLabel": "Calories",
     "proteinLabel": "Protein",
     "carbsLabel": "Carbs",
     "fatLabel": "Fat",
-    "addButton": "Add Meal",
     "addModalTitle": "Add Meal",
     "nameLabel": "Meal Name",
     "namePlaceholder": "e.g. Grilled Chicken",
@@ -178,8 +176,9 @@
       "dinner": "Dinner",
       "snack": "Snack"
     },
-    "entriesLabel": "Today's Meals",
-    "emptyState": "No meals logged yet today.",
+    "todayTitle": "Today",
+    "remaining": "{{value}} kcal left",
+    "overBy": "{{value}} kcal over target",
     "weeklyLabel": "This Week"
   },
   "water": {
