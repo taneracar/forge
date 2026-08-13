@@ -237,7 +237,19 @@
     "followingLabel": "Takip",
     "noFollowers": "Henüz takipçi yok.",
     "noFollowing": "Henüz kimseyi takip etmiyor.",
-    "yourFollowing": "Takip ettiklerin"
+    "yourFollowing": "Takip ettiklerin",
+    "sendWorkoutButton": "Antrenman Gönder",
+    "sendWorkoutTitle": "Antrenman Gönder",
+    "sendWorkoutEmpty": "Gönderebileceğin kendi antrenmanın yok.",
+    "sendSuccess": "Gönderildi. Gelen kutusunda görecek.",
+    "sendFailed": "Gönderilemedi. Tekrar dene.",
+    "inboxLabel": "Sana gönderilenler",
+    "acceptButton": "Kabul Et",
+    "declineButton": "Reddet",
+    "acceptFailed": "Kaydedilemedi. Tekrar dene.",
+    "sharedLimitMessage": "En fazla {{max}} gelen antrenman tutabilirsin. Önce birini sil.",
+    "exerciseCount": "{{count}} hareket",
+    "sharedFrom": "@{{username}} gönderdi"
   },
   "water": {
     "eyebrow": "Su",

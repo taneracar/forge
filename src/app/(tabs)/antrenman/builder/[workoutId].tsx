@@ -27,7 +27,7 @@ import { useWorkoutHomeStore } from "@/store/workout-home.store";
 import { ExercisePicker } from "@/components/workout/exercise-picker";
 import { ExercisePlanModal } from "@/components/workout/exercise-plan-modal";
 import type { Exercise } from "@/lib/exercises";
-import { MAX_SAVED_WORKOUTS, countUserWorkouts } from "@/lib/workouts";
+import { MAX_OWN_WORKOUTS, countUserWorkouts } from "@/lib/workouts";
 import {
   DEFAULT_REST_SECONDS,
   defaultPlannedSets,
@@ -167,9 +167,9 @@ export default function WorkoutBuilderScreen() {
     }
 
     if (isNew) {
-      const existingCount = await countUserWorkouts(userId);
-      if (existingCount >= MAX_SAVED_WORKOUTS) {
-        setError(t("panel:workout.workouts.limitMessage", { max: MAX_SAVED_WORKOUTS }));
+      const existingCount = await countUserWorkouts(userId, "own");
+      if (existingCount >= MAX_OWN_WORKOUTS) {
+        setError(t("panel:workout.workouts.limitMessage", { max: MAX_OWN_WORKOUTS }));
         return;
       }
     }

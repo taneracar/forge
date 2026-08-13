@@ -237,7 +237,19 @@
     "followingLabel": "Following",
     "noFollowers": "No followers yet.",
     "noFollowing": "Not following anyone yet.",
-    "yourFollowing": "People you follow"
+    "yourFollowing": "People you follow",
+    "sendWorkoutButton": "Send a Workout",
+    "sendWorkoutTitle": "Send a Workout",
+    "sendWorkoutEmpty": "You have no workouts of your own to send.",
+    "sendSuccess": "Sent. They'll see it in their inbox.",
+    "sendFailed": "Couldn't send it. Try again.",
+    "inboxLabel": "Sent to you",
+    "acceptButton": "Accept",
+    "declineButton": "Decline",
+    "acceptFailed": "Couldn't save it. Try again.",
+    "sharedLimitMessage": "You can hold up to {{max}} received workouts. Delete one first.",
+    "exerciseCount": "{{count}} exercises",
+    "sharedFrom": "from @{{username}}"
   },
   "water": {
     "eyebrow": "Water",

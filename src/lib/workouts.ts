@@ -1,19 +1,33 @@
 import { supabase } from "@/lib/supabase";
 import { calculateVolume } from "@/lib/workout-calculations";
 
-export const MAX_SAVED_WORKOUTS = 5;
+/**
+ * Two independent caps: five programs you wrote, plus five people sent you.
+ * A gift from a coach shouldn't eat the slot you wanted for your own routine.
+ * Keep MAX_SHARED_WORKOUTS in step with the literal in `shared_slots_left`
+ * in schema.sql.
+ */
+export const MAX_OWN_WORKOUTS = 5;
+export const MAX_SHARED_WORKOUTS = 5;
+
+export type WorkoutSource = "own" | "shared";
 
 export interface SavedWorkout {
   id: string;
   name: string;
   createdAt: string;
   exerciseCount: number;
+  source: WorkoutSource;
+  /** Who sent it, for a received workout. */
+  sharedFrom: string | null;
 }
 
 interface WorkoutRow {
   id: string;
   name: string;
   created_at: string;
+  source: WorkoutSource;
+  shared_from: string | null;
   workout_exercises: { count: number }[];
 }
 
@@ -25,7 +39,7 @@ interface WorkoutRow {
 export async function listUserWorkouts(userId: string): Promise<SavedWorkout[]> {
   const { data, error } = await supabase
     .from("workouts")
-    .select("id, name, created_at, workout_exercises(count)")
+    .select("id, name, created_at, source, shared_from, workout_exercises(count)")
     .eq("user_id", userId)
     .order("last_selected_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
@@ -36,6 +50,8 @@ export async function listUserWorkouts(userId: string): Promise<SavedWorkout[]> 
     name: w.name,
     createdAt: w.created_at,
     exerciseCount: w.workout_exercises[0]?.count ?? 0,
+    source: w.source,
+    sharedFrom: w.shared_from,
   }));
 }
 
@@ -48,11 +64,16 @@ export async function selectWorkout(id: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function countUserWorkouts(userId: string): Promise<number> {
+/** Counts one side of the split cap — pass the source you're about to add to. */
+export async function countUserWorkouts(
+  userId: string,
+  source: WorkoutSource,
+): Promise<number> {
   const { count, error } = await supabase
     .from("workouts")
     .select("id", { count: "exact", head: true })
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .eq("source", source);
   if (error) throw error;
   return count ?? 0;
 }

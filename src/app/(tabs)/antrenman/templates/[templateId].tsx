@@ -16,7 +16,7 @@ import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
 import { useAuthStore } from "@/store/auth.store";
 import { useWorkoutHomeStore } from "@/store/workout-home.store";
-import { MAX_SAVED_WORKOUTS, countUserWorkouts } from "@/lib/workouts";
+import { MAX_OWN_WORKOUTS, countUserWorkouts } from "@/lib/workouts";
 import { labelFor } from "@/lib/profile-schema";
 import {
   applyTemplate,
@@ -57,12 +57,12 @@ export default function WorkoutTemplateDetailScreen() {
 
   async function handleUseTemplate() {
     if (!userId || applying) return;
-    const count = await countUserWorkouts(userId);
-    if (count >= MAX_SAVED_WORKOUTS) {
+    const count = await countUserWorkouts(userId, "own");
+    if (count >= MAX_OWN_WORKOUTS) {
       haptics.error();
       Alert.alert(
         t("panel:workout.workouts.limitTitle"),
-        t("panel:workout.workouts.limitMessage", { max: MAX_SAVED_WORKOUTS }),
+        t("panel:workout.workouts.limitMessage", { max: MAX_OWN_WORKOUTS }),
       );
       return;
     }

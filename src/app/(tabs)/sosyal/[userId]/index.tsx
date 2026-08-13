@@ -12,6 +12,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ActivityHeatmap } from "@/components/dashboard/activity-heatmap";
 import { UserAvatar } from "@/components/social/user-avatar";
+import { SendWorkoutModal } from "@/components/social/send-workout-modal";
+import { canReceiveWorkout } from "@/lib/workout-share";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
 import {
@@ -41,6 +43,9 @@ export default function PublicProfileScreen() {
   const [blocked, setBlocked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [canSend, setCanSend] = useState(false);
+  const [sendVisible, setSendVisible] = useState(false);
+  const [sentNotice, setSentNotice] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -50,8 +55,12 @@ export default function PublicProfileScreen() {
       hasBlocked(userId).catch(() => false),
       getFollowCounts(userId).catch(() => null),
       getFollowState(userId).catch(() => ({ following: false, followsYou: false })),
+      // One boolean covering mutual follow, blocks and their free slots — the
+      // button simply isn't offered when any of those fails.
+      canReceiveWorkout(userId).catch(() => false),
     ])
-      .then(([publicProfile, timestamps, isBlocked, followCounts, followState]) => {
+      .then(([publicProfile, timestamps, isBlocked, followCounts, followState, sendable]) => {
+        setCanSend(sendable);
         setProfile(publicProfile);
         // An empty list means either "no sessions" or "sharing turned off" —
         // the RPC deliberately doesn't distinguish, so neither does the UI.
@@ -207,7 +216,7 @@ export default function PublicProfileScreen() {
           </Animated.View>
 
           {!blocked && (
-            <View className="mt-3">
+            <View className="mt-3 gap-2">
               <Button
                 variant={follow.following ? "outline" : "primary"}
                 size="lg"
@@ -217,6 +226,20 @@ export default function PublicProfileScreen() {
                   ? t("panel:social.unfollowButton")
                   : t("panel:social.followButton")}
               </Button>
+
+              {/* Only when you follow each other and they have room — the same
+                  conditions the insert policy enforces server-side. */}
+              {canSend && (
+                <Button variant="outline" size="lg" onPress={() => setSendVisible(true)}>
+                  {t("panel:social.sendWorkoutButton")}
+                </Button>
+              )}
+
+              {sentNotice && (
+                <Text className="text-center font-body text-xs text-success">
+                  {t("panel:social.sendSuccess")}
+                </Text>
+              )}
             </View>
           )}
 
@@ -246,6 +269,20 @@ export default function PublicProfileScreen() {
             />
           )}
         </>
+      )}
+
+      {profile && (
+        <SendWorkoutModal
+          visible={sendVisible}
+          toUserId={profile.id}
+          onClose={() => setSendVisible(false)}
+          onSent={() => {
+            setSentNotice(true);
+            // Their inbox slot is now reserved by the pending share, so the
+            // button has to disappear until they respond.
+            setCanSend(false);
+          }}
+        />
       )}
     </Screen>
   );

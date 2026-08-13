@@ -10,9 +10,19 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserRow } from "@/components/social/user-row";
+import { ShareInbox } from "@/components/social/share-inbox";
 import { Colors } from "@/constants/colors";
+import { haptics } from "@/lib/haptics";
 import { useAuthStore } from "@/store/auth.store";
+import { useWorkoutHomeStore } from "@/store/workout-home.store";
 import { listFollowing, searchProfiles, type PublicProfile } from "@/lib/social";
+import { MAX_SHARED_WORKOUTS, countUserWorkouts } from "@/lib/workouts";
+import {
+  acceptShare,
+  declineShare,
+  listIncomingShares,
+  type IncomingShare,
+} from "@/lib/workout-share";
 
 const MIN_QUERY = 2;
 
@@ -29,6 +39,11 @@ export default function SosyalScreen() {
   const [following, setFollowing] = useState<PublicProfile[]>([]);
   const [followingLoading, setFollowingLoading] = useState(true);
 
+  const [shares, setShares] = useState<IncomingShare[]>([]);
+  const [busyShareId, setBusyShareId] = useState<string | null>(null);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const invalidateWorkoutHome = useWorkoutHomeStore((state) => state.invalidate);
+
   const trimmed = query.trim();
 
   // Refetched on focus so following someone from a profile screen is reflected
@@ -40,8 +55,45 @@ export default function SosyalScreen() {
         .then(setFollowing)
         .catch(() => setFollowing([]))
         .finally(() => setFollowingLoading(false));
+      listIncomingShares()
+        .then(setShares)
+        .catch(() => setShares([]));
     }, [userId]),
   );
+
+  async function handleAcceptShare(share: IncomingShare) {
+    if (!userId || busyShareId) return;
+    setBusyShareId(share.id);
+    setShareError(null);
+    try {
+      // The send-time check already reserved a slot, but a share can sit
+      // pending for days — re-check before writing rather than blowing past
+      // the cap on a stale reservation.
+      const sharedCount = await countUserWorkouts(userId, "shared");
+      if (sharedCount >= MAX_SHARED_WORKOUTS) {
+        setShareError(t("social.sharedLimitMessage", { max: MAX_SHARED_WORKOUTS }));
+        return;
+      }
+      await acceptShare(share);
+      setShares((prev) => prev.filter((s) => s.id !== share.id));
+      invalidateWorkoutHome();
+      haptics.success();
+    } catch {
+      haptics.error();
+      setShareError(t("social.acceptFailed"));
+    } finally {
+      setBusyShareId(null);
+    }
+  }
+
+  function handleDeclineShare(share: IncomingShare) {
+    if (busyShareId) return;
+    setBusyShareId(share.id);
+    setShares((prev) => prev.filter((s) => s.id !== share.id));
+    declineShare(share.id)
+      .catch(() => haptics.error())
+      .finally(() => setBusyShareId(null));
+  }
 
   useEffect(() => {
     // Every setState below runs inside the timer, never synchronously in the
@@ -113,6 +165,18 @@ export default function SosyalScreen() {
         // Idle state doubles as your following list — more useful than a bare
         // "type to search" prompt, and it's the list you'd reach for anyway.
         <>
+          <ShareInbox
+            shares={shares}
+            busyId={busyShareId}
+            onAccept={handleAcceptShare}
+            onDecline={handleDeclineShare}
+          />
+          {shareError && (
+            <Text className="mt-3 text-center font-body text-xs text-danger">
+              {shareError}
+            </Text>
+          )}
+
           <SectionHeader className="mt-7" title={t("social.yourFollowing")} />
           {followingLoading ? (
             <View className="mt-3 gap-2">
