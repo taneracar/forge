@@ -379,9 +379,34 @@ export default function ActiveSessionScreen() {
           >
             <Card className="mb-3">
               <View className="flex-row items-center justify-between">
-                <Text className="flex-1 font-body-semibold text-base text-foreground">
-                  {group.name}
-                </Text>
+                <View className="flex-1">
+                  <Text className="font-body-semibold text-base text-foreground">
+                    {group.name}
+                  </Text>
+                  {(() => {
+                    const plan = planByExercise.get(group.exerciseId);
+                    if (!plan) return null;
+                    return (
+                      <View className="mt-1 flex-row items-center gap-3">
+                        <View className="flex-row items-center gap-1">
+                          <Timer color={Colors.muted} size={12} />
+                          <Text className="font-mono text-xs text-muted-foreground">
+                            {plan.restSeconds}
+                            {t("panel:workout.plan.secondsSuffix")}
+                          </Text>
+                        </View>
+                        {plan.notes && (
+                          <Text
+                            numberOfLines={1}
+                            className="flex-1 font-body text-xs text-muted-foreground"
+                          >
+                            {plan.notes}
+                          </Text>
+                        )}
+                      </View>
+                    );
+                  })()}
+                </View>
                 <Text className="font-mono text-xs text-muted-foreground">
                   {group.sets.filter((s) => s.completed).length}/{group.sets.length}
                 </Text>
@@ -414,6 +439,9 @@ export default function ActiveSessionScreen() {
                     reps={set.reps}
                     completed={set.completed}
                     isPR={prSetIds.has(set.id)}
+                    // Reserved for the whole exercise, so a set added beyond
+                    // the plan still lines up with the prescribed ones.
+                    reserveTarget={planByExercise.has(group.exerciseId)}
                     target={(() => {
                       // Prescriptions are indexed from the plan, so a set the
                       // user added beyond the plan simply has no target.
