@@ -9,6 +9,7 @@ export default function SosyalLayout() {
       <Stack.Screen name="[userId]/index" />
       <Stack.Screen name="[userId]/followers" />
       <Stack.Screen name="[userId]/following" />
+      <Stack.Screen name="[userId]/compose" />
     </Stack>
   );
 }

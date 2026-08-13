@@ -12,7 +12,6 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ActivityHeatmap } from "@/components/dashboard/activity-heatmap";
 import { UserAvatar } from "@/components/social/user-avatar";
-import { SendWorkoutModal } from "@/components/social/send-workout-modal";
 import { canReceiveWorkout } from "@/lib/workout-share";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
@@ -44,8 +43,6 @@ export default function PublicProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [canSend, setCanSend] = useState(false);
-  const [sendVisible, setSendVisible] = useState(false);
-  const [sentNotice, setSentNotice] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -230,15 +227,16 @@ export default function PublicProfileScreen() {
               {/* Only when you follow each other and they have room — the same
                   conditions the insert policy enforces server-side. */}
               {canSend && (
-                <Button variant="outline" size="lg" onPress={() => setSendVisible(true)}>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onPress={() => {
+                    haptics.select();
+                    router.push(`/(tabs)/sosyal/${profile.id}/compose`);
+                  }}
+                >
                   {t("panel:social.sendWorkoutButton")}
                 </Button>
-              )}
-
-              {sentNotice && (
-                <Text className="text-center font-body text-xs text-success">
-                  {t("panel:social.sendSuccess")}
-                </Text>
               )}
             </View>
           )}
@@ -271,19 +269,6 @@ export default function PublicProfileScreen() {
         </>
       )}
 
-      {profile && (
-        <SendWorkoutModal
-          visible={sendVisible}
-          toUserId={profile.id}
-          onClose={() => setSendVisible(false)}
-          onSent={() => {
-            setSentNotice(true);
-            // Their inbox slot is now reserved by the pending share, so the
-            // button has to disappear until they respond.
-            setCanSend(false);
-          }}
-        />
-      )}
     </Screen>
   );
 }

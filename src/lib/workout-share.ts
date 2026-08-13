@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import type { PlannedExercise } from "@/lib/workout-plan";
 
 /**
  * The frozen copy of a workout that travels with a share. Deliberately a
@@ -100,6 +101,41 @@ export async function sendWorkout(
     from_user: await currentUserId(),
     to_user: toUserId,
     source_workout_id: workoutId,
+    payload,
+  });
+  if (error) throw error;
+}
+
+/**
+ * Sends a program written for the recipient rather than copied from your own
+ * five. Nothing is saved to the sender's workouts — it exists only as the
+ * share's snapshot, so writing programs for other people never eats your own
+ * cap. `source_workout_id` stays null; see the Milestone 15 policy note.
+ */
+export async function sendComposedWorkout(
+  toUserId: string,
+  name: string,
+  exercises: PlannedExercise[],
+): Promise<void> {
+  const payload: SharePayload = {
+    name: name.trim(),
+    exercises: exercises.map((exercise, index) => ({
+      exercise_id: exercise.exerciseId,
+      order_index: index,
+      rest_seconds: exercise.restSeconds,
+      notes: exercise.notes.trim() || null,
+      sets: exercise.sets.map((set, setIndex) => ({
+        set_index: setIndex,
+        reps_min: set.repsMin,
+        reps_max: set.repsMax,
+        rir: set.rir,
+      })),
+    })),
+  };
+
+  const { error } = await supabase.from("workout_shares").insert({
+    from_user: await currentUserId(),
+    to_user: toUserId,
     payload,
   });
   if (error) throw error;
