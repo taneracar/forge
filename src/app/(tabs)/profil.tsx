@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Switch } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -10,6 +10,7 @@ import {
   CalendarDays,
   ChevronRight,
   Dumbbell,
+  Eye,
   Ruler,
   Scale,
   Target,
@@ -25,6 +26,7 @@ import { cn } from "@/lib/cn";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
 import { supabase } from "@/lib/supabase";
+import { setShareActivity as saveShareActivity } from "@/lib/social";
 import { useAuthStore } from "@/store/auth.store";
 import {
   genderOptions,
@@ -48,6 +50,7 @@ export default function ProfilScreen() {
   const [profile, setProfile] = useState<OnboardingValues | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<EditingField | null>(null);
+  const [shareActivity, setShareActivity] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
@@ -59,6 +62,7 @@ export default function ProfilScreen() {
         .maybeSingle()
         .then(({ data }) => {
           setProfile(data);
+          setShareActivity(data?.share_activity ?? true);
           setLoading(false);
         });
     }, [userId]),
@@ -170,19 +174,36 @@ export default function ProfilScreen() {
       ) : (
         <>
           <Animated.View entering={FadeInDown.duration(280)} className="mt-6">
-            <Card variant="gradient" className="flex-row items-center gap-4">
-              <View className="h-14 w-14 items-center justify-center rounded-full bg-primary/15">
-                <User color={Colors.primary} size={24} />
-              </View>
-              <View className="flex-1">
-                <Text className="font-display text-xl uppercase text-foreground">
-                  {profile?.name ?? notSet}
-                </Text>
-                <Text className="mt-0.5 font-body text-xs text-muted-foreground">
-                  {email}
-                </Text>
-              </View>
-            </Card>
+            <Pressable
+              onPress={() => {
+                haptics.select();
+                setEditing({
+                  config: { kind: "username", column: "username" },
+                  title: t("panel:profile.edit.fieldTitle", {
+                    field: t("panel:profile.fields.username"),
+                  }),
+                  currentValue: profile?.username ?? null,
+                });
+              }}
+            >
+              <Card variant="gradient" className="flex-row items-center gap-4">
+                <View className="h-14 w-14 items-center justify-center rounded-full bg-primary/15">
+                  <User color={Colors.primary} size={24} />
+                </View>
+                <View className="flex-1">
+                  <Text className="font-display text-xl uppercase text-foreground">
+                    {profile?.name ?? notSet}
+                  </Text>
+                  <Text className="mt-0.5 font-mono text-sm text-primary">
+                    @{profile?.username ?? "—"}
+                  </Text>
+                  <Text className="mt-0.5 font-body text-xs text-muted-foreground">
+                    {email}
+                  </Text>
+                </View>
+                <ChevronRight color={Colors.muted} size={18} />
+              </Card>
+            </Pressable>
           </Animated.View>
 
           <View className="mt-6 flex-row flex-wrap gap-3">
@@ -245,6 +266,38 @@ export default function ProfilScreen() {
                 <ChevronRight color={Colors.muted} size={18} />
               </Card>
             </Pressable>
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.duration(280).delay(270)} className="mt-3">
+            <Card className="flex-row items-center gap-3 py-3.5">
+              <View className="h-9 w-9 items-center justify-center rounded-tile bg-primary/15">
+                <Eye color={Colors.primary} size={16} />
+              </View>
+              <View className="flex-1">
+                <Text className="font-body-semibold text-sm text-foreground">
+                  {t("panel:profile.shareActivity")}
+                </Text>
+                <Text className="mt-0.5 font-body text-xs text-muted-foreground">
+                  {t("panel:profile.shareActivityDescription")}
+                </Text>
+              </View>
+              <Switch
+                value={shareActivity}
+                onValueChange={(next) => {
+                  if (!userId) return;
+                  haptics.select();
+                  // Optimistic: the toggle should feel instant, and a failed
+                  // write just rolls back to the value the server still has.
+                  setShareActivity(next);
+                  saveShareActivity(userId, next).catch(() => {
+                    setShareActivity(!next);
+                    haptics.error();
+                  });
+                }}
+                trackColor={{ false: Colors.surfaceOverlay, true: Colors.primary }}
+                thumbColor={Colors.foreground}
+              />
+            </Card>
           </Animated.View>
 
           <View className="mt-6">

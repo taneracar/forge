@@ -94,14 +94,38 @@
         "general": "General"
       },
       "items": {
-        "itis-gunu": { "name": "Push Day", "description": "A high-volume push workout for chest, shoulders and triceps." },
-        "cekis-gunu": { "name": "Pull Day", "description": "A pull-focused workout targeting your back and biceps." },
-        "tum-vucut-devre": { "name": "Full Body Circuit", "description": "A circuit workout that trains your whole body to burn more calories." },
-        "ust-vucut-yakimi": { "name": "Upper Body Burn", "description": "High-rep cable work to burn through your upper body." },
-        "squat-deadlift-gunu": { "name": "Squat & Deadlift Day", "description": "Build maximum strength with the core compound lifts." },
-        "bench-odakli": { "name": "Bench Focus", "description": "A workout built around improving your bench press." },
-        "baslangic-tum-vucut": { "name": "Beginner Full Body", "description": "A foundational full-body program for those just starting out." },
-        "alt-vucut": { "name": "Lower Body", "description": "A balanced program for your legs and glutes." }
+        "itis-gunu": {
+          "name": "Push Day",
+          "description": "A high-volume push workout for chest, shoulders and triceps."
+        },
+        "cekis-gunu": {
+          "name": "Pull Day",
+          "description": "A pull-focused workout targeting your back and biceps."
+        },
+        "tum-vucut-devre": {
+          "name": "Full Body Circuit",
+          "description": "A circuit workout that trains your whole body to burn more calories."
+        },
+        "ust-vucut-yakimi": {
+          "name": "Upper Body Burn",
+          "description": "High-rep cable work to burn through your upper body."
+        },
+        "squat-deadlift-gunu": {
+          "name": "Squat & Deadlift Day",
+          "description": "Build maximum strength with the core compound lifts."
+        },
+        "bench-odakli": {
+          "name": "Bench Focus",
+          "description": "A workout built around improving your bench press."
+        },
+        "baslangic-tum-vucut": {
+          "name": "Beginner Full Body",
+          "description": "A foundational full-body program for those just starting out."
+        },
+        "alt-vucut": {
+          "name": "Lower Body",
+          "description": "A balanced program for your legs and glutes."
+        }
       }
     },
     "builder": {
@@ -157,6 +181,16 @@
         "setsLabel": "Sets",
         "notesLabel": "Notes"
       }
+    },
+    "plan": {
+      "restLabel": "Rest",
+      "secondsSuffix": "sec",
+      "notesPlaceholder": "Tempo, grip, form notes…",
+      "setLabel": "Set",
+      "repsLabel": "Reps",
+      "rirLabel": "RIR",
+      "addSetButton": "Add Set",
+      "targetLabel": "Target"
     }
   },
   "nutrition": {
@@ -180,6 +214,41 @@
     "remaining": "{{value}} kcal left",
     "overBy": "{{value}} kcal over target",
     "weeklyLabel": "This Week"
+  },
+  "social": {
+    "title": "Social",
+    "searchPlaceholder": "Search by username or name…",
+    "searchPrompt": "Find people",
+    "searchPromptDescription": "Type at least 2 characters to search.",
+    "noResults": "No users found.",
+    "blockButton": "Block",
+    "unblockButton": "Unblock",
+    "blockConfirmTitle": "Block this user?",
+    "blockConfirmMessage": "{{name}} won't be able to find you, and you won't see them either.",
+    "blockedTitle": "You blocked this user",
+    "blockedDescription": "You can't see their activity while they're blocked.",
+    "noActivity": "No activity to show.",
+    "notFound": "User not found",
+    "notFoundDescription": "This account may have been removed, or you can't view it.",
+    "followButton": "Follow",
+    "unfollowButton": "Following",
+    "followsYou": "Follows you",
+    "followersLabel": "Followers",
+    "followingLabel": "Following",
+    "noFollowers": "No followers yet.",
+    "noFollowing": "Not following anyone yet.",
+    "yourFollowing": "People you follow",
+    "sendWorkoutButton": "Send a Workout",
+    "sendFailed": "Couldn't send it. Try again.",
+    "inboxLabel": "Sent to you",
+    "acceptButton": "Accept",
+    "declineButton": "Decline",
+    "acceptFailed": "Couldn't save it. Try again.",
+    "sharedLimitMessage": "You can hold up to {{max}} received workouts. Delete one first.",
+    "exerciseCount": "{{count}} exercises",
+    "sharedFrom": "from @{{username}}",
+    "composeTitle": "New Workout",
+    "composeEmpty": "Add at least one exercise."
   },
   "water": {
     "eyebrow": "Water",
@@ -221,6 +290,7 @@
     "eyebrow": "Profile",
     "title": "Your Profile",
     "fields": {
+      "username": "Username",
       "name": "Name",
       "age": "Age",
       "gender": "Gender",
@@ -233,7 +303,9 @@
     },
     "edit": {
       "fieldTitle": "Edit {{field}}"
-    }
+    },
+    "shareActivity": "Show my activity",
+    "shareActivityDescription": "Let other people see your workout heatmap on your profile."
   },
   "reminders": {
     "profileRow": "Reminders",

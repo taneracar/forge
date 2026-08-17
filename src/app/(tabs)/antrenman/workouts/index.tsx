@@ -16,18 +16,20 @@ import { haptics } from "@/lib/haptics";
 import { useAuthStore } from "@/store/auth.store";
 import { useWorkoutHomeStore } from "@/store/workout-home.store";
 import {
-  MAX_SAVED_WORKOUTS,
+  MAX_OWN_WORKOUTS,
   deleteWorkout,
   listUserWorkouts,
   selectWorkout,
   type SavedWorkout,
 } from "@/lib/workouts";
+import { getPublicProfile } from "@/lib/social";
 
 export default function MyWorkoutsScreen() {
   const { t } = useTranslation(["panel", "common"]);
   const userId = useAuthStore((state) => state.session?.user.id);
   const invalidateWorkoutHome = useWorkoutHomeStore((state) => state.invalidate);
   const [workouts, setWorkouts] = useState<SavedWorkout[]>([]);
+  const [sharerNames, setSharerNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [selecting, setSelecting] = useState<string | null>(null);
 
@@ -35,7 +37,20 @@ export default function MyWorkoutsScreen() {
     if (!userId) return;
     setLoading(true);
     try {
-      setWorkouts(await listUserWorkouts(userId));
+      const list = await listUserWorkouts(userId);
+      setWorkouts(list);
+
+      // `workouts` only stores the sharer's id; usernames come from the
+      // public-profile RPC since `profiles` itself stays unreadable. Capped
+      // at five shared workouts, so this is at most five small lookups.
+      const shared = list.filter((w) => w.source === "shared" && w.sharedFrom);
+      const resolved = await Promise.all(
+        shared.map(async (w) => {
+          const profile = await getPublicProfile(w.sharedFrom!).catch(() => null);
+          return [w.id, profile?.username ?? "?"] as const;
+        }),
+      );
+      setSharerNames(Object.fromEntries(resolved));
     } finally {
       setLoading(false);
     }
@@ -47,13 +62,16 @@ export default function MyWorkoutsScreen() {
     }, [load]),
   );
 
-  const atCap = workouts.length >= MAX_SAVED_WORKOUTS;
+  // Received programs live under their own cap, so they never block you
+  // from writing another of your own.
+  const ownCount = workouts.filter((w) => w.source === "own").length;
+  const atCap = ownCount >= MAX_OWN_WORKOUTS;
 
   function handleCreate() {
     if (atCap) {
       Alert.alert(
         t("panel:workout.workouts.limitTitle"),
-        t("panel:workout.workouts.limitMessage", { max: MAX_SAVED_WORKOUTS }),
+        t("panel:workout.workouts.limitMessage", { max: MAX_OWN_WORKOUTS }),
       );
       return;
     }
@@ -98,7 +116,7 @@ export default function MyWorkoutsScreen() {
           {t("panel:workout.workouts.title")}
         </Text>
         <Text className="font-mono text-sm text-muted-foreground">
-          {workouts.length}/{MAX_SAVED_WORKOUTS}
+          {ownCount}/{MAX_OWN_WORKOUTS}
         </Text>
       </View>
 
@@ -151,6 +169,15 @@ export default function MyWorkoutsScreen() {
                       <Text className="mt-0.5 font-body text-xs text-muted-foreground">
                         {workout.exerciseCount} {t("panel:dashboard.exerciseCountSuffix")}
                       </Text>
+                      {workout.source === "shared" && (
+                        // Attribution survives editing — a received program
+                        // stays credited to whoever wrote it.
+                        <Text className="mt-0.5 font-mono text-[10px] text-primary">
+                          {t("panel:social.sharedFrom", {
+                            username: sharerNames[workout.id] ?? "…",
+                          })}
+                        </Text>
+                      )}
                     </View>
                     <Pressable
                       onPress={() => handleDelete(workout)}

@@ -94,14 +94,38 @@
         "general": "Genel"
       },
       "items": {
-        "itis-gunu": { "name": "İtiş Günü", "description": "Göğüs, omuz ve triceps için hacimli bir itiş antrenmanı." },
-        "cekis-gunu": { "name": "Çekiş Günü", "description": "Sırt ve biceps kaslarını hedefleyen çekiş odaklı antrenman." },
-        "tum-vucut-devre": { "name": "Tüm Vücut Devre", "description": "Kalori yakımını artıran, tüm vücudu çalıştıran devre antrenmanı." },
-        "ust-vucut-yakimi": { "name": "Üst Vücut Yakımı", "description": "Kablo hareketleriyle üst vücudu yüksek tekrarla çalıştır." },
-        "squat-deadlift-gunu": { "name": "Squat & Deadlift Günü", "description": "Temel bileşik hareketlerle maksimum güç gelişimi." },
-        "bench-odakli": { "name": "Bench Odaklı", "description": "Bench press performansını artırmaya odaklı antrenman." },
-        "baslangic-tum-vucut": { "name": "Başlangıç Tüm Vücut", "description": "Antrenmana yeni başlayanlar için temel tüm vücut programı." },
-        "alt-vucut": { "name": "Alt Vücut", "description": "Bacak ve kalça kaslarını dengeli çalıştıran program." }
+        "itis-gunu": {
+          "name": "İtiş Günü",
+          "description": "Göğüs, omuz ve triceps için hacimli bir itiş antrenmanı."
+        },
+        "cekis-gunu": {
+          "name": "Çekiş Günü",
+          "description": "Sırt ve biceps kaslarını hedefleyen çekiş odaklı antrenman."
+        },
+        "tum-vucut-devre": {
+          "name": "Tüm Vücut Devre",
+          "description": "Kalori yakımını artıran, tüm vücudu çalıştıran devre antrenmanı."
+        },
+        "ust-vucut-yakimi": {
+          "name": "Üst Vücut Yakımı",
+          "description": "Kablo hareketleriyle üst vücudu yüksek tekrarla çalıştır."
+        },
+        "squat-deadlift-gunu": {
+          "name": "Squat & Deadlift Günü",
+          "description": "Temel bileşik hareketlerle maksimum güç gelişimi."
+        },
+        "bench-odakli": {
+          "name": "Bench Odaklı",
+          "description": "Bench press performansını artırmaya odaklı antrenman."
+        },
+        "baslangic-tum-vucut": {
+          "name": "Başlangıç Tüm Vücut",
+          "description": "Antrenmana yeni başlayanlar için temel tüm vücut programı."
+        },
+        "alt-vucut": {
+          "name": "Alt Vücut",
+          "description": "Bacak ve kalça kaslarını dengeli çalıştıran program."
+        }
       }
     },
     "builder": {
@@ -157,6 +181,16 @@
         "setsLabel": "Setler",
         "notesLabel": "Notlar"
       }
+    },
+    "plan": {
+      "restLabel": "Dinlenme",
+      "secondsSuffix": "sn",
+      "notesPlaceholder": "Tempo, tutuş, form notu…",
+      "setLabel": "Set",
+      "repsLabel": "Tekrar",
+      "rirLabel": "RIR",
+      "addSetButton": "Set Ekle",
+      "targetLabel": "Hedef"
     }
   },
   "nutrition": {
@@ -180,6 +214,41 @@
     "remaining": "{{value}} kcal kaldı",
     "overBy": "{{value}} kcal hedefi aştın",
     "weeklyLabel": "Bu Hafta"
+  },
+  "social": {
+    "title": "Sosyal",
+    "searchPlaceholder": "Kullanıcı adı veya isim ara…",
+    "searchPrompt": "Kişi bul",
+    "searchPromptDescription": "Aramak için en az 2 karakter yaz.",
+    "noResults": "Kullanıcı bulunamadı.",
+    "blockButton": "Engelle",
+    "unblockButton": "Engeli Kaldır",
+    "blockConfirmTitle": "Bu kullanıcıyı engelle?",
+    "blockConfirmMessage": "{{name}} seni bulamayacak, sen de onu göremeyeceksin.",
+    "blockedTitle": "Bu kullanıcıyı engelledin",
+    "blockedDescription": "Engel kalkana kadar aktivitesini göremezsin.",
+    "noActivity": "Gösterilecek aktivite yok.",
+    "notFound": "Kullanıcı bulunamadı",
+    "notFoundDescription": "Bu hesap kaldırılmış olabilir ya da görüntüleme iznin yok.",
+    "followButton": "Takip Et",
+    "unfollowButton": "Takip Ediliyor",
+    "followsYou": "Seni takip ediyor",
+    "followersLabel": "Takipçi",
+    "followingLabel": "Takip",
+    "noFollowers": "Henüz takipçi yok.",
+    "noFollowing": "Henüz kimseyi takip etmiyor.",
+    "yourFollowing": "Takip ettiklerin",
+    "sendWorkoutButton": "Antrenman Gönder",
+    "sendFailed": "Gönderilemedi. Tekrar dene.",
+    "inboxLabel": "Sana gönderilenler",
+    "acceptButton": "Kabul Et",
+    "declineButton": "Reddet",
+    "acceptFailed": "Kaydedilemedi. Tekrar dene.",
+    "sharedLimitMessage": "En fazla {{max}} gelen antrenman tutabilirsin. Önce birini sil.",
+    "exerciseCount": "{{count}} hareket",
+    "sharedFrom": "@{{username}} gönderdi",
+    "composeTitle": "Yeni Antrenman",
+    "composeEmpty": "En az bir hareket ekle."
   },
   "water": {
     "eyebrow": "Su",
@@ -221,6 +290,7 @@
     "eyebrow": "Profil",
     "title": "Profilin",
     "fields": {
+      "username": "Kullanıcı Adı",
       "name": "İsim",
       "age": "Yaş",
       "gender": "Cinsiyet",
@@ -233,7 +303,9 @@
     },
     "edit": {
       "fieldTitle": "Düzenle: {{field}}"
-    }
+    },
+    "shareActivity": "Aktivitemi göster",
+    "shareActivityDescription": "Diğer kullanıcılar profilinde antrenman ısı haritanı görebilsin."
   },
   "reminders": {
     "profileRow": "Hatırlatıcılar",

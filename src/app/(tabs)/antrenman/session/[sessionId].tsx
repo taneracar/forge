@@ -22,6 +22,7 @@ import {
   compareSetPerformance,
   isPersonalRecord,
 } from "@/lib/workout-calculations";
+import { getPlanByExercise, rangeLabel, type ExercisePlan } from "@/lib/workout-plan";
 
 interface LocalSet {
   id: string;
@@ -69,6 +70,7 @@ export default function ActiveSessionScreen() {
     {},
   );
   const [notes, setNotes] = useState("");
+  const [planByExercise, setPlanByExercise] = useState<Map<string, ExercisePlan>>(new Map());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -123,19 +125,67 @@ export default function ActiveSessionScreen() {
       }
       setPriorBestByExercise(priorBest);
 
+      const plans = session.workout_id
+        ? await getPlanByExercise(session.workout_id).catch(
+            () => new Map<string, ExercisePlan>(),
+          )
+        : new Map<string, ExercisePlan>();
+      setPlanByExercise(plans);
+
+      const loggedByExercise = new Map<string, LocalSet[]>();
+      for (const s of setsData ?? []) {
+        const list = loggedByExercise.get(s.exercise_id) ?? [];
+        list.push({
+          id: s.id,
+          set_number: s.set_number,
+          weight: s.weight,
+          reps: s.reps,
+          completed: s.completed,
+        });
+        loggedByExercise.set(s.exercise_id, list);
+      }
+
+      // The first time a session opens, materialise the prescribed sets so the
+      // plan is there to fill in rather than an empty list to rebuild by hand.
+      // Only for exercises with nothing logged yet, so reopening never
+      // duplicates rows.
+      const seedRows = exerciseRows.flatMap((row) => {
+        if ((loggedByExercise.get(row.exercise_id) ?? []).length > 0) return [];
+        return (plans.get(row.exercise_id)?.sets ?? []).map((_, i) => ({
+          session_id: sessionId,
+          exercise_id: row.exercise_id,
+          set_number: i + 1,
+          weight: null,
+          reps: null,
+          completed: false,
+        }));
+      });
+
+      if (seedRows.length > 0) {
+        const { data: seeded } = await supabase
+          .from("workout_sets")
+          .insert(seedRows)
+          .select("id, exercise_id, set_number, weight, reps, completed");
+        for (const s of seeded ?? []) {
+          const list = loggedByExercise.get(s.exercise_id) ?? [];
+          list.push({
+            id: s.id,
+            set_number: s.set_number,
+            weight: s.weight,
+            reps: s.reps,
+            completed: s.completed,
+          });
+          loggedByExercise.set(s.exercise_id, list);
+        }
+      }
+
       setGroups(
         exerciseRows.map((row) => ({
           exerciseId: row.exercise_id,
           name: row.exercises?.name ?? "",
-          sets: (setsData ?? [])
-            .filter((s) => s.exercise_id === row.exercise_id)
-            .map((s) => ({
-              id: s.id,
-              set_number: s.set_number,
-              weight: s.weight,
-              reps: s.reps,
-              completed: s.completed,
-            })),
+          sets: (loggedByExercise.get(row.exercise_id) ?? []).sort(
+            (a, b) => a.set_number - b.set_number,
+          ),
         })),
       );
       setLoading(false);
@@ -329,9 +379,34 @@ export default function ActiveSessionScreen() {
           >
             <Card className="mb-3">
               <View className="flex-row items-center justify-between">
-                <Text className="flex-1 font-body-semibold text-base text-foreground">
-                  {group.name}
-                </Text>
+                <View className="flex-1">
+                  <Text className="font-body-semibold text-base text-foreground">
+                    {group.name}
+                  </Text>
+                  {(() => {
+                    const plan = planByExercise.get(group.exerciseId);
+                    if (!plan) return null;
+                    return (
+                      <View className="mt-1 flex-row items-center gap-3">
+                        <View className="flex-row items-center gap-1">
+                          <Timer color={Colors.muted} size={12} />
+                          <Text className="font-mono text-xs text-muted-foreground">
+                            {plan.restSeconds}
+                            {t("panel:workout.plan.secondsSuffix")}
+                          </Text>
+                        </View>
+                        {plan.notes && (
+                          <Text
+                            numberOfLines={1}
+                            className="flex-1 font-body text-xs text-muted-foreground"
+                          >
+                            {plan.notes}
+                          </Text>
+                        )}
+                      </View>
+                    );
+                  })()}
+                </View>
                 <Text className="font-mono text-xs text-muted-foreground">
                   {group.sets.filter((s) => s.completed).length}/{group.sets.length}
                 </Text>
@@ -364,6 +439,17 @@ export default function ActiveSessionScreen() {
                     reps={set.reps}
                     completed={set.completed}
                     isPR={prSetIds.has(set.id)}
+                    // Reserved for the whole exercise, so a set added beyond
+                    // the plan still lines up with the prescribed ones.
+                    reserveTarget={planByExercise.has(group.exerciseId)}
+                    target={(() => {
+                      // Prescriptions are indexed from the plan, so a set the
+                      // user added beyond the plan simply has no target.
+                      const planned = planByExercise.get(group.exerciseId)?.sets[
+                        set.set_number - 1
+                      ];
+                      return planned ? rangeLabel(planned) : undefined;
+                    })()}
                     onChangeWeight={(value) =>
                       handleChangeWeight(group.exerciseId, set.id, value)
                     }
