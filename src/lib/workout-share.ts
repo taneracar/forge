@@ -165,7 +165,8 @@ export async function declineShare(shareId: string): Promise<void> {
   const { error } = await supabase
     .from("workout_shares")
     .update({ status: "declined", responded_at: new Date().toISOString() })
-    .eq("id", shareId);
+    .eq("id", shareId)
+    .eq("status", "pending");
   if (error) throw error;
 }
 
@@ -176,6 +177,20 @@ export async function declineShare(shareId: string): Promise<void> {
  */
 export async function acceptShare(share: IncomingShare): Promise<void> {
   const userId = await currentUserId();
+
+  // Claim the share before writing anything. PostgREST has no transaction to
+  // wrap the insert and the status flip together, so the status flip goes
+  // first and is guarded on `pending` — a second accept (double tap, two
+  // devices, a retry after a slow response) matches no row and stops here
+  // instead of copying the program twice.
+  const { data: claimed, error: claimError } = await supabase
+    .from("workout_shares")
+    .update({ status: "accepted", responded_at: new Date().toISOString() })
+    .eq("id", share.id)
+    .eq("status", "pending")
+    .select("id");
+  if (claimError) throw claimError;
+  if (!claimed || claimed.length === 0) return;
 
   const { data: workout, error: workoutError } = await supabase
     .from("workouts")
