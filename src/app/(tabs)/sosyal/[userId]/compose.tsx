@@ -43,7 +43,11 @@ export default function ComposeForUserScreen() {
       await sendComposedWorkout(userId, name, items);
       haptics.success();
       router.back();
-    } catch {
+    } catch (sendError) {
+      // The user gets a friendly line, but the real Postgres error (RLS
+      // rejection, constraint violation) needs somewhere to surface or a
+      // failure like this is undebuggable from the outside.
+      console.error("sendComposedWorkout failed:", sendError);
       haptics.error();
       setError(t("panel:social.sendFailed"));
     } finally {
