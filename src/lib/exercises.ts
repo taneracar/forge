@@ -18,10 +18,31 @@ export interface Exercise {
   created_at: string;
 }
 
+/** PostgREST caps an unbounded select at 1000 rows regardless of what you ask for. */
+const PAGE_SIZE = 1000;
+
+/**
+ * The whole catalogue, fetched in pages. The picker filters client-side, so a
+ * truncated fetch doesn't just shorten the list — it makes the missing
+ * exercises unsearchable too. The catalogue is already past 1000 rows, so the
+ * single unbounded select this replaces was silently hiding the tail of the
+ * alphabet.
+ */
 export async function listExercises(): Promise<Exercise[]> {
-  const { data, error } = await supabase.from("exercises").select("*").order("name");
-  if (error) throw error;
-  return data ?? [];
+  const all: Exercise[] = [];
+
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("exercises")
+      .select("*")
+      .order("name")
+      .range(from, from + PAGE_SIZE - 1);
+    if (error) throw error;
+
+    const page = data ?? [];
+    all.push(...page);
+    if (page.length < PAGE_SIZE) return all;
+  }
 }
 
 export interface ExerciseSessionLog {

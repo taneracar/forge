@@ -1,56 +1,111 @@
-# Welcome to your Expo app 👋
+# Forge
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A strength-training app: write programs, log your sets, track nutrition, and send
+workouts to the people you train with.
 
-## Get started
+Expo (React Native) + Supabase. Turkish and English throughout.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## What it does
 
-2. Start the app
+**Workouts.** Build a program from a 1,380-exercise catalogue, then prescribe it
+properly — per-set rep ranges, RIR, rest, and free-text form notes. A pyramid
+(12 / 10 / 8) is as expressible as three straight sets. Reorder by long-press,
+delete by swipe.
 
-   ```bash
-   npx expo start
-   ```
+**Sessions.** Starting a workout materialises the prescribed sets, so you fill in
+weights instead of rebuilding the plan. Each set shows its target underneath the
+number you actually hit, and personal records are flagged as you log them.
 
-In the output, you'll find options to open the app in a
+**Nutrition.** Calorie and macro targets are *derived*, not typed in —
+Mifflin-St Jeor from your profile, adjusted for activity level and goal, so the
+target follows your weight instead of going stale. Meals group into breakfast /
+lunch / dinner / snack, with a week strip to move between days.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+**Water, weight, reminders.** Weight uses a 7-day moving average rather than the
+raw last entry, with a goal-aware trend. Reminders are local notifications — no
+server involved.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+**Social.** Unique usernames, user search, follows, blocking. Once two people
+follow each other, either can compose a program *for* the other and send it; the
+recipient accepts and it lands in their own account with the prescription intact,
+credited to whoever wrote it.
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## Stack
+
+| | |
+|---|---|
+| Runtime | Expo SDK 57 · React Native 0.86 · React 19 |
+| Navigation | expo-router (typed routes) |
+| Styling | NativeWind 4 (Tailwind) |
+| Backend | Supabase — Postgres, Auth, Row Level Security |
+| Forms | react-hook-form + zod |
+| Motion | Reanimated 4 · gesture-handler 3 |
+| i18n | react-i18next (`tr` / `en`) |
+
+---
+
+## Running it
+
+> **Expo Go will not work.** Reanimated 4 needs the New Architecture and a custom
+> development build; Expo Go ships a fixed set of native modules and crashes on
+> launch. `npx expo run:ios` below produces the build you need.
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Create `.env.local`:
 
-### Other setup steps
+```
+EXPO_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon key>
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Set up the database by running `supabase/schema.sql` from the companion repo —
+[taneracar/FeelFit](https://github.com/taneracar/FeelFit) — in the Supabase SQL
+editor. It's ordered by milestone and safe to run top to bottom on a fresh
+project.
 
-## Learn more
+Then build and launch the development client:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npx expo run:ios
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+After that `npx expo start` is enough. You only need to rebuild when a native
+dependency or `app.json` changes.
 
-## Join the community
+```bash
+npm run lint
+```
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Layout
+
+```
+src/
+  app/            expo-router routes — (auth), (tabs), 27 screens
+  components/     ui/ primitives + feature components
+  lib/            data access and domain logic, one module per area
+  locales/        tr/ and en/ translations
+  constants/      design tokens mirrored from tailwind.config.js
+```
+
+Two conventions worth knowing before adding code:
+
+**Colour and spacing live in `tailwind.config.js`.** `src/constants/colors.ts`
+mirrors them for props that can't take a `className` — icon `color`, SVG fills,
+`placeholderTextColor`. Change both or they drift.
+
+**`profiles` is never readable by other users.** Row Level Security is row-level,
+not column-level, and that table holds body metrics. Everything social reads
+through `security definer` functions that project only public columns. Don't
+relax the `profiles` select policy to make a feature easier — add a function
+instead.
+
+See [BACKLOG.md](BACKLOG.md) for what's next, and what was deliberately skipped.

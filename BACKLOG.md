@@ -22,16 +22,27 @@ Saf fonksiyon, veritabanı gerektirmiyor, mantığı da kurnaz (hepsi aynıysa `
 değilse `12 · 10 · 8`). Test yazmaya başlamak için en kolay yer.
 
 - `src/lib/workout-plan.ts` → `describeSets`, `rangeLabel`
-- Önce test koşucusu kurulmalı (madde 6)
+- Önce test koşucusu kurulmalı (madde 7)
 
-### 3. README'yi gerçek hâle getir
-Şu an 56 satır ve büyük ihtimalle Expo şablonu. Repo public ve iş arıyorsun —
-depoyu açan ilk şeyi görüyor.
+### 3. README'yi gerçek hâle getir — ✅ YAPILDI
+Expo şablonu ne yaptığını anlatan bir README ile değiştirildi: özellikler, yığın,
+kurulum (Expo Go'nun neden çalışmadığı dahil), dizin yapısı ve koda dokunmadan
+önce bilinmesi gereken iki kural.
 
-- Ne olduğu, ekran görüntüleri, teknoloji yığını, kurulum (dev client gerektiğini
-  yaz — Expo Go çalışmıyor), Supabase şema kurulumu
+Kalan: **ekran görüntüsü yok.** Birkaç tane eklemek README'yi belirgin şekilde
+güçlendirir — simülatörden 3-4 kare yeter.
 
-### 4. Bildirim izni reddedilince ne oluyor
+### 4. Sınırsız sorguları gözden geçir
+PostgREST, `limit`/`range` verilmeyen bir sorguyu **1000 satırda** sessizce kesiyor.
+Egzersiz kataloğu bu yüzden 1380 satırın sadece 1000'ini getiriyordu (düzeltildi,
+`listExercises` artık sayfalıyor). Şu an kırık başka bir yer yok ama zamanla
+büyüyecek olanlar var — kullanıcı 1000'i geçtiğinde sessizce eksik veri gösterirler:
+
+- `getActivityHeatmap` — tüm tamamlanmış antrenmanlar (≈5 yıl sonra)
+- `getExerciseHistory` — tek hareketin tüm setleri
+- `weight.ts` geçmiş sorguları — günde bir kayıtla ≈3 yıl
+
+### 5. Bildirim izni reddedilince ne oluyor
 `src/lib/notifications.ts` izin reddedilirse sessizce başarısız oluyor.
 Hatırlatıcı ekranında kullanıcıya "sistem ayarlarından aç" bağlantısı göster.
 
@@ -39,7 +50,7 @@ Hatırlatıcı ekranında kullanıcıya "sistem ayarlarından aç" bağlantısı
 
 ## ~30–45 dakika
 
-### 5. Dinlenme geri sayımı
+### 6. Dinlenme geri sayımı
 Şu an dinlenme süresi sadece **yazıyor** (`120sn`), sayaç değil. Bir seti
 tamamlayınca otomatik başlayan geri sayım, bitince titreşim.
 
@@ -48,7 +59,7 @@ tamamlayınca otomatik başlayan geri sayım, bitince titreşim.
 - Süre `planByExercise.get(exerciseId).restSeconds`'ta hazır duruyor
 - Ekranın üstündeki mevcut süre kartının yanına ya da altına koy
 
-### 6. Test koşucusu kur
+### 7. Test koşucusu kur
 Projede hiç test yok. `jest-expo` + `@testing-library/react-native`.
 Sonra saf modüllerden başla:
 
@@ -58,7 +69,7 @@ Sonra saf modüllerden başla:
   yanlış kalori hedefi üretir
 - `src/lib/workout-plan.ts` (`describeSets`)
 
-### 7. Hesap silme
+### 8. Hesap silme
 App Store'a çıkacaksan **zorunlu** — hesap açtıran uygulamalarda Apple şart koşuyor.
 
 - Profil ekranına "Hesabımı sil" satırı, çift onaylı
@@ -66,11 +77,11 @@ App Store'a çıkacaksan **zorunlu** — hesap açtıran uygulamalarda Apple şa
   (istemciden `auth.admin.deleteUser` çağrılamaz)
 - Tüm tablolarda `on delete cascade` zaten var, veri kendiliğinden temizlenir
 
-### 8. Hata takibi
+### 9. Hata takibi
 Şu an bir şey patlarsa haberin olmuyor. `sentry-expo` ya da benzeri.
 Kullanıcı sayısı azken kurmak, sonra kurmaktan çok daha kolay.
 
-### 9. Kullanılmayan i18n anahtarlarını temizle
+### 10. Kullanılmayan i18n anahtarlarını temizle
 Bu arc boyunca çok anahtar eklendi/çıkarıldı. `en` ve `tr` dosyalarında
 kod tarafından hiç çağrılmayanları ve iki dilde eşleşmeyenleri bulan
 küçük bir script yaz, sonucu temizle.
@@ -79,7 +90,7 @@ küçük bir script yaz, sonucu temizle.
 
 ## Yarım gün+
 
-### 10. Egzersiz görselleri
+### 11. Egzersiz görselleri
 1.380 hareketin hiçbirinde görsel yok. Yeni başlayan biri "Archer Push Up"
 yazısından hareketi çıkaramaz — PT'nin yazdığı programın değerini doğrudan kesiyor.
 
@@ -90,11 +101,11 @@ kullanılmıyor**. Sıra:
 3. `ExerciseImagePlaceholder`'ı gerçek görselle değiştir, görsel yoksa
    placeholder'a düş
 
-### 11. Hareket bazlı ilerleme grafiği
+### 12. Hareket bazlı ilerleme grafiği
 Veri zaten var (`workout_sets` + `getExerciseHistory`), `LineChart` bileşeni de
 hazır. Hareket detay ekranına "zamanla ağırlık" grafiği.
 
-### 12. Sosyal yığının uçtan uca testi
+### 13. Sosyal yığının uçtan uca testi
 Milestone 10–15 (kullanıcı adı, arama, engelleme, takip, program gönderme)
 **hiç çalıştırılmadı**. İki hesapla: ara → takip → program yaz → gönder →
 kabul et → reçetesiyle geldi mi.
