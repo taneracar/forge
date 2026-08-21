@@ -22,6 +22,7 @@ export const Colors = {
   warningForeground: "#14110D",
   chart: "#FF5A1F",
   chartAlt: "#4EA8DE",
+  chartTertiary: "#B68B16",
   border: "rgba(247, 243, 236, 0.08)",
   borderStrong: "rgba(247, 243, 236, 0.16)",
 } as const;
