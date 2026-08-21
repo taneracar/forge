@@ -17,12 +17,8 @@ ama arayüzde karşılığı yok. Yanlış kişiye program gönderirsen geri ala
 - Gönderdiklerini listeleyecek bir yer lazım — en basiti Sosyal sekmesinde
   "Gönderdiklerin" bölümü (`list_incoming_shares`'in aynadaki hâli için yeni bir RPC gerekir)
 
-### 2. `describeSets` için testler
-Saf fonksiyon, veritabanı gerektirmiyor, mantığı da kurnaz (hepsi aynıysa `3 × 8–12`,
-değilse `12 · 10 · 8`). Test yazmaya başlamak için en kolay yer.
-
-- `src/lib/workout-plan.ts` → `describeSets`, `rangeLabel`
-- Önce test koşucusu kurulmalı (madde 7)
+### 2. `describeSets` için testler — ✅ YAPILDI
+`describeSets` ve `rangeLabel` için 13 test yazıldı (madde 7 ile birlikte).
 
 ### 3. README'yi gerçek hâle getir — ✅ YAPILDI
 Expo şablonu ne yaptığını anlatan bir README ile değiştirildi: özellikler, yığın,
@@ -59,15 +55,17 @@ tamamlayınca otomatik başlayan geri sayım, bitince titreşim.
 - Süre `planByExercise.get(exerciseId).restSeconds`'ta hazır duruyor
 - Ekranın üstündeki mevcut süre kartının yanına ya da altına koy
 
-### 7. Test koşucusu kur
-Projede hiç test yok. `jest-expo` + `@testing-library/react-native`.
-Sonra saf modüllerden başla:
+### 7. Test koşucusu kur — ✅ YAPILDI
+`jest-expo` kuruldu, `npm test` çalışıyor. 3 saf modülde **39 test**:
+`workout-calculations` (hacim + PR kuralı), `nutrition-targets` (Mifflin-St Jeor),
+`workout-plan` (`describeSets`). `jest.setup.js` AsyncStorage'ı mock'luyor —
+`lib/supabase`'i dolaylı import eden her test onsuz import anında patlıyor.
 
-- `src/lib/workout-calculations.ts` (hacim, PR karşılaştırma) — en değerlisi,
-  PR rozetleri buna bağlı
-- `src/lib/nutrition-targets.ts` (Mifflin-St Jeor) — formül hatası sessizce
-  yanlış kalori hedefi üretir
-- `src/lib/workout-plan.ts` (`describeSets`)
+Sıradaki adaylar (hepsi saf, kolay):
+- `workout-schema.ts` / `profile-schema.ts` — zod doğrulama kuralları
+- `nutrition.ts` → `totalsFor`, `mondayOfWeek`
+- `workouts.ts` → `buildActivityHeatmap` (seri/hafta hesabı, kurnaz)
+- Bileşen testleri için `@testing-library/react-native` eklenmeli
 
 ### 8. Hesap silme
 App Store'a çıkacaksan **zorunlu** — hesap açtıran uygulamalarda Apple şart koşuyor.
