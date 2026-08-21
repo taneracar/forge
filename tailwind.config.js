@@ -43,10 +43,14 @@ module.exports = {
           DEFAULT: "#FFB627",
           foreground: "#14110D",
         },
-        // Second data-viz series, cool enough to read against the orange.
+        // Categorical data-viz series, assigned in this fixed order. Checked
+        // for colorblind separation against the dark surface (worst adjacent
+        // pair ΔE 23.6 deuteranopia), which is why the third slot is a deep
+        // gold rather than the violet a blue→purple ramp would suggest.
         chart: {
           DEFAULT: "#FF5A1F",
           alt: "#4EA8DE",
+          tertiary: "#B68B16",
         },
         border: {
           DEFAULT: "rgba(247, 243, 236, 0.08)",

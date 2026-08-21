@@ -213,7 +213,32 @@
     "todayTitle": "Bugün",
     "remaining": "{{value}} kcal kaldı",
     "overBy": "{{value}} kcal hedefi aştın",
-    "weeklyLabel": "Bu Hafta"
+    "weeklyLabel": "Bu Hafta",
+    "tdee": {
+      "title": "Kalori Hedefin",
+      "bmrLabel": "Bazal metabolizma (BMR)",
+      "maintenanceLabel": "Koruma (TDEE)",
+      "targetLabel": "Günlük hedef",
+      "activityLabel": "Aktivite seviyesi",
+      "goalLabel": "Hedef",
+      "macrosLabel": "Makro dağılımı",
+      "missingProfile": "Profiline yaş, boy ve kilonu ekle; o zaman bu sayı genel bir tahmin değil, sana ait olur.",
+      "footnote": "Mifflin-St Jeor. Başlangıç için bir tahmin — birkaç hafta tartının ne dediğine bakıp ayarla.",
+      "subtitle": "Bu sayı nereden geliyor ve nasıl değiştirilir.",
+      "breakdownLabel": "Nasıl hesaplandı",
+      "measurementsLabel": "Ölçülerin",
+      "recalculate": "Yeniden hesapla",
+      "recalculateTitle": "Hedefini yeniden hesapla",
+      "recalculateHint": "Sadece değişeni yaz — boş bıraktığın alan olduğu gibi kalır.",
+      "newTarget": "Yeni hedef",
+      "invalidMeasurement": "Geçerli bir sayı gir ya da alanı boş bırak.",
+      "addMeasurements": "Ölçülerimi ekle",
+      "adjustLabel": "İnce ayar",
+      "adjustRowLabel": "Senin ayarın",
+      "adjustReset": "Formüle geri dön",
+      "adjustHint": "Formül bir başlangıç noktası. Birkaç hafta sonra tartı başka şey söylüyorsa 50 kcal'lik adımlarla oynat.",
+      "macrosRule": "Protein kilo başına {{perKg}} g, yağ kalorinin %25'i, kalan kalori karbonhidrat."
+    }
   },
   "social": {
     "title": "Sosyal",

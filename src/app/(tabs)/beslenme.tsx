@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Screen } from "@/components/ui/screen";
@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, type BarDatum } from "@/components/ui/bar-chart";
 import { AddMealModal } from "@/components/nutrition/add-meal-modal";
 import { CalorieSummary } from "@/components/nutrition/calorie-summary";
+import { TdeeModal } from "@/components/nutrition/tdee-modal";
 import { DayStrip } from "@/components/nutrition/day-strip";
 import { MealSection } from "@/components/nutrition/meal-section";
 import { haptics } from "@/lib/haptics";
@@ -42,6 +43,7 @@ export default function BeslenmeScreen() {
   const [targets, setTargets] = useState<NutritionTargets | null>(null);
   const [loading, setLoading] = useState(true);
   const [addingTo, setAddingTo] = useState<MealType | null>(null);
+  const [tdeeVisible, setTdeeVisible] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -131,7 +133,16 @@ export default function BeslenmeScreen() {
       ) : (
         <>
           <Animated.View entering={FadeInDown.duration(280)} className="mt-5">
-            <CalorieSummary totals={totals} targets={targets} />
+            {/* The headline number is derived, not typed in — tapping it opens
+                the working so it isn't a magic figure. */}
+            <Pressable
+              onPress={() => {
+                haptics.select();
+                setTdeeVisible(true);
+              }}
+            >
+              <CalorieSummary totals={totals} targets={targets} />
+            </Pressable>
           </Animated.View>
 
           <View className="mt-3 gap-3">
@@ -157,6 +168,15 @@ export default function BeslenmeScreen() {
           </Card>
         </>
       )}
+
+      <TdeeModal
+        visible={tdeeVisible}
+        userId={userId}
+        onClose={() => setTdeeVisible(false)}
+        onProfileChanged={() => {
+          if (userId) getNutritionTargets(userId).then(setTargets);
+        }}
+      />
 
       <AddMealModal
         visible={addingTo !== null}

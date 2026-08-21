@@ -213,7 +213,32 @@
     "todayTitle": "Today",
     "remaining": "{{value}} kcal left",
     "overBy": "{{value}} kcal over target",
-    "weeklyLabel": "This Week"
+    "weeklyLabel": "This Week",
+    "tdee": {
+      "title": "Your Calorie Target",
+      "bmrLabel": "Resting metabolism (BMR)",
+      "maintenanceLabel": "Maintenance (TDEE)",
+      "targetLabel": "Daily target",
+      "activityLabel": "Activity level",
+      "goalLabel": "Goal",
+      "macrosLabel": "Macro split",
+      "missingProfile": "Add your age, height and weight to your profile and this becomes your own number instead of a generic one.",
+      "footnote": "Mifflin-St Jeor. An estimate to start from — adjust it against what the scale actually does over a few weeks.",
+      "subtitle": "Where this number comes from, and how to move it.",
+      "breakdownLabel": "How it's worked out",
+      "measurementsLabel": "Your measurements",
+      "recalculate": "Recalculate",
+      "recalculateTitle": "Recalculate your target",
+      "recalculateHint": "Change what's different — anything you leave blank keeps its current value.",
+      "newTarget": "New target",
+      "invalidMeasurement": "Enter a valid number, or leave the field blank.",
+      "addMeasurements": "Add my measurements",
+      "adjustLabel": "Fine-tune",
+      "adjustRowLabel": "Your adjustment",
+      "adjustReset": "Reset to the formula",
+      "adjustHint": "The formula is a starting point. If the scale says otherwise after a few weeks, move it in 50 kcal steps.",
+      "macrosRule": "Protein at {{perKg}} g per kg bodyweight, fat at 25% of calories, carbs take whatever is left."
+    }
   },
   "social": {
     "title": "Social",

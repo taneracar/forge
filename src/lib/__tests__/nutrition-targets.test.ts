@@ -1,4 +1,4 @@
-import { targetsFor } from "@/lib/nutrition-targets";
+import { explainTargets, targetsFor } from "@/lib/nutrition-targets";
 
 /**
  * Expected values are worked out from the Mifflin-St Jeor definition by hand,
@@ -85,7 +85,9 @@ describe("targetsFor", () => {
   });
 
   it("falls back rather than deriving a target from missing measurements", () => {
-    const fallback = { calories: 2200, proteinG: 140, carbsG: 240, fatG: 61 };
+    // Macros follow the same split rule as a derived target: 2200 kcal, 140 g
+    // protein, fat at 25% (61 g), carbs take what's left.
+    const fallback = { calories: 2200, proteinG: 140, carbsG: 273, fatG: 61 };
     expect(targetsFor({ ...complete, age: null })).toEqual(fallback);
     expect(targetsFor({ ...complete, height_cm: null })).toEqual(fallback);
     expect(targetsFor({ ...complete, weight_kg: null })).toEqual(fallback);
@@ -113,5 +115,88 @@ describe("targetsFor", () => {
         expect(t.carbsG).toBeGreaterThanOrEqual(0);
       }
     }
+  });
+});
+
+describe("explainTargets", () => {
+  it("shows the working behind the target", () => {
+    const b = explainTargets(complete);
+    // 10×75 + 6.25×178 − 5×26 + 5 (male) = 1737.5
+    expect(b.bmr).toBe(1738);
+    expect(b.activityFactor).toBe(1.55);
+    expect(b.goalFactor).toBe(1.15);
+    expect(b.proteinPerKg).toBe(1.8);
+    expect(b.isFallback).toBe(false);
+  });
+
+  it("reports maintenance separately from the goal-adjusted target", () => {
+    const b = explainTargets(complete);
+    expect(b.maintenance).toBe(2690); // BMR × 1.55, before the bulk surplus
+    expect(b.calories).toBe(3100);
+    expect(b.calories).toBeGreaterThan(b.maintenance!);
+  });
+
+  it("puts maintenance above the target on a cut", () => {
+    const b = explainTargets({ ...complete, goal: "cut" });
+    expect(b.maintenance).toBe(2690);
+    expect(b.calories).toBeLessThan(b.maintenance!);
+  });
+
+  it("leaves maintenance equal to the target when maintaining", () => {
+    const b = explainTargets({ ...complete, goal: "maintain" });
+    expect(b.calories).toBe(b.maintenance);
+  });
+
+  it("flags the fallback and reports no BMR when measurements are missing", () => {
+    const b = explainTargets({ ...complete, weight_kg: null });
+    expect(b.isFallback).toBe(true);
+    expect(b.bmr).toBeNull();
+    expect(b.maintenance).toBeNull();
+    expect(b.calories).toBe(2200);
+  });
+
+  it("adds the manual nudge on top of what the formula produced", () => {
+    const b = explainTargets({ ...complete, calorie_adjustment: 150 });
+    expect(b.baseCalories).toBe(3100);
+    expect(b.adjustment).toBe(150);
+    expect(b.calories).toBe(3250);
+    // The extra calories land in carbs — protein is bodyweight-driven.
+    expect(b.proteinG).toBe(135);
+    expect(b.carbsG).toBeGreaterThan(explainTargets(complete).carbsG);
+  });
+
+  it("clamps a nudge beyond the range the column allows", () => {
+    expect(explainTargets({ ...complete, calorie_adjustment: 5000 }).adjustment).toBe(1000);
+    expect(explainTargets({ ...complete, calorie_adjustment: -5000 }).adjustment).toBe(-1000);
+  });
+
+  it("never lets the nudge drive the target below the macro floor", () => {
+    const b = explainTargets({
+      age: 30,
+      gender: "female",
+      height_cm: 155,
+      weight_kg: 50,
+      goal: "cut",
+      activity_level: "hareketsiz",
+      calorie_adjustment: -1000,
+    });
+    expect(b.calories).toBe(1000);
+    expect(b.carbsG).toBeGreaterThanOrEqual(0);
+  });
+
+  it("nudges the fallback target too, so the control still does something", () => {
+    const b = explainTargets({ ...complete, weight_kg: null, calorie_adjustment: 200 });
+    expect(b.isFallback).toBe(true);
+    expect(b.calories).toBe(2400);
+  });
+
+  it("agrees with targetsFor on the four numbers", () => {
+    const b = explainTargets(complete);
+    expect(targetsFor(complete)).toEqual({
+      calories: b.calories,
+      proteinG: b.proteinG,
+      carbsG: b.carbsG,
+      fatG: b.fatG,
+    });
   });
 });
