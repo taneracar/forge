@@ -273,7 +273,10 @@
     "exerciseCount": "{{count}} hareket",
     "sharedFrom": "@{{username}} gönderdi",
     "composeTitle": "Yeni Antrenman",
-    "composeEmpty": "En az bir hareket ekle."
+    "composeEmpty": "En az bir hareket ekle.",
+    "viewButton": "Gör",
+    "previewFailed": "Antrenman yüklenemedi. Tekrar dene.",
+    "unknownExercise": "Hareket bulunamadı"
   },
   "water": {
     "eyebrow": "Su",
