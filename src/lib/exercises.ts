@@ -45,6 +45,25 @@ export async function listExercises(): Promise<Exercise[]> {
   }
 }
 
+/**
+ * Names for a known handful of ids. A share payload stores ids, not names, so
+ * showing one needs a lookup — but only for the dozen exercises in it, which is
+ * why this doesn't reach for the whole paged catalogue.
+ */
+export async function getExerciseNames(ids: string[]): Promise<Map<string, string>> {
+  const unique = [...new Set(ids)];
+  if (unique.length === 0) return new Map();
+
+  const { data, error } = await supabase
+    .from("exercises")
+    .select("id, name")
+    .in("id", unique)
+    .returns<{ id: string; name: string }[]>();
+  if (error) throw error;
+
+  return new Map((data ?? []).map((row) => [row.id, row.name]));
+}
+
 export interface ExerciseSessionLog {
   sessionId: string;
   completedAt: string;

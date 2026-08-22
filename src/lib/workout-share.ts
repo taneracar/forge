@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
-import type { PlannedExercise } from "@/lib/workout-plan";
+import { getExerciseNames } from "@/lib/exercises";
+import type { PlannedExercise, PlannedSet } from "@/lib/workout-plan";
 
 /**
  * The frozen copy of a workout that travels with a share. Deliberately a
@@ -159,6 +160,39 @@ export async function listIncomingShares(): Promise<IncomingShare[]> {
     payload: row.payload,
     createdAt: row.created_at,
   }));
+}
+
+/** A share's exercise, resolved for display: the payload's ids swapped for names. */
+export interface SharePreviewExercise {
+  exerciseId: string;
+  name: string;
+  restSeconds: number;
+  notes: string | null;
+  sets: PlannedSet[];
+}
+
+/**
+ * The snapshot rendered as something readable, so you can judge a workout
+ * before accepting it. An exercise the catalogue no longer has still gets a
+ * row — dropping it silently would understate what you're about to accept.
+ */
+export async function loadSharePreview(
+  payload: SharePayload,
+  unknownLabel: string,
+): Promise<SharePreviewExercise[]> {
+  const names = await getExerciseNames(payload.exercises.map((e) => e.exercise_id));
+
+  return [...payload.exercises]
+    .sort((a, b) => a.order_index - b.order_index)
+    .map((exercise) => ({
+      exerciseId: exercise.exercise_id,
+      name: names.get(exercise.exercise_id) ?? unknownLabel,
+      restSeconds: exercise.rest_seconds,
+      notes: exercise.notes,
+      sets: [...exercise.sets]
+        .sort((a, b) => a.set_index - b.set_index)
+        .map((set) => ({ repsMin: set.reps_min, repsMax: set.reps_max, rir: set.rir })),
+    }));
 }
 
 export async function declineShare(shareId: string): Promise<void> {

@@ -11,6 +11,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserRow } from "@/components/social/user-row";
 import { ShareInbox } from "@/components/social/share-inbox";
+import { SharePreviewModal } from "@/components/social/share-preview-modal";
 import { Colors } from "@/constants/colors";
 import { haptics } from "@/lib/haptics";
 import { useAuthStore } from "@/store/auth.store";
@@ -42,6 +43,7 @@ export default function SosyalScreen() {
   const [shares, setShares] = useState<IncomingShare[]>([]);
   const [busyShareId, setBusyShareId] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
+  const [previewShare, setPreviewShare] = useState<IncomingShare | null>(null);
   const invalidateWorkoutHome = useWorkoutHomeStore((state) => state.invalidate);
 
   const trimmed = query.trim();
@@ -63,6 +65,9 @@ export default function SosyalScreen() {
 
   async function handleAcceptShare(share: IncomingShare) {
     if (!userId || busyShareId) return;
+    // Closed as soon as a decision is made — the preview has done its job, and
+    // leaving it up would hide the error banner this can still produce.
+    setPreviewShare(null);
     setBusyShareId(share.id);
     setShareError(null);
     try {
@@ -88,6 +93,7 @@ export default function SosyalScreen() {
 
   function handleDeclineShare(share: IncomingShare) {
     if (busyShareId) return;
+    setPreviewShare(null);
     setBusyShareId(share.id);
     setShares((prev) => prev.filter((s) => s.id !== share.id));
     declineShare(share.id)
@@ -170,6 +176,7 @@ export default function SosyalScreen() {
             busyId={busyShareId}
             onAccept={handleAcceptShare}
             onDecline={handleDeclineShare}
+            onPreview={setPreviewShare}
           />
           {shareError && (
             <Text className="mt-3 text-center font-body text-xs text-danger">
@@ -204,6 +211,14 @@ export default function SosyalScreen() {
           )}
         </>
       )}
+
+      <SharePreviewModal
+        share={previewShare}
+        busy={busyShareId !== null}
+        onClose={() => setPreviewShare(null)}
+        onAccept={handleAcceptShare}
+        onDecline={handleDeclineShare}
+      />
     </Screen>
   );
 }

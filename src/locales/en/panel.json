@@ -273,7 +273,10 @@
     "exerciseCount": "{{count}} exercises",
     "sharedFrom": "from @{{username}}",
     "composeTitle": "New Workout",
-    "composeEmpty": "Add at least one exercise."
+    "composeEmpty": "Add at least one exercise.",
+    "viewButton": "View",
+    "previewFailed": "Couldn't load this workout. Try again.",
+    "unknownExercise": "Exercise unavailable"
   },
   "water": {
     "eyebrow": "Water",

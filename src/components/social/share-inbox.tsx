@@ -1,7 +1,7 @@
 import { View, Text, Pressable } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
-import { Check, Inbox, X } from "lucide-react-native";
+import { Check, ChevronRight, Inbox, X } from "lucide-react-native";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Colors } from "@/constants/colors";
@@ -13,10 +13,18 @@ interface ShareInboxProps {
   busyId: string | null;
   onAccept: (share: IncomingShare) => void;
   onDecline: (share: IncomingShare) => void;
+  /** Opens the full workout, so accept/decline isn't a decision made blind. */
+  onPreview: (share: IncomingShare) => void;
 }
 
 /** Pending workouts other people sent you. Hidden entirely when empty. */
-export function ShareInbox({ shares, busyId, onAccept, onDecline }: ShareInboxProps) {
+export function ShareInbox({
+  shares,
+  busyId,
+  onAccept,
+  onDecline,
+  onPreview,
+}: ShareInboxProps) {
   const { t } = useTranslation("panel");
   if (shares.length === 0) return null;
 
@@ -34,7 +42,16 @@ export function ShareInbox({ shares, busyId, onAccept, onDecline }: ShareInboxPr
               variant="gradient"
               className={`gap-3 ${busyId === share.id ? "opacity-50" : ""}`}
             >
-              <View className="flex-row items-center gap-3">
+              {/* The whole header opens the workout — deciding on a name and
+                  an exercise count alone is deciding blind. */}
+              <Pressable
+                onPress={() => {
+                  haptics.select();
+                  onPreview(share);
+                }}
+                disabled={busyId !== null}
+                className="flex-row items-center gap-3"
+              >
                 <View className="h-9 w-9 items-center justify-center rounded-tile bg-primary/15">
                   <Inbox color={Colors.primary} size={16} />
                 </View>
@@ -52,7 +69,13 @@ export function ShareInbox({ shares, busyId, onAccept, onDecline }: ShareInboxPr
                     })}
                   </Text>
                 </View>
-              </View>
+                <View className="flex-row items-center gap-0.5">
+                  <Text className="font-body-medium text-xs text-primary">
+                    {t("social.viewButton")}
+                  </Text>
+                  <ChevronRight color={Colors.primary} size={14} />
+                </View>
+              </Pressable>
 
               <View className="flex-row gap-2">
                 <Pressable
